@@ -1,6 +1,6 @@
 <style>
 /* ==========================================================================
-   PEMILWA PNL Modern Minimalist Dashboard - Presensi Panitia KIP 2026 (GAS)
+   PEMILWA PNL Modern Minimalist Dashboard - Presensi Panitia KIP 2026
    Visual Identity: White Dominant, Red (#DC2626) & Gold (#F59E0B) Accents
    ========================================================================== */
 
@@ -9,6 +9,7 @@
   --color-surface: #FFFFFF;
   --color-surface-hover: #F1F5F9;
   
+  /* PEMILWA PNL Brand Palette */
   --pnl-red: #DC2626;
   --pnl-red-hover: #B91C1C;
   --pnl-red-light: #FEF2F2;
@@ -31,11 +32,13 @@
   --pnl-emerald-border: #A7F3D0;
 }
 
+/* Base Body Surface */
 body {
   background-color: var(--color-canvas);
   color: var(--pnl-slate);
 }
 
+/* Card Styling (Clean Minimalist with Soft Shadow) */
 .dash-card {
   background-color: var(--color-surface);
   border: 1px solid var(--pnl-border);
@@ -55,6 +58,7 @@ body {
   box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
 }
 
+/* Agenda Banner Card (High-Impact Hero Card) */
 .dash-card-agenda {
   background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
   border: 1px solid #334155;
@@ -75,6 +79,7 @@ body {
   background: linear-gradient(90deg, #DC2626 0%, #F59E0B 100%);
 }
 
+/* Form Inputs */
 .dash-input {
   background-color: #FFFFFF;
   border: 1.5px solid var(--pnl-border);
@@ -89,6 +94,7 @@ body {
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
 }
 
+/* Buttons */
 .btn-pnl-red {
   background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
   color: #FFFFFF;
@@ -142,6 +148,7 @@ body {
   color: var(--pnl-black);
 }
 
+/* Badges & Status Pills */
 .badge-pnl-red {
   background-color: var(--pnl-red-light);
   color: var(--pnl-red);
@@ -174,6 +181,7 @@ body {
   font-weight: 600;
 }
 
+/* Nav Tabs Segmented Controller */
 .pnl-nav-container {
   background-color: #F1F5F9;
   border-radius: 0.875rem;
@@ -201,6 +209,7 @@ body {
   color: var(--pnl-black);
 }
 
+/* Sidebar Dock (Quixotic Style) */
 .sidebar-dock {
   background-color: #FFFFFF;
   border: 1px solid var(--pnl-border);
@@ -230,6 +239,7 @@ body {
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
 }
 
+/* Pulsing Live Indicator */
 @keyframes pnlPulse {
   0%, 100% {
     opacity: 1;
@@ -245,6 +255,7 @@ body {
   animation: pnlPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Accessibility affordances */
 a[href],
 button,
 select,
@@ -266,6 +277,7 @@ select:disabled {
   outline-offset: 2px;
 }
 
+/* Custom crisp scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -281,6 +293,7 @@ select:disabled {
   background: #94A3B8;
 }
 
+/* Number input spin buttons reset */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -290,6 +303,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* Smooth motion with user reduction fallback */
 .transition-smooth {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -304,4 +318,5 @@ input[type="number"] {
     scroll-behavior: auto !important;
   }
 }
+
 </style>

@@ -103,11 +103,50 @@ function updateConnectionBadge() {
   }
 }
 
+function copyTextToClipboard(text, successMessage) {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('success', 'Tersalin', successMessage || 'Teks berhasil disalin ke clipboard.');
+    }).catch(() => {
+      fallbackCopyText(text, successMessage);
+    });
+  } else {
+    fallbackCopyText(text, successMessage);
+  }
+}
+
+function fallbackCopyText(text, successMessage) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast('success', 'Tersalin', successMessage || 'Teks berhasil disalin ke clipboard.');
+  } catch (err) {
+    showToast('info', 'Salin Manual', text);
+  }
+  document.body.removeChild(ta);
+}
+
 function handleUrlParameters() {
   const params = new URLSearchParams(window.location.search);
   const nimParam = params.get('nim');
   const pageParam = params.get('page');
   const hash = window.location.hash;
+
+  // Jika di index.html dan parameter adalah admin, redirect ke admin.html jika bukan Google Apps Script
+  const isGasEnvironment = (typeof google !== 'undefined' && google.script && google.script.run);
+  const currentPath = window.location.pathname;
+  if (!isGasEnvironment && (pageParam === 'admin' || hash === '#admin')) {
+    if (!currentPath.includes('admin.html')) {
+      window.location.href = 'admin.html';
+      return;
+    }
+  }
 
   if (pageParam === 'admin' || hash === '#admin') {
     switchView('admin');
@@ -876,7 +915,7 @@ function renderDashboard(data) {
     progressElem.style.width = `${Math.min(100, parseFloat(data.stats.persentase || 0))}%`;
   }
 
-  // 2. Active Agenda Meta
+  // 2. Active Agenda Meta & Session Code
   const agendaIdElem = document.getElementById('adminAgendaId');
   const agendaTitleElem = document.getElementById('adminAgendaTitle');
   const agendaMetaElem = document.getElementById('adminAgendaMeta');
@@ -885,12 +924,71 @@ function renderDashboard(data) {
     if (agendaIdElem) agendaIdElem.textContent = data.activeAgenda.id;
     if (agendaTitleElem) agendaTitleElem.textContent = data.activeAgenda.title;
     if (agendaMetaElem) {
-      agendaMetaElem.innerHTML = `<span>Tanggal: ${data.activeAgenda.date}</span><span>•</span><span>Waktu: ${data.activeAgenda.time}</span><span>•</span><span>Lokasi: ${data.activeAgenda.location || '-'}</span>`;
+      // Dapatkan kode sesi rapat aktif dari agenda atau state
+      let codeVal = (data.activeAgenda.sessionCode || '').trim();
+      if (!codeVal && window.activeAgendaState && window.activeAgendaState.sessionCode) {
+        codeVal = window.activeAgendaState.sessionCode.trim();
+      }
+      if (!codeVal) {
+        try {
+          const stored = JSON.parse(localStorage.getItem('kip_active_agenda') || '{}');
+          if (stored && stored.id === data.activeAgenda.id && stored.sessionCode) {
+            codeVal = stored.sessionCode.trim();
+          }
+        } catch (e) {}
+      }
+
+      const hasCode = Boolean(codeVal !== '');
+
+      const codeBadgeHtml = hasCode
+        ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 text-amber-900 text-xs font-bold border border-amber-200 shadow-xs">
+             <svg class="w-3.5 h-3.5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+             </svg>
+             <span>Kode Sesi:</span>
+             <code class="font-mono text-xs sm:text-sm font-extrabold text-red-600 bg-white px-2 py-0.5 rounded border border-amber-200 tracking-wider select-all">${codeVal}</code>
+             <button type="button" onclick="copyTextToClipboard('${codeVal}', 'Kode sesi rapat berhasil disalin!')" title="Salin Kode Sesi" class="p-0.5 text-amber-700 hover:text-red-600 transition-colors">
+               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+             </button>
+           </span>`
+        : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">
+             <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+             </svg>
+             <span>Kode Sesi: Bebas (Tanpa Kode)</span>
+           </span>`;
+
+      agendaMetaElem.innerHTML = `
+        <div class="flex items-center gap-2 flex-wrap text-xs pt-1">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-50 text-slate-700 font-semibold border border-slate-200 shadow-xs">
+            <svg class="w-3.5 h-3.5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span>Tanggal: <strong class="text-slate-800">${data.activeAgenda.date}</strong></span>
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-50 text-slate-700 font-semibold border border-slate-200 shadow-xs">
+            <svg class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Waktu: <strong class="text-slate-800">${data.activeAgenda.time}</strong></span>
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-50 text-slate-700 font-semibold border border-slate-200 shadow-xs">
+            <svg class="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>Lokasi: <strong class="text-slate-800">${data.activeAgenda.location || '-'}</strong></span>
+          </span>
+          ${codeBadgeHtml}
+        </div>
+      `;
     }
   } else {
     if (agendaIdElem) agendaIdElem.textContent = 'OFFLINE';
     if (agendaTitleElem) agendaTitleElem.textContent = 'Tidak Ada Agenda Aktif';
-    if (agendaMetaElem) agendaMetaElem.textContent = 'Klik "Generate Agenda" untuk membuka agenda rapat baru.';
+    if (agendaMetaElem) {
+      agendaMetaElem.innerHTML = '<span class="text-xs text-slate-500">Klik <strong>Generate Agenda</strong> untuk membuka agenda rapat baru.</span>';
+    }
   }
 
   // 3. Populate Filter Sie Dropdown
@@ -1229,6 +1327,8 @@ function submitGenerateAgenda() {
         btn.disabled = false;
 
         if (res.success) {
+          if (!window.activeAgendaState) window.activeAgendaState = {};
+          if (payload.sessionCode) window.activeAgendaState.sessionCode = payload.sessionCode;
           closeModalGenerateAgenda();
           showToast('success', 'Agenda Berhasil Dibuat', res.message);
           refreshDashboard();
@@ -1258,6 +1358,8 @@ function submitGenerateAgenda() {
       spinner.classList.add('hidden');
       btn.disabled = false;
       if (res.success) {
+        if (!window.activeAgendaState) window.activeAgendaState = {};
+        if (payload.sessionCode) window.activeAgendaState.sessionCode = payload.sessionCode;
         closeModalGenerateAgenda();
         showToast('success', 'Agenda Diaktifkan di GSheet', res.message);
         fetchActiveAgenda();
@@ -1367,6 +1469,8 @@ function fallbackLocalCloseAgenda(agenda) {
   fetchActiveAgenda();
   refreshDashboard();
 }
+
+window.closeCurrentAgenda = confirmCloseAgenda;
 
 /**
  * QR Code Presensi Modal

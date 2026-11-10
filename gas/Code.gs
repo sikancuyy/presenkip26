@@ -51,10 +51,12 @@ function doGet(e) {
     return handleApiGet(e.parameter);
   }
 
-  // Render halaman utama (Web App)
-  const template = HtmlService.createTemplateFromFile("Index");
+  // Render template (Web App Index atau Admin)
+  const isPageAdmin = (e && e.parameter && e.parameter.page === "admin");
+  const pageFile = isPageAdmin ? "Admin" : "Index";
+  const template = HtmlService.createTemplateFromFile(pageFile);
   return template.evaluate()
-    .setTitle("Presensi Digital Panitia KIP 2026")
+    .setTitle(isPageAdmin ? "Dashboard Administrator - Presensi KIP 2026" : "Presensi Digital Panitia KIP 2026")
     .addMetaTag("viewport", "width=device-width, initial-scale=1.0")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -840,9 +842,21 @@ function getDashboardStats(pin) {
     }
   }
 
-  // 2. Ambil active agenda
+  // 2. Ambil active agenda (termasuk kode sesi rapat untuk Admin)
   const activeRes = getActiveAgenda();
   let activeAgenda = activeRes.success ? activeRes.agenda : null;
+  if (activeAgenda) {
+    const aSheet = ss.getSheetByName(SHEET_AGENDA);
+    if (aSheet && aSheet.getLastRow() > 1) {
+      const aData = aSheet.getDataRange().getValues();
+      for (let i = 1; i < aData.length; i++) {
+        if (String(aData[i][0]) === activeAgenda.id) {
+          activeAgenda.sessionCode = String(aData[i][5] || "").trim();
+          break;
+        }
+      }
+    }
+  }
 
   // 3. Ambil data kehadiran dari raw_presensi untuk agenda aktif
   const rawSheet = ss.getSheetByName(SHEET_RAW);
