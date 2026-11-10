@@ -1,8 +1,6 @@
 <script>
   /**
-   * =========================================================================
-   * CLIENT-SIDE JAVASCRIPT: PRESENSI DIGITAL PANITIA KIP 2026
-   * =========================================================================
+   * Client-side logic for Presensi Digital Panitia KIP 2026 (Google Apps Script)
    */
 
   // State Management
@@ -14,10 +12,9 @@
 
   // Lifecycle Initialization
   document.addEventListener('DOMContentLoaded', () => {
-    // Inisialisasi agenda aktif saat pertama kali dibuka
     fetchActiveAgenda();
 
-    // Set tanggal & waktu default pada modal Generate Agenda
+    // Default dates on modals
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -30,13 +27,48 @@
     if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
     if (timeInput) timeInput.value = `${hh}:${min}`;
 
-    // Cek status sesi login admin tersimpan
     if (currentAdminPin) {
       document.getElementById('adminLoginGate').classList.add('hidden');
       document.getElementById('adminPanel').classList.remove('hidden');
       refreshDashboard();
     }
   });
+
+  // Keyboard accessibility: Close modals on Escape key (R-32)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModalGenerateAgenda();
+      closeQRCodeModal();
+      closeReceiptModal();
+    }
+  });
+
+  /**
+   * Audio Chime Synthesizer (Web Audio API)
+   */
+  function playChime(isSuccess) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (isSuccess) {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(783.99, now + 0.12); // G5
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+    } catch (e) {
+      // Audio playback is non-blocking
+    }
+  }
 
   /**
    * Mengambil Agenda Rapat yang sedang aktif dari Google Apps Script
@@ -51,7 +83,7 @@
         })
         .getActiveAgenda();
     } else {
-      console.warn("GAS Environment not detected. Using simulation fallback.");
+      console.warn("GAS Environment not detected.");
     }
   }
 
@@ -64,7 +96,6 @@
       document.getElementById('bannerAgendaTime').textContent = activeAgendaState.time;
       document.getElementById('bannerAgendaLocation').textContent = activeAgendaState.location;
 
-      // Update Session code field visibility
       const sessionField = document.getElementById('sessionCodeField');
       if (activeAgendaState.hasSessionCode) {
         sessionField.classList.remove('hidden');
@@ -80,15 +111,13 @@
     activeAgendaState = null;
     document.getElementById('bannerAgendaId').textContent = 'OFFLINE';
     document.getElementById('bannerAgendaTitle').textContent = 'Tidak Ada Agenda Aktif';
-    document.getElementById('bannerAgendaDate').textContent = 'Saat ini belum ada rapat dibuka';
-    document.getElementById('bannerAgendaTime').textContent = 'Menunggu Admin';
-    document.getElementById('bannerAgendaLocation').textContent = 'Silakan hubungi sekretaris panitia';
+    document.getElementById('bannerAgendaDate').textContent = 'Belum ada rapat dibuka';
+    document.getElementById('bannerAgendaTime').textContent = 'Menunggu Sekretaris / Admin';
+    document.getElementById('bannerAgendaLocation').textContent = 'Silakan hubungi pimpinan rapat';
   }
 
   /**
-   * =========================================================================
-   * FITUR ANGGOTA: PENCARIAN NIM & KONFIRMASI HADIR
-   * =========================================================================
+   * Fitur Anggota: Pencarian NIM & Konfirmasi Hadir
    */
   function searchNIM() {
     const input = document.getElementById('inputNim');
@@ -105,7 +134,6 @@
       return;
     }
 
-    // UI Loading state
     const btnText = document.getElementById('btnCariText');
     const btnSpinner = document.getElementById('btnCariSpinner');
     const btn = document.getElementById('btnCariNIM');
@@ -143,7 +171,6 @@
   function renderPanitiaBiodata(panitia) {
     currentPanitiaData = panitia;
 
-    // Initials avatar
     const names = panitia.nama.split(' ').filter(Boolean);
     let initials = names[0] ? names[0][0] : 'K';
     if (names.length > 1) initials += names[names.length - 1][0];
@@ -155,7 +182,6 @@
     document.getElementById('bioSie').textContent = panitia.sie || '-';
     document.getElementById('bioDelegasi').textContent = panitia.delegasi || '-';
 
-    // Show session code field if active agenda requires it
     const sessionField = document.getElementById('sessionCodeField');
     if (activeAgendaState && activeAgendaState.hasSessionCode) {
       sessionField.classList.remove('hidden');
@@ -166,9 +192,6 @@
     document.getElementById('biodataContainer').classList.remove('hidden');
   }
 
-  /**
-   * Submit Kehadiran Anggota ke Server
-   */
   function submitKehadiran() {
     if (!currentPanitiaData) {
       showToast('warning', 'Peringatan', 'Silakan cari dan verifikasi NIM Anda terlebih dahulu.');
@@ -191,7 +214,6 @@
       }
     }
 
-    // UI Loading state
     const btn = document.getElementById('btnHadir');
     const btnText = document.getElementById('btnHadirText');
     const btnSpinner = document.getElementById('btnHadirSpinner');
@@ -214,6 +236,7 @@
           btn.disabled = false;
 
           if (res.success) {
+            playChime(true);
             showReceiptModal(res.data);
             resetPresensiForm();
           } else {
@@ -261,9 +284,7 @@
   }
 
   /**
-   * =========================================================================
-   * FITUR ADMIN: LOGIN, AGENDA MANAGEMENT & MONITORING
-   * =========================================================================
+   * Fitur Admin: Login, Manajemen Agenda & Monitoring
    */
   function switchView(viewName) {
     const viewPresensi = document.getElementById('viewPresensi');
@@ -274,8 +295,8 @@
     if (viewName === 'admin') {
       viewPresensi.classList.add('hidden');
       viewAdmin.classList.remove('hidden');
-      navAdmin.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700";
-      navPresensi.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+      navAdmin.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700";
+      navPresensi.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
 
       if (currentAdminPin) {
         refreshDashboard();
@@ -283,8 +304,8 @@
     } else {
       viewAdmin.classList.add('hidden');
       viewPresensi.classList.remove('hidden');
-      navPresensi.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700";
-      navAdmin.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+      navPresensi.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700";
+      navAdmin.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
       fetchActiveAgenda();
     }
   }
@@ -361,23 +382,20 @@
   }
 
   function renderDashboard(data) {
-    // 1. Stats Counter
     document.getElementById('statTotalPanitia').textContent = data.stats.totalPanitia;
     document.getElementById('statSudahHadir').textContent = data.stats.sudahHadir;
     document.getElementById('statBelumHadir').textContent = data.stats.belumHadir;
     document.getElementById('statPersentase').textContent = data.stats.persentase;
     document.getElementById('statProgressBar').style.width = `${Math.min(100, parseFloat(data.stats.persentase))}%`;
 
-    // 2. Active Agenda Meta
     if (data.activeAgenda) {
       document.getElementById('adminAgendaTitle').textContent = data.activeAgenda.title;
-      document.getElementById('adminAgendaMeta').innerHTML = `ID: <span class="font-mono">${data.activeAgenda.id}</span> • ${data.activeAgenda.date}, ${data.activeAgenda.time}`;
+      document.getElementById('adminAgendaMeta').innerHTML = `ID: <span class="font-mono text-slate-700">${data.activeAgenda.id}</span> • ${data.activeAgenda.date}, ${data.activeAgenda.time}`;
     } else {
       document.getElementById('adminAgendaTitle').textContent = 'Tidak Ada Agenda Aktif';
       document.getElementById('adminAgendaMeta').textContent = 'Klik "Generate Agenda" untuk membuat agenda rapat baru.';
     }
 
-    // 3. Populate Filter Sie Dropdown
     const filterSie = document.getElementById('filterSie');
     const curSieVal = filterSie.value;
     filterSie.innerHTML = '<option value="">Semua Sie</option>';
@@ -391,7 +409,6 @@
       });
     }
 
-    // 4. Render Table
     applyFilters();
   }
 
@@ -423,7 +440,7 @@
     if (list.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="8" class="p-6 text-center text-slate-400">
+          <td colspan="8" class="p-6 text-center text-slate-500">
             Tidak ada data panitia yang cocok dengan filter pencarian.
           </td>
         </tr>`;
@@ -437,22 +454,22 @@
 
       const isHadir = (p.status === 'HADIR');
       const badgeStatus = isHadir 
-        ? `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full text-[11px]">
+        ? `<span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-2 py-0.5 rounded text-[11px]">
              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HADIR
            </span>`
-        : `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-full text-[11px]">
+        : `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded text-[11px]">
              BELUM
            </span>`;
 
       tr.innerHTML = `
         <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
-        <td class="p-3 font-bold text-slate-800">${p.nama}</td>
-        <td class="p-3 font-mono text-slate-600">${p.nim}</td>
-        <td class="p-3"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-semibold text-[11px]">${p.sie}</span></td>
+        <td class="p-3 font-bold text-slate-900">${p.nama}</td>
+        <td class="p-3 font-mono text-slate-700">${p.nim}</td>
+        <td class="p-3"><span class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-medium text-[11px]">${p.sie}</span></td>
         <td class="p-3">${p.jabatan}</td>
-        <td class="p-3 truncate max-w-xs text-slate-500">${p.delegasi}</td>
+        <td class="p-3 truncate max-w-xs text-slate-600">${p.delegasi}</td>
         <td class="p-3 text-center">${badgeStatus}</td>
-        <td class="p-3 text-center font-mono text-slate-500">${p.waktuPresensi || '-'}</td>
+        <td class="p-3 text-center font-mono text-slate-600">${p.waktuPresensi || '-'}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -460,9 +477,32 @@
     document.getElementById('tableSummary').textContent = `Menampilkan ${list.length} dari ${dashboardCache.panitia.length} panitia`;
   }
 
-  /**
-   * Modal Generate Agenda
-   */
+  function exportTableToCSV() {
+    if (!dashboardCache || !dashboardCache.panitia) {
+      showToast('warning', 'Data Kosong', 'Tidak ada data untuk diunduh.');
+      return;
+    }
+    const title = (activeAgendaState ? activeAgendaState.title : 'Rekap Kehadiran Panitia KIP 2026');
+    let csv = '\uFEFF';
+    csv += `"No","Nama Lengkap","NIM","Sie","Jabatan","Delegasi","Status Kehadiran","Waktu Presensi"\n`;
+    dashboardCache.panitia.forEach((p, i) => {
+      csv += `"${i + 1}","${p.nama}","'${p.nim}","${p.sie}","${p.jabatan}","${p.delegasi}","${p.status}","${p.waktuPresensi || '-'}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Presensi_${title.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('success', 'CSV Berhasil Diunduh', 'File rekap kehadiran telah diunduh.');
+  }
+
+  function printAttendanceSheet() {
+    window.print();
+  }
+
   function openModalGenerateAgenda() {
     document.getElementById('modalGenerateAgenda').classList.remove('hidden');
     document.getElementById('modalGenerateAgenda').classList.add('flex');
@@ -523,9 +563,6 @@
     }
   }
 
-  /**
-   * Tutup Agenda
-   */
   function confirmCloseAgenda() {
     if (!activeAgendaState && (!dashboardCache || !dashboardCache.activeAgenda)) {
       showToast('info', 'Info', 'Tidak ada agenda yang aktif saat ini.');
@@ -553,9 +590,6 @@
     }
   }
 
-  /**
-   * QR Code Presensi
-   */
   function showQRCodeModal() {
     const curUrl = window.location.href;
     const wrapper = document.getElementById('qrcodeWrapper');
@@ -565,7 +599,7 @@
       text: curUrl,
       width: 200,
       height: 200,
-      colorDark: "#1e3a8a",
+      colorDark: "#0f172a",
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.H
     });
@@ -591,9 +625,6 @@
     });
   }
 
-  /**
-   * Alert & Toast Helpers
-   */
   function showAlert(type, message) {
     const alertBox = document.getElementById('presensiAlert');
     alertBox.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200', 'bg-amber-50', 'text-amber-700', 'border-amber-200');
@@ -614,20 +645,20 @@
   function showToast(type, title, message) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
-    toast.className = `p-4 rounded-xl shadow-lg border text-xs font-medium transition-all transform translate-y-2 pointer-events-auto flex items-start gap-3 animate-fadeIn`;
+    toast.className = `p-4 rounded-lg shadow-lg border text-xs font-medium transition-all transform pointer-events-auto flex items-start gap-3 animate-fadeIn`;
 
     let icon = '';
     if (type === 'success') {
-      toast.classList.add('bg-emerald-900', 'text-white', 'border-emerald-700');
+      toast.classList.add('bg-slate-900', 'text-white', 'border-slate-800');
       icon = `<svg class="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
     } else if (type === 'error') {
-      toast.classList.add('bg-rose-900', 'text-white', 'border-rose-700');
+      toast.classList.add('bg-rose-900', 'text-white', 'border-rose-800');
       icon = `<svg class="w-5 h-5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
     } else if (type === 'warning') {
-      toast.classList.add('bg-amber-900', 'text-white', 'border-amber-700');
+      toast.classList.add('bg-amber-900', 'text-white', 'border-amber-800');
       icon = `<svg class="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
     } else {
-      toast.classList.add('bg-slate-900', 'text-white', 'border-slate-700');
+      toast.classList.add('bg-slate-900', 'text-white', 'border-slate-800');
       icon = `<svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
     }
 
@@ -635,15 +666,14 @@
       ${icon}
       <div class="flex-1">
         <strong class="block font-bold text-sm leading-tight">${title}</strong>
-        <p class="text-slate-200 mt-0.5 text-xs">${message}</p>
+        <p class="text-slate-300 mt-0.5 text-xs">${message}</p>
       </div>
     `;
 
     container.appendChild(toast);
     setTimeout(() => {
       toast.classList.add('opacity-0', 'scale-95');
-      setTimeout(() => toast.remove(), 300);
+      setTimeout(() => toast.remove(), 250);
     }, 4000);
   }
 </script>
-

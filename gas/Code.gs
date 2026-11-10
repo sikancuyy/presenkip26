@@ -55,7 +55,7 @@ function doGet(e) {
   const template = HtmlService.createTemplateFromFile("Index");
   return template.evaluate()
     .setTitle("Presensi Digital Panitia KIP 2026")
-    .addMetaTag("viewport", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+    .addMetaTag("viewport", "width=device-width, initial-scale=1.0")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 

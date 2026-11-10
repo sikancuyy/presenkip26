@@ -2,12 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Presensi Digital Panitia KIP 2026</title>
-  <!-- Google Fonts: Plus Jakarta Sans -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presensi Digital Panitia KIP 2026 - Politeknik Negeri Lhokseumawe</title>
+  
+  <!-- Typography: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- QR Code Library CDN -->
@@ -18,9 +20,14 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
           },
           colors: {
+            navy: {
+              800: '#1e293b',
+              900: '#14213D',
+              950: '#0b1329',
+            },
             brand: {
               50: '#eff6ff',
               100: '#dbeafe',
@@ -28,7 +35,6 @@
               600: '#2563eb',
               700: '#1d4ed8',
               800: '#1e40af',
-              900: '#1e3a8a',
             }
           }
         }
@@ -38,158 +44,193 @@
 
   <?!= include('Style'); ?>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-blue-600 selection:text-white">
 
   <!-- Toast Notification Container -->
-  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none" aria-live="polite"></div>
 
-  <!-- NAVIGATION BAR -->
-  <header class="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-sm">
+  <!-- HEADER / NAVBAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <!-- Brand Logo & Title -->
+      
+      <!-- Logo & Branding -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 font-extrabold text-lg tracking-wider">
+        <div class="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center text-white font-extrabold text-sm tracking-wider shadow-sm flex-shrink-0" aria-hidden="true">
           KIP
         </div>
-        <div>
+        <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">PANITIA KIP 2026</h1>
-            <span class="text-[10px] font-semibold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Official</span>
+            <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight tracking-tight">PANITIA KIP 2026</h1>
+            <span id="envBadge" class="text-[11px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+              Google Sheets Official
+            </span>
           </div>
-          <p class="text-xs text-slate-500 hidden sm:block">Sistem Presensi Digital Terpadu Berbasis Spreadsheet</p>
+          <p class="text-xs text-slate-500 hidden sm:block leading-none mt-0.5">Sistem Presensi Digital Terpadu Berbasis Google Sheets</p>
         </div>
       </div>
 
-      <!-- Mode Switcher Buttons -->
-      <div class="flex items-center gap-2">
-        <nav class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-          <button id="navPresensiBtn" onclick="switchView('presensi')" class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span>Presensi</span>
-          </button>
-          <button id="navAdminBtn" onclick="switchView('admin')" class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-            <span>Admin</span>
-          </button>
-        </nav>
-      </div>
+      <!-- Navigation Segmented Tabs -->
+      <nav class="flex bg-slate-100 p-1 rounded-lg border border-slate-200" aria-label="Navigasi Utama">
+        <button 
+          id="navPresensiBtn" 
+          onclick="switchView('presensi')" 
+          class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700"
+        >
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Presensi</span>
+        </button>
+        <button 
+          id="navAdminBtn" 
+          onclick="switchView('admin')" 
+          class="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900"
+        >
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+          <span>Admin</span>
+        </button>
+      </nav>
+
     </div>
   </header>
 
-  <!-- MAIN CONTENT CONTAINER -->
+  <!-- MAIN WRAPPER -->
   <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1 w-full">
 
     <!-- ============================================================== -->
-    <!-- VIEW 1: PRESENSI ANGGOTA (MEMBER ATTENDANCE)                   -->
+    <!-- VIEW 1: PRESENSI ANGGOTA                                       -->
     <!-- ============================================================== -->
-    <section id="viewPresensi" class="block max-w-xl mx-auto space-y-6">
+    <section id="viewPresensi" class="block max-w-xl mx-auto space-y-5 sm:space-y-6">
 
-      <!-- BANNER AGENDA AKTIF -->
-      <div id="agendaBannerCard" class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white p-5 sm:p-6 shadow-xl border border-blue-900/40">
-        <!-- Glow accent -->
-        <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="flex items-center justify-between gap-3 mb-3">
-          <div class="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-semibold">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>AGENDA AKTIF</span>
+      <!-- EVENT INFORMATION CARD (AGENDA AKTIF) -->
+      <div id="agendaBannerCard" class="card-agenda text-white p-5 sm:p-6 space-y-4">
+        
+        <!-- Top Metadata Row -->
+        <div class="flex items-center justify-between gap-2 border-b border-slate-700/60 pb-3">
+          <div class="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 indicator-pulse" aria-hidden="true"></span>
+            <span>Agenda Aktif</span>
           </div>
-          <span id="bannerAgendaId" class="text-[11px] font-mono text-slate-400">Memuat...</span>
+          <span id="bannerAgendaId" class="text-xs font-mono text-slate-400">Memuat...</span>
         </div>
 
-        <h2 id="bannerAgendaTitle" class="text-xl sm:text-2xl font-extrabold tracking-tight text-white mb-3">
-          Memuat Agenda Rapat...
-        </h2>
+        <!-- Main Title -->
+        <div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Rapat / Kegiatan</span>
+          <h2 id="bannerAgendaTitle" class="text-xl sm:text-2xl font-bold tracking-tight text-white leading-snug">
+            Memuat Agenda Rapat...
+          </h2>
+        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-300">
-          <div class="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg border border-white/10">
-            <svg class="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            <span id="bannerAgendaDate">-</span>
+        <!-- Details Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div class="flex items-center gap-2 bg-slate-800/60 border border-slate-700/60 p-2.5 rounded-lg">
+            <svg class="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span id="bannerAgendaDate" class="text-slate-200 font-medium">-</span>
           </div>
-          <div class="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg border border-white/10">
-            <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span id="bannerAgendaTime">-</span>
+
+          <div class="flex items-center gap-2 bg-slate-800/60 border border-slate-700/60 p-2.5 rounded-lg">
+            <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span id="bannerAgendaTime" class="text-slate-200 font-medium">-</span>
           </div>
-          <div class="sm:col-span-2 flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg border border-white/10">
-            <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span id="bannerAgendaLocation" class="truncate">-</span>
+
+          <div class="sm:col-span-2 flex items-center gap-2 bg-slate-800/60 border border-slate-700/60 p-2.5 rounded-lg">
+            <svg class="w-4 h-4 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span id="bannerAgendaLocation" class="text-slate-200 font-medium truncate">-</span>
           </div>
         </div>
+
       </div>
 
-      <!-- CARD PRESENSI FORM -->
-      <div class="glass-card rounded-2xl p-6 sm:p-7 shadow-lg border border-slate-200/80">
-        <div class="mb-5">
-          <h3 class="text-lg font-bold text-slate-900">Verifikasi Kehadiran Panitia</h3>
-          <p class="text-xs sm:text-sm text-slate-500">Masukkan NIM Anda untuk mencocokkan data kepanitiaan secara otomatis.</p>
+      <!-- FORM PRESENSI CARD -->
+      <div class="card-elevated p-6 sm:p-7 space-y-5">
+        
+        <div class="border-b border-slate-100 pb-3">
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Formulir Kehadiran Panitia</h3>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Masukkan NIM untuk memverifikasi biodata kepanitiaan Anda.</p>
         </div>
 
-        <!-- FORM INPUT NIM -->
+        <!-- Input Section -->
         <div class="space-y-4">
           <div>
             <label for="inputNim" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Nomor Induk Mahasiswa (NIM)
             </label>
-            <div class="relative">
-              <input 
-                type="text" 
-                id="inputNim" 
-                inputmode="numeric" 
-                placeholder="Contoh: 2024203020008" 
-                class="w-full pl-4 pr-24 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-base tracking-wide"
-                onkeypress="if(event.key === 'Enter') searchNIM()"
-              >
+            
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1">
+                <input 
+                  type="text" 
+                  id="inputNim" 
+                  inputmode="numeric" 
+                  placeholder="Contoh: 2024203020008" 
+                  class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-lg text-slate-900 font-semibold focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors text-sm tracking-wide"
+                  onkeypress="if(event.key === 'Enter') searchNIM()"
+                >
+              </div>
+
               <button 
                 type="button" 
                 id="btnCariNIM" 
                 onclick="searchNIM()" 
-                class="absolute right-1.5 top-1.5 bottom-1.5 px-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
+                class="h-11 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm flex-shrink-0"
               >
                 <span id="btnCariText">CARI DATA</span>
-                <div id="btnCariSpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div id="btnCariSpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
               </button>
             </div>
-            <p class="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span>Gunakan NIM lengkap Anda sesuai master data Panitia KIP.</span>
+
+            <p class="text-[11px] text-slate-500 mt-1.5">
+              Masukkan NIM lengkap sesuai data pendaftaran panitia.
             </p>
           </div>
 
-          <!-- BIODATA CARD RESULT (MUNCUL SETELAH NIM DITEMUKAN) -->
-          <div id="biodataContainer" class="hidden animate-fadeIn space-y-4 pt-2">
+          <!-- BIODATA CARD CONTAINER -->
+          <div id="biodataContainer" class="hidden space-y-4 pt-1 animate-fadeIn">
             
-            <div class="rounded-xl border border-blue-200 bg-blue-50/70 p-4 space-y-3">
-              <div class="flex items-center gap-3 border-b border-blue-200/80 pb-3">
-                <div id="avatarInitials" class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white font-extrabold text-lg flex items-center justify-center shadow-md">
+            <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+              
+              <div class="flex items-center gap-3 border-b border-slate-200 pb-3">
+                <div id="avatarInitials" class="w-11 h-11 rounded-lg bg-slate-900 text-white font-bold text-sm flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">
                   RH
                 </div>
-                <div>
-                  <h4 id="bioNama" class="text-base font-bold text-slate-900 leading-tight">Rahmat Haikal</h4>
-                  <div class="flex items-center gap-2 mt-0.5">
-                    <span id="bioNim" class="text-xs font-mono font-semibold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">2024203020008</span>
-                    <span class="text-[11px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-medium">Terverifikasi</span>
+                <div class="min-w-0 flex-1">
+                  <h4 id="bioNama" class="text-base font-bold text-slate-900 truncate">Rahmat Haikal</h4>
+                  <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                    <span id="bioNim" class="text-xs font-mono font-medium text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded">2024203020008</span>
+                    <span class="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Terverifikasi</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Detail Attributes Table -->
+              <!-- Key Value Table -->
               <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="bg-white p-2.5 rounded-lg border border-blue-100">
-                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Jabatan</span>
+                <div class="bg-white p-2.5 rounded-md border border-slate-200">
+                  <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Jabatan</span>
                   <span id="bioJabatan" class="font-bold text-slate-800">Sekretaris Pelaksana</span>
                 </div>
-                <div class="bg-white p-2.5 rounded-lg border border-blue-100">
-                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Sie</span>
+                <div class="bg-white p-2.5 rounded-md border border-slate-200">
+                  <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Sie</span>
                   <span id="bioSie" class="font-bold text-slate-800">Pejabat Acara</span>
                 </div>
-                <div class="bg-white p-2.5 rounded-lg border border-blue-100 col-span-2">
-                  <span class="text-slate-400 block text-[10px] uppercase font-bold">Delegasi Ormawa</span>
+                <div class="bg-white p-2.5 rounded-md border border-slate-200 col-span-2">
+                  <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Delegasi Ormawa</span>
                   <span id="bioDelegasi" class="font-bold text-slate-800 truncate block">UKM POLYROBOCOM</span>
                 </div>
               </div>
+
             </div>
 
-            <!-- INPUT KODE SESI (JIKA AGENDA MEMERLUKAN KODE) -->
+            <!-- Session Code Field -->
             <div id="sessionCodeField" class="hidden">
               <label for="inputSessionCode" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Kode Sesi Rapat (Anti-Titip Absen)
@@ -198,44 +239,50 @@
                 type="text" 
                 id="inputSessionCode" 
                 placeholder="Masukkan kode rapat dari panitia di ruangan" 
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-bold tracking-widest text-center uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-lg text-slate-900 font-bold tracking-widest text-center uppercase focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-sm"
               >
             </div>
 
-            <!-- TOMBOL KONFIRMASI HADIR -->
+            <!-- Button Konfirmasi Hadir -->
             <button 
               type="button" 
               id="btnHadir" 
               onclick="submitKehadiran()" 
-              class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 transform active:scale-[0.99]"
+              class="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+              </svg>
               <span id="btnHadirText">KONFIRMASI HADIR</span>
-              <div id="btnHadirSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div id="btnHadirSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
             </button>
+
           </div>
 
-          <!-- PESAN FEEDBACK / ERROR -->
-          <div id="presensiAlert" class="hidden rounded-xl p-3.5 text-xs font-medium border"></div>
+          <!-- Alert Notification Box -->
+          <div id="presensiAlert" class="hidden rounded-lg p-3 text-xs font-medium border" role="alert"></div>
 
         </div>
+
       </div>
 
     </section>
 
     <!-- ============================================================== -->
-    <!-- VIEW 2: ADMIN DASHBOARD (MANAGEMENT & REAL-TIME STATS)        -->
+    <!-- VIEW 2: ADMIN DASHBOARD                                        -->
     <!-- ============================================================== -->
     <section id="viewAdmin" class="hidden space-y-6">
 
       <!-- GATE LOGIN PIN ADMIN -->
-      <div id="adminLoginGate" class="max-w-md mx-auto glass-card rounded-2xl p-6 sm:p-8 shadow-xl border border-slate-200 text-center space-y-5">
-        <div class="w-14 h-14 bg-blue-100 text-blue-700 rounded-2xl mx-auto flex items-center justify-center">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+      <div id="adminLoginGate" class="max-w-md mx-auto card-elevated p-6 sm:p-8 text-center space-y-5">
+        <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-lg mx-auto flex items-center justify-center" aria-hidden="true">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
         </div>
         <div>
-          <h3 class="text-xl font-bold text-slate-900">Autentikasi Administrator</h3>
-          <p class="text-xs text-slate-500 mt-1">Masukkan PIN keamanan untuk mengakses data monitoring & manajemen agenda rapat.</p>
+          <h3 class="text-lg font-bold text-slate-900">Autentikasi Administrator</h3>
+          <p class="text-xs text-slate-500 mt-1">Masukkan PIN keamanan untuk mengakses data monitoring dan manajemen agenda.</p>
         </div>
 
         <div class="space-y-3">
@@ -243,44 +290,51 @@
             type="password" 
             id="adminPinInput" 
             placeholder="Masukkan PIN Admin" 
-            class="w-full text-center text-lg tracking-widest font-bold py-3 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600"
+            class="w-full text-center text-lg tracking-widest font-bold h-11 bg-white border border-slate-300 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
             onkeypress="if(event.key === 'Enter') doAdminLogin()"
           >
           <button 
             type="button" 
             id="btnAdminLogin" 
             onclick="doAdminLogin()" 
-            class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+            class="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             <span id="btnAdminLoginText">Masuk Dashboard</span>
-            <div id="btnAdminLoginSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div id="btnAdminLoginSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
           </button>
-          <p class="text-[11px] text-slate-400">PIN Default: <code class="font-mono font-bold text-blue-600">KIP2026</code></p>
+          <p class="text-[11px] text-slate-500">PIN Default: <code class="font-mono font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">KIP2026</code></p>
         </div>
       </div>
 
-      <!-- PANEL UTAMA SETELAH LOGIN ADMIN -->
+      <!-- MAIN ADMIN PANEL (AFTER AUTH) -->
       <div id="adminPanel" class="hidden space-y-6">
 
         <!-- Top Bar Admin Controls -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 card-base p-4 sm:p-5">
           <div>
             <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              <h2 class="text-lg font-extrabold text-slate-900">Dashboard Administrator</h2>
+              <span class="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Dashboard Administrator</h2>
             </div>
             <p class="text-xs text-slate-500">Monitoring kehadiran panitia KIP 2026 secara real-time</p>
           </div>
+          
           <div class="flex items-center gap-2 flex-wrap">
-            <button onclick="openModalGenerateAgenda()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <button onclick="openModalGenerateAgenda()" class="h-9 px-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
               <span>Generate Agenda</span>
             </button>
-            <button onclick="refreshDashboard()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-300">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+
+            <button onclick="refreshDashboard()" class="h-9 px-3 bg-white hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 border border-slate-300">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
               <span>Refresh</span>
             </button>
-            <button onclick="logoutAdmin()" class="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition-all border border-red-200">
+
+            <button onclick="logoutAdmin()" class="h-9 px-3 bg-white hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold transition-colors border border-red-200">
               Keluar
             </button>
           </div>
@@ -288,90 +342,87 @@
 
         <!-- 4 STATS CARDS -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <!-- Total Panitia -->
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-xs font-bold uppercase tracking-wider">Total Panitia</span>
-              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            </div>
-            <div id="statTotalPanitia" class="text-2xl sm:text-3xl font-extrabold text-slate-900">46</div>
-            <p class="text-[11px] text-slate-400 mt-1">Master Sheet PANITIA KIP</p>
+          
+          <div class="card-base p-4 sm:p-5">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-1">Total Panitia</span>
+            <div id="statTotalPanitia" class="text-2xl sm:text-3xl font-bold text-slate-900">46</div>
+            <p class="text-[11px] text-slate-500 mt-1">Master Sheet PANITIA KIP</p>
           </div>
 
-          <!-- Sudah Hadir -->
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-xs font-bold uppercase tracking-wider">Sudah Hadir</span>
-              <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div id="statSudahHadir" class="text-2xl sm:text-3xl font-extrabold text-emerald-600">0</div>
-            <p class="text-[11px] text-slate-400 mt-1">Tercatat di raw_presensi</p>
+          <div class="card-base p-4 sm:p-5">
+            <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 block mb-1">Sudah Hadir</span>
+            <div id="statSudahHadir" class="text-2xl sm:text-3xl font-bold text-emerald-600">0</div>
+            <p class="text-[11px] text-slate-500 mt-1">Tercatat di raw_presensi</p>
           </div>
 
-          <!-- Belum Hadir -->
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-xs font-bold uppercase tracking-wider">Belum Hadir</span>
-              <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div id="statBelumHadir" class="text-2xl sm:text-3xl font-extrabold text-amber-600">46</div>
-            <p class="text-[11px] text-slate-400 mt-1">Belum melakukan submit</p>
+          <div class="card-base p-4 sm:p-5">
+            <span class="text-xs font-semibold uppercase tracking-wider text-amber-700 block mb-1">Belum Hadir</span>
+            <div id="statBelumHadir" class="text-2xl sm:text-3xl font-bold text-amber-600">46</div>
+            <p class="text-[11px] text-slate-500 mt-1">Belum melakukan presensi</p>
           </div>
 
-          <!-- Persentase Kehadiran -->
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-xs font-bold uppercase tracking-wider">Kehadiran</span>
-              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-            </div>
+          <div class="card-base p-4 sm:p-5">
+            <span class="text-xs font-semibold uppercase tracking-wider text-blue-700 block mb-1">Kehadiran</span>
             <div class="flex items-baseline gap-1">
-              <span id="statPersentase" class="text-2xl sm:text-3xl font-extrabold text-indigo-600">0.0</span>
-              <span class="text-sm font-bold text-indigo-600">%</span>
+              <span id="statPersentase" class="text-2xl sm:text-3xl font-bold text-blue-600">0.0</span>
+              <span class="text-sm font-bold text-blue-600">%</span>
             </div>
-            <!-- Mini progress bar -->
             <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
-              <div id="statProgressBar" class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+              <div id="statProgressBar" class="bg-blue-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
             </div>
           </div>
+
         </div>
 
-        <!-- ACTIVE AGENDA CONTROL CARD -->
-        <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-sm space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <!-- ACTIVE AGENDA CONTROL & TABLE CARD -->
+        <div class="card-base p-5 sm:p-6 space-y-5">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
             <div>
-              <span class="text-[11px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Agenda Berjalan</span>
-              <h3 id="adminAgendaTitle" class="text-xl font-bold text-slate-900 mt-1">Rapat Koordinasi Kasie</h3>
-              <p id="adminAgendaMeta" class="text-xs text-slate-500 mt-0.5">ID: <span class="font-mono">KIP-20261110-001</span> • 10 November 2026, 14:00 WIB</p>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+                Agenda Berjalan
+              </span>
+              <h3 id="adminAgendaTitle" class="text-lg sm:text-xl font-bold text-slate-900 mt-1.5">Rapat Koordinasi Kasie</h3>
+              <p id="adminAgendaMeta" class="text-xs text-slate-500 mt-0.5">ID: <span class="font-mono text-slate-700">KIP-20261110-001</span> • 10 November 2026, 14:00 WIB</p>
             </div>
+
             <div class="flex items-center gap-2 flex-wrap">
-              <button onclick="showQRCodeModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1 border border-slate-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+              <button onclick="showQRCodeModal()" class="h-8 px-3 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-md border border-slate-300 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                </svg>
                 <span>Tampilkan QR Code</span>
               </button>
-              <button onclick="copyPresensiLink()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1 border border-slate-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+
+              <button onclick="copyPresensiLink()" class="h-8 px-3 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-md border border-slate-300 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
                 <span>Salin Link</span>
               </button>
-              <button onclick="confirmCloseAgenda()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg flex items-center gap-1 border border-rose-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+
+              <button onclick="confirmCloseAgenda()" class="h-8 px-3 bg-white hover:bg-red-50 text-red-700 text-xs font-semibold rounded-md border border-red-200 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
                 <span>Tutup Agenda</span>
               </button>
             </div>
           </div>
 
-          <!-- TABLE MONITORING KEHADIRAN -->
+          <!-- TABLE SECTION -->
           <div class="space-y-3">
+            
+            <!-- Filters Toolbar -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h4 class="text-sm font-bold text-slate-900">Daftar Kehadiran Anggota</h4>
               
-              <!-- Filter & Search Controls -->
               <div class="flex items-center gap-2 flex-wrap">
-                <select id="filterSie" onchange="applyFilters()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none">
+                <select id="filterSie" onchange="applyFilters()" class="h-8 text-xs bg-white border border-slate-300 rounded-md px-2.5 font-medium text-slate-700 focus:outline-none">
                   <option value="">Semua Sie</option>
-                  <!-- Populated dynamically -->
                 </select>
 
-                <select id="filterStatus" onchange="applyFilters()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none">
+                <select id="filterStatus" onchange="applyFilters()" class="h-8 text-xs bg-white border border-slate-300 rounded-md px-2.5 font-medium text-slate-700 focus:outline-none">
                   <option value="">Semua Status</option>
                   <option value="HADIR">Sudah Hadir</option>
                   <option value="BELUM HADIR">Belum Hadir</option>
@@ -382,23 +433,27 @@
                   id="searchPanitiaInput" 
                   placeholder="Cari Nama / NIM..." 
                   oninput="applyFilters()" 
-                  class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="h-8 text-xs bg-white border border-slate-300 rounded-md px-3 focus:outline-none focus:border-blue-600"
                 >
 
-                <button onclick="exportTableToCSV()" title="Unduh data tabel dalam format CSV" class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <button onclick="exportTableToCSV()" title="Unduh CSV" class="h-8 px-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-md text-xs font-semibold flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  </svg>
                   <span>CSV</span>
                 </button>
 
-                <button onclick="printAttendanceSheet()" title="Cetak daftar hadir untuk arsip/LPJ" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                <button onclick="printAttendanceSheet()" title="Cetak Daftar Hadir" class="h-8 px-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-md text-xs font-semibold flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                  </svg>
                   <span>Cetak</span>
                 </button>
               </div>
             </div>
 
             <!-- Table Wrapper -->
-            <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <div class="overflow-x-auto rounded-lg border border-slate-200">
               <table class="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
@@ -412,18 +467,19 @@
                     <th class="p-3 text-center">Waktu Presensi</th>
                   </tr>
                 </thead>
-                <tbody id="panitiaTableBody" class="divide-y divide-slate-100 text-slate-600 font-medium">
+                <tbody id="panitiaTableBody" class="divide-y divide-slate-100 text-slate-700 font-medium bg-white">
                   <tr>
-                    <td colspan="8" class="p-4 text-center text-slate-400">Memuat data panitia...</td>
+                    <td colspan="8" class="p-4 text-center text-slate-500">Memuat data panitia...</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+            <div class="flex items-center justify-between text-xs text-slate-500 px-1">
               <span id="tableSummary">Menampilkan 0 dari 0 panitia</span>
-              <span>Data otomatis tersinkron ke Sheet <strong class="text-slate-600">raw_presensi</strong> & <strong class="text-slate-600">PRESENSI</strong></span>
+              <span>Data otomatis tersinkron ke Sheet <strong class="text-slate-700">raw_presensi</strong> dan <strong class="text-slate-700">PRESENSI</strong></span>
             </div>
+
           </div>
 
         </div>
@@ -437,51 +493,51 @@
   <!-- ============================================================== -->
   <!-- MODAL: GENERATE AGENDA BARU                                     -->
   <!-- ============================================================== -->
-  <div id="modalGenerateAgenda" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-fadeIn">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="text-lg font-bold text-slate-900">Generate Agenda Rapat Baru</h3>
-        <button onclick="closeModalGenerateAgenda()" class="text-slate-400 hover:text-slate-600">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+  <div id="modalGenerateAgenda" class="fixed inset-0 z-50 bg-slate-900/50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalAgendaTitle">
+    <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4 animate-fadeIn">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 id="modalAgendaTitle" class="text-base font-bold text-slate-900">Generate Agenda Rapat Baru</h3>
+        <button onclick="closeModalGenerateAgenda()" class="text-slate-400 hover:text-slate-600 p-1 rounded-md" aria-label="Tutup dialog">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
 
-      <div class="space-y-3.5 text-xs">
+      <div class="space-y-3 text-xs">
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Judul Agenda / Rapat</label>
-          <input type="text" id="agendaInputTitle" placeholder="Contoh: Rapat Pleno Panitia KIP 2026" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+          <label for="agendaInputTitle" class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Judul Agenda / Rapat</label>
+          <input type="text" id="agendaInputTitle" placeholder="Contoh: Rapat Pleno Panitia KIP 2026" class="w-full h-10 px-3 bg-white border border-slate-300 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600 font-semibold text-slate-800 text-xs">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal</label>
-            <input type="date" id="agendaInputDate" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+            <label for="agendaInputDate" class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal</label>
+            <input type="date" id="agendaInputDate" class="w-full h-10 px-3 bg-white border border-slate-300 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600 font-semibold text-slate-800 text-xs">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Waktu</label>
-            <input type="time" id="agendaInputTime" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+            <label for="agendaInputTime" class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Waktu</label>
+            <input type="time" id="agendaInputTime" class="w-full h-10 px-3 bg-white border border-slate-300 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600 font-semibold text-slate-800 text-xs">
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Lokasi Rapat</label>
-          <input type="text" id="agendaInputLocation" placeholder="Contoh: Gedung PKM Lantai 2 / Ruang Rapat" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+          <label for="agendaInputLocation" class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Lokasi Rapat</label>
+          <input type="text" id="agendaInputLocation" placeholder="Contoh: Gedung PKM Lantai 2 / Ruang Rapat" class="w-full h-10 px-3 bg-white border border-slate-300 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600 text-slate-800 text-xs">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Kode Sesi Rapat (Opsional Anti-Titip Absen)</label>
-          <input type="text" id="agendaInputCode" placeholder="Biarkan kosong jika tidak memakai kode" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase tracking-wider font-bold text-slate-800">
-          <p class="text-[10px] text-slate-400 mt-1">Jika diisi, anggota wajib memasukkan kode ini agar presensi sah.</p>
+          <label for="agendaInputCode" class="block font-bold text-slate-700 uppercase tracking-wider mb-1">Kode Sesi Rapat (Opsional Anti-Titip Absen)</label>
+          <input type="text" id="agendaInputCode" placeholder="Biarkan kosong jika tidak memakai kode" class="w-full h-10 px-3 bg-white border border-slate-300 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600 uppercase tracking-wider font-bold text-slate-800 text-xs">
+          <p class="text-[11px] text-slate-500 mt-1">Jika diisi, anggota wajib memasukkan kode ini agar kehadiran sah.</p>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-        <button onclick="closeModalGenerateAgenda()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+        <button onclick="closeModalGenerateAgenda()" type="button" class="h-9 px-4 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-lg text-xs border border-slate-300">
           Batal
         </button>
-        <button onclick="submitGenerateAgenda()" id="btnSubmitAgenda" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-md">
+        <button onclick="submitGenerateAgenda()" id="btnSubmitAgenda" type="button" class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 shadow-sm">
           <span>Aktifkan Agenda</span>
-          <div id="btnSubmitAgendaSpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          <div id="btnSubmitAgendaSpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
         </button>
       </div>
     </div>
@@ -490,71 +546,74 @@
   <!-- ============================================================== -->
   <!-- MODAL: QR CODE PRESENSI                                         -->
   <!-- ============================================================== -->
-  <div id="modalQRCode" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center space-y-4 animate-fadeIn">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="text-base font-bold text-slate-900">Scan QR Code Presensi</h3>
-        <button onclick="closeQRCodeModal()" class="text-slate-400 hover:text-slate-600">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+  <div id="modalQRCode" class="fixed inset-0 z-50 bg-slate-900/50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalQRTitle">
+    <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-xl border border-slate-200 text-center space-y-4 animate-fadeIn">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <h3 id="modalQRTitle" class="text-base font-bold text-slate-900">Scan QR Code Presensi</h3>
+        <button onclick="closeQRCodeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-md" aria-label="Tutup dialog">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
 
-      <p class="text-xs text-slate-500">Arahkan kamera smartphone anggota ke QR Code untuk membuka form presensi langsung.</p>
+      <p class="text-xs text-slate-600">Arahkan kamera smartphone ke QR Code untuk membuka formulir presensi.</p>
 
-      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex justify-center items-center">
-        <div id="qrcodeWrapper" class="bg-white p-3 rounded-xl shadow-sm"></div>
+      <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 flex justify-center items-center">
+        <div id="qrcodeWrapper" class="bg-white p-2.5 rounded-md shadow-sm"></div>
       </div>
 
-      <div class="text-xs text-slate-400">
-        <span id="qrAgendaLabel" class="font-bold text-slate-700">Agenda Aktif</span>
+      <div class="text-xs text-slate-500">
+        Agenda: <strong id="qrAgendaLabel" class="text-slate-800">Rapat Panitia</strong>
       </div>
 
-      <button onclick="closeQRCodeModal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">
+      <button onclick="closeQRCodeModal()" type="button" class="w-full h-9 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold rounded-lg text-xs">
         Tutup
       </button>
     </div>
   </div>
 
   <!-- ============================================================== -->
-  <!-- MODAL: SUCCESS RECEIPT MODAL                                   -->
+  <!-- MODAL: BUKTI TIKET PRESENSI BERHASIL                           -->
   <!-- ============================================================== -->
-  <div id="modalReceipt" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-emerald-100 text-center space-y-4 animate-fadeIn">
-      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/20">
-        <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+  <div id="modalReceipt" class="fixed inset-0 z-50 bg-slate-900/50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalReceiptTitle">
+    <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-xl border border-slate-200 text-center space-y-4 animate-fadeIn">
+      
+      <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center" aria-hidden="true">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+        </svg>
       </div>
 
       <div>
-        <h3 class="text-xl font-extrabold text-slate-900">PRESENSI BERHASIL!</h3>
-        <p class="text-xs text-emerald-600 font-semibold mt-0.5">Kehadiran Anda Telah Terverifikasi</p>
+        <h3 id="modalReceiptTitle" class="text-lg font-bold text-slate-900">PRESENSI BERHASIL</h3>
+        <p class="text-xs font-semibold text-emerald-700 mt-0.5">Kehadiran Anda Telah Terverifikasi</p>
       </div>
 
-      <div class="bg-slate-50 p-4 rounded-xl text-left text-xs space-y-2 border border-slate-200">
+      <div class="bg-slate-50 p-4 rounded-lg text-left text-xs space-y-2 border border-slate-200">
         <div>
-          <span class="text-[10px] uppercase font-bold text-slate-400 block">Nama Anggota</span>
-          <span id="receiptNama" class="font-bold text-slate-800 text-sm">Rahmat Haikal</span>
+          <span class="text-[10px] uppercase font-bold text-slate-500 block">Nama Anggota</span>
+          <span id="receiptNama" class="font-bold text-slate-900 text-sm">Rahmat Haikal</span>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <span class="text-[10px] uppercase font-bold text-slate-400 block">NIM</span>
-            <span id="receiptNim" class="font-bold text-slate-800 font-mono">2024203020008</span>
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">NIM</span>
+            <span id="receiptNim" class="font-bold text-slate-900 font-mono">2024203020008</span>
           </div>
           <div>
-            <span class="text-[10px] uppercase font-bold text-slate-400 block">Sie</span>
-            <span id="receiptSie" class="font-bold text-slate-800">Pejabat Acara</span>
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Sie</span>
+            <span id="receiptSie" class="font-bold text-slate-900">Pejabat Acara</span>
           </div>
         </div>
         <div>
-          <span class="text-[10px] uppercase font-bold text-slate-400 block">Agenda Rapat</span>
-          <span id="receiptAgenda" class="font-bold text-slate-800 truncate block">Rapat Koordinasi Kasie</span>
+          <span class="text-[10px] uppercase font-bold text-slate-500 block">Agenda Rapat</span>
+          <span id="receiptAgenda" class="font-bold text-slate-900 truncate block">Rapat Koordinasi Kasie</span>
         </div>
         <div>
-          <span class="text-[10px] uppercase font-bold text-slate-400 block">Waktu Presensi</span>
-          <span id="receiptWaktu" class="font-bold text-slate-800">10 November 2026, 14:15:20 WIB</span>
+          <span class="text-[10px] uppercase font-bold text-slate-500 block">Waktu Presensi</span>
+          <span id="receiptWaktu" class="font-medium text-slate-700">10 November 2026, 14:15:20 WIB</span>
         </div>
       </div>
 
-      <button onclick="closeReceiptModal()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all shadow-md">
+      <button onclick="closeReceiptModal()" type="button" class="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition-colors shadow-sm">
         Selesai
       </button>
     </div>
@@ -562,7 +621,7 @@
 
   <!-- FOOTER -->
   <footer class="bg-white border-t border-slate-200 py-4 mt-8">
-    <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-400 space-y-1">
+    <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-500 space-y-1">
       <p>Panitia KIP 2026 &copy; Politeknik Negeri Lhokseumawe • Terintegrasi Google Sheets</p>
       <p class="text-[11px] text-slate-400">Database: <span class="font-mono text-slate-600">PANITIA KIP | AGENDA | raw_presensi | PRESENSI</span></p>
     </div>
@@ -571,4 +630,3 @@
   <?!= include('JavaScript'); ?>
 </body>
 </html>
-

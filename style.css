@@ -1,50 +1,95 @@
-/* Custom styling for Presensi Digital Panitia KIP 2026 */
+/* Modern Professional Administrative Dashboard - Presensi KIP 2026 */
 
+:root {
+  --color-navy: #14213D;
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+  --color-success: #10B981;
+}
+
+/* Accessibility affordances */
+a[href],
+button,
+select,
+label[for],
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+/* Focus visibility for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Custom crisp scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
+  background: #CBD5E1;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #94A3B8;
 }
 
-@keyframes pulseGlow {
+/* Base Card Styling */
+.card-base {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+}
+
+.card-elevated {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* Event Card Accent */
+.card-agenda {
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+  border: 1px solid #334155;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.2);
+}
+
+/* Subdued pulse for live indicators */
+@keyframes softPulse {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+    opacity: 1;
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(34, 197, 94, 0.8);
+    opacity: 0.5;
+    transform: scale(0.96);
   }
 }
-.active-pulse {
-  animation: pulseGlow 2.5s infinite ease-in-out;
+
+.indicator-pulse {
+  animation: softPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.glass-card-dark {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
-}
-
-.transition-all-smooth {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
+/* Reset number input spin buttons */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -54,9 +99,18 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-.text-gradient-primary {
-  background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Smooth motion with user reduction fallback */
+.transition-smooth {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
