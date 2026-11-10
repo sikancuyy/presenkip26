@@ -126,9 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (timeInput) timeInput.value = `${hh}:${min}`;
 
   // Restore Admin Session if logged in
-  if (currentAdminPin) {
-    document.getElementById('adminLoginGate').classList.add('hidden');
-    document.getElementById('adminPanel').classList.remove('hidden');
+  const loginGate = document.getElementById('adminLoginGate');
+  const adminPanel = document.getElementById('adminPanel');
+  if (currentAdminPin && loginGate && adminPanel) {
+    loginGate.classList.add('hidden');
+    adminPanel.classList.remove('hidden');
     refreshDashboard();
   }
 });
@@ -182,17 +184,20 @@ function handleUrlParameters() {
   const pageParam = params.get('page');
   const hash = window.location.hash;
 
-  // Jika di index.html dan parameter adalah admin, redirect ke admin.html jika bukan Google Apps Script
   const isGasEnvironment = (typeof google !== 'undefined' && google.script && google.script.run);
   const currentPath = window.location.pathname;
-  if (!isGasEnvironment && (pageParam === 'admin' || hash === '#admin')) {
-    if (!currentPath.includes('admin.html')) {
+
+  const isDedicatedAdmin = currentPath.includes('admin.html');
+  const isAdminView = isDedicatedAdmin || pageParam === 'admin' || hash === '#admin';
+
+  if (!isGasEnvironment) {
+    if (isAdminView && !isDedicatedAdmin) {
       window.location.href = 'admin.html';
       return;
     }
   }
 
-  if (pageParam === 'admin' || hash === '#admin') {
+  if (isAdminView) {
     switchView('admin');
   } else {
     switchView('presensi');
@@ -713,11 +718,13 @@ function switchView(viewName) {
   const sidePresensi = document.getElementById('sidebarBtnPresensi');
   const sideAdmin = document.getElementById('sidebarBtnAdmin');
 
-  if (viewName === 'admin') {
-    viewPresensi.classList.add('hidden');
-    viewAdmin.classList.remove('hidden');
-    navAdmin.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
-    navPresensi.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+  const isDedicatedAdmin = window.location.pathname.includes('admin.html');
+
+  if (viewName === 'admin' || isDedicatedAdmin) {
+    if (viewPresensi) viewPresensi.classList.add('hidden');
+    if (viewAdmin) viewAdmin.classList.remove('hidden');
+    if (navAdmin) navAdmin.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (navPresensi) navPresensi.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
     
     // Tampilkan sidebar HANYA pada panel admin
     if (sidebarDock) {
@@ -731,10 +738,10 @@ function switchView(viewName) {
       refreshDashboard();
     }
   } else {
-    viewAdmin.classList.add('hidden');
-    viewPresensi.classList.remove('hidden');
-    navPresensi.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
-    navAdmin.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (viewAdmin) viewAdmin.classList.add('hidden');
+    if (viewPresensi) viewPresensi.classList.remove('hidden');
+    if (navPresensi) navPresensi.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (navAdmin) navAdmin.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
     
     // Sembunyikan sidebar di halaman presensi / formSection
     if (sidebarDock) {
@@ -771,8 +778,10 @@ function doAdminLogin() {
         if (res.success) {
           currentAdminPin = pin;
           sessionStorage.setItem('kip_admin_pin', pin);
-          document.getElementById('adminLoginGate').classList.add('hidden');
-          document.getElementById('adminPanel').classList.remove('hidden');
+          const gate = document.getElementById('adminLoginGate');
+          const panel = document.getElementById('adminPanel');
+          if (gate) gate.classList.add('hidden');
+          if (panel) panel.classList.remove('hidden');
           showToast('success', 'Login Berhasil', 'Selamat datang di panel admin.');
           refreshDashboard();
         } else {
@@ -800,8 +809,10 @@ function doAdminLogin() {
         if (res.success) {
           currentAdminPin = pin;
           sessionStorage.setItem('kip_admin_pin', pin);
-          document.getElementById('adminLoginGate').classList.add('hidden');
-          document.getElementById('adminPanel').classList.remove('hidden');
+          const gate = document.getElementById('adminLoginGate');
+          const panel = document.getElementById('adminPanel');
+          if (gate) gate.classList.add('hidden');
+          if (panel) panel.classList.remove('hidden');
           showToast('success', 'Login Berhasil', 'Selamat datang di panel admin.');
           refreshDashboard();
         } else {
@@ -827,8 +838,10 @@ function fallbackLocalLogin(pin, btnText, btnSpinner, pinInput) {
     if (pin === validPin) {
       currentAdminPin = pin;
       sessionStorage.setItem('kip_admin_pin', pin);
-      document.getElementById('adminLoginGate').classList.add('hidden');
-      document.getElementById('adminPanel').classList.remove('hidden');
+      const gate = document.getElementById('adminLoginGate');
+      const panel = document.getElementById('adminPanel');
+      if (gate) gate.classList.add('hidden');
+      if (panel) panel.classList.remove('hidden');
       showToast('success', 'Login Berhasil', 'Selamat datang di Dashboard Admin KIP 2026.');
       refreshDashboard();
     } else {
@@ -841,9 +854,12 @@ function fallbackLocalLogin(pin, btnText, btnSpinner, pinInput) {
 function logoutAdmin() {
   currentAdminPin = null;
   sessionStorage.removeItem('kip_admin_pin');
-  document.getElementById('adminPanel').classList.add('hidden');
-  document.getElementById('adminLoginGate').classList.remove('hidden');
-  document.getElementById('adminPinInput').value = '';
+  const panel = document.getElementById('adminPanel');
+  const gate = document.getElementById('adminLoginGate');
+  const pinInput = document.getElementById('adminPinInput');
+  if (panel) panel.classList.add('hidden');
+  if (gate) gate.classList.remove('hidden');
+  if (pinInput) pinInput.value = '';
   showToast('info', 'Logout', 'Anda telah keluar dari mode admin.');
 }
 
