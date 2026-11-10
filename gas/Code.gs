@@ -284,17 +284,57 @@ function searchPanitiaByNIM(inputNim) {
         hpStr = "0" + hpStr.substring(2);
       }
 
+      const panitiaData = {
+        no: row[0],
+        nama: String(rowNama).trim(),
+        nim: rowNimStr,
+        jabatan: String(row[colJabatan] || "-").trim(),
+        sie: String(row[colSie] || "-").trim(),
+        noHp: hpStr,
+        delegasi: String(row[colDelegasi] || "-").trim(),
+        alreadyAttended: false,
+        waktuPresensi: null,
+        hasActiveAgenda: false,
+        activeAgendaTitle: null,
+        activeAgendaId: null
+      };
+
+      // Cek status kehadiran pada agenda aktif jika ada
+      try {
+        const agendaRes = getActiveAgenda();
+        if (agendaRes && agendaRes.success && agendaRes.agenda) {
+          panitiaData.hasActiveAgenda = true;
+          panitiaData.activeAgendaId = agendaRes.agenda.id;
+          panitiaData.activeAgendaTitle = agendaRes.agenda.title;
+
+          const rawSheet = ss.getSheetByName(SHEET_RAW);
+          if (rawSheet && rawSheet.getLastRow() > 1) {
+            const rawData = rawSheet.getDataRange().getValues();
+            for (let r = 1; r < rawData.length; r++) {
+              const rawRow = rawData[r];
+              const rAgendaId = String(rawRow[1]);
+              let rNim = "";
+              if (typeof rawRow[3] === "number") {
+                rNim = Math.floor(rawRow[3]).toString();
+              } else {
+                rNim = String(rawRow[3]).trim().replace(/\D/g, "");
+              }
+
+              if (rAgendaId === agendaRes.agenda.id && rNim === cleanNim) {
+                panitiaData.alreadyAttended = true;
+                panitiaData.waktuPresensi = formatPresensiTime(rawRow[9]) || "Terdata";
+                break;
+              }
+            }
+          }
+        }
+      } catch (checkErr) {
+        // Fallback aman bila pembacaan status agenda/raw gagal
+      }
+
       return {
         success: true,
-        data: {
-          no: row[0],
-          nama: String(rowNama).trim(),
-          nim: rowNimStr,
-          jabatan: String(row[colJabatan] || "-").trim(),
-          sie: String(row[colSie] || "-").trim(),
-          noHp: hpStr,
-          delegasi: String(row[colDelegasi] || "-").trim()
-        }
+        data: panitiaData
       };
     }
   }
@@ -488,6 +528,7 @@ function submitPresensi(payload) {
         return {
           success: false,
           duplicate: true,
+          waktuPresensi: existingWaktu,
           message: "Anda (" + panitia.nama + ") SUDAH melakukan presensi untuk agenda '" + activeAgenda.title + "' pada pukul " + existingWaktu + " WIB."
         };
       }

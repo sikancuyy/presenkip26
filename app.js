@@ -403,15 +403,14 @@ function searchNIM() {
           renderPanitiaBiodata(res.data);
           showToast('success', 'Biodata Ditemukan', `Halo, ${res.data.nama}`);
         } else {
-          document.getElementById('biodataContainer').classList.add('hidden');
-          showAlert('error', res.message || 'NIM tidak ditemukan dalam database Panitia KIP 2026.');
+          fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn);
         }
       })
       .withFailureHandler((err) => {
         btnText.textContent = 'CARI DATA';
         btnSpinner.classList.add('hidden');
         btn.disabled = false;
-        showAlert('error', 'Terjadi kesalahan sistem: ' + err.message);
+        fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn);
       })
       .searchPanitiaByNIM(cleanNim);
     return;
@@ -427,11 +426,18 @@ function searchNIM() {
         btn.disabled = false;
 
         if (res.success && res.data) {
+          // Sinkronisasi status sudah absen dengan dashboardCache jika ada
+          if (!res.data.alreadyAttended && window.activeAgendaState && dashboardCache && dashboardCache.panitia) {
+            const cachedP = dashboardCache.panitia.find(p => String(p.nim).replace(/\D/g, '') === cleanNim);
+            if (cachedP && cachedP.status === 'HADIR') {
+              res.data.alreadyAttended = true;
+              res.data.waktuPresensi = formatPresensiTime(cachedP.waktuPresensi) || 'Terdata';
+            }
+          }
           renderPanitiaBiodata(res.data);
           showToast('success', 'Biodata Ditemukan', `Halo, ${res.data.nama}`);
         } else {
-          document.getElementById('biodataContainer').classList.add('hidden');
-          showAlert('error', res.message || 'NIM tidak terdaftar di Google Sheet.');
+          fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn);
         }
       })
       .catch(err => {
@@ -458,28 +464,51 @@ function fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn) {
     });
 
     if (found) {
-      renderPanitiaBiodata({
+      const panitiaData = {
         no: found.no,
         nama: found.nama,
         nim: String(found.nim).replace(/\D/g, ''),
         jabatan: found.jabatan || '-',
         sie: found.sie || '-',
         noHp: found.no_hp || '-',
-        delegasi: found.delegasi || '-'
-      });
+        delegasi: found.delegasi || '-',
+        alreadyAttended: false,
+        waktuPresensi: null,
+        hasActiveAgenda: !!window.activeAgendaState,
+        activeAgendaTitle: window.activeAgendaState ? window.activeAgendaState.title : null,
+        activeAgendaId: window.activeAgendaState ? window.activeAgendaState.id : null
+      };
+
+      // Cek apakah sudah absen di local storage raw_presensi
+      if (window.activeAgendaState) {
+        try {
+          const rawLocal = JSON.parse(localStorage.getItem('kip_raw_presensi') || '[]');
+          const attendedRecord = rawLocal.find(r => 
+            String(r.agendaId) === String(window.activeAgendaState.id) && 
+            String(r.nim).replace(/\D/g, '') === cleanNim
+          );
+          if (attendedRecord) {
+            panitiaData.alreadyAttended = true;
+            panitiaData.waktuPresensi = formatPresensiTime(attendedRecord.waktuPresensi || attendedRecord.waktu) || 'Terdata';
+          }
+        } catch (e) {}
+      }
+
+      renderPanitiaBiodata(panitiaData);
       showToast('success', 'Biodata Ditemukan', `Halo, ${found.nama}`);
     } else {
-      document.getElementById('biodataContainer').classList.add('hidden');
+      const bioContainer = document.getElementById('biodataContainer');
+      if (bioContainer) bioContainer.classList.add('hidden');
       showAlert('error', `NIM (${cleanNim}) tidak ditemukan dalam database Panitia KIP 2026. Pastikan nomor yang dimasukkan benar.`);
     }
-  }, 200);
+  }, 150);
 }
 
 function renderPanitiaBiodata(panitia) {
   currentPanitiaData = panitia;
 
   // Inisial Avatar
-  const names = panitia.nama.split(' ').filter(Boolean);
+  const names = (panitia.nama || '').split(' ').filter(Boolean);
   let initials = names[0] ? names[0][0] : 'K';
   if (names.length > 1) initials += names[names.length - 1][0];
   const avatarElem = document.getElementById('avatarInitials');
@@ -490,6 +519,8 @@ function renderPanitiaBiodata(panitia) {
   const bioJabatan = document.getElementById('bioJabatan');
   const bioSie = document.getElementById('bioSie');
   const bioDelegasi = document.getElementById('bioDelegasi');
+  const bioStatusBadge = document.getElementById('bioStatusBadge');
+  const noticeElem = document.getElementById('bioAttendanceNotice');
 
   if (bioNama) bioNama.textContent = panitia.nama;
   if (bioNim) bioNim.textContent = panitia.nim;
@@ -498,33 +529,123 @@ function renderPanitiaBiodata(panitia) {
   if (bioDelegasi) bioDelegasi.textContent = panitia.delegasi || '-';
 
   const sessionField = document.getElementById('sessionCodeField');
-  if (sessionField) {
-    if (window.activeAgendaState && window.activeAgendaState.hasSessionCode) {
-      sessionField.classList.remove('hidden');
-    } else {
-      sessionField.classList.add('hidden');
-    }
-  }
-
   const btnHadir = document.getElementById('btnHadir');
   const btnHadirText = document.getElementById('btnHadirText');
+  const btnHadirIcon = document.getElementById('btnHadirIcon');
 
-  if (!window.activeAgendaState) {
-    showAlert('info', 'Biodata panitia terverifikasi di SK Panitia KIP 2026. Presensi dapat dikonfirmasi saat pimpinan rapat telah membuka agenda.');
+  hideAlert();
+
+  // Kondisi 1: SUDAH ABSEN PADA SESI / AGENDA INI
+  if (panitia.alreadyAttended) {
+    const waktuFormatted = panitia.waktuPresensi ? formatPresensiTime(panitia.waktuPresensi) : '';
+    const waktuText = waktuFormatted ? `${waktuFormatted} WIB` : 'Tercatat';
+    const agendaTitle = (window.activeAgendaState ? window.activeAgendaState.title : (panitia.activeAgendaTitle || 'Agenda Rapat Aktif'));
+
+    if (bioStatusBadge) {
+      bioStatusBadge.className = "badge-pnl-emerald px-2.5 py-0.5 text-[11px] font-bold inline-flex items-center gap-1";
+      bioStatusBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> SUDAH ABSEN (${waktuText})`;
+    }
+
+    if (noticeElem) {
+      noticeElem.className = "rounded-2xl p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 animate-fadeIn";
+      noticeElem.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h4 class="font-extrabold text-sm text-emerald-950">SUDAH MELAKUKAN PRESENSI</h4>
+              <span class="bg-emerald-200 text-emerald-900 font-mono font-bold text-[11px] px-2 py-0.5 rounded-md">${waktuText}</span>
+            </div>
+            <p class="text-xs text-emerald-700 mt-1 leading-relaxed">
+              Halo <strong>${panitia.nama}</strong>, bukti kehadiran Anda untuk agenda <strong>${agendaTitle}</strong> telah tercatat pada pukul <strong>${waktuText}</strong>. Anda tidak perlu mengirim presensi ulang.
+            </p>
+          </div>
+        </div>
+      `;
+      noticeElem.classList.remove('hidden');
+    }
+
+    if (sessionField) sessionField.classList.add('hidden');
+
     if (btnHadir) {
       btnHadir.disabled = true;
-      btnHadir.classList.remove('btn-pnl-red');
-      btnHadir.classList.add('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
+      btnHadir.className = "btn-pnl-emerald w-full min-h-[54px] py-3.5 px-6 rounded-2xl text-sm sm:text-base font-extrabold tracking-wider flex items-center justify-center gap-2.5 cursor-default opacity-95 shadow-sm";
     }
-    if (btnHadirText) btnHadirText.textContent = 'AGENDA RAPAT BELUM DIBUKA';
-  } else {
-    hideAlert();
+    if (btnHadirText) btnHadirText.textContent = `SUDAH ABSEN (${waktuText})`;
+    if (btnHadirIcon) {
+      btnHadirIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
+    }
+  } 
+  // Kondisi 2: BELUM ABSEN & AGENDA SEDANG AKTIF
+  else if (window.activeAgendaState && window.activeAgendaState.status === 'AKTIF') {
+    if (bioStatusBadge) {
+      bioStatusBadge.className = "badge-pnl-emerald px-2.5 py-0.5 text-[11px]";
+      bioStatusBadge.textContent = "Terdaftar di SK Panitia";
+    }
+
+    if (noticeElem) {
+      noticeElem.classList.add('hidden');
+      noticeElem.innerHTML = '';
+    }
+
+    if (sessionField) {
+      if (window.activeAgendaState.hasSessionCode) {
+        sessionField.classList.remove('hidden');
+      } else {
+        sessionField.classList.add('hidden');
+      }
+    }
+
     if (btnHadir) {
       btnHadir.disabled = false;
-      btnHadir.classList.add('btn-pnl-red');
-      btnHadir.classList.remove('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
+      btnHadir.className = "btn-pnl-red w-full min-h-[54px] py-3.5 px-6 rounded-2xl text-sm sm:text-base font-extrabold tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-[0.99]";
     }
     if (btnHadirText) btnHadirText.textContent = 'KONFIRMASI HADIR';
+    if (btnHadirIcon) {
+      btnHadirIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>`;
+    }
+  } 
+  // Kondisi 3: TIDAK ADA SESI / AGENDA AKTIF (OFFLINE)
+  else {
+    if (bioStatusBadge) {
+      bioStatusBadge.className = "badge-pnl-gold px-2.5 py-0.5 text-[11px] font-bold";
+      bioStatusBadge.textContent = "Terdaftar di SK Panitia";
+    }
+
+    if (noticeElem) {
+      noticeElem.className = "rounded-2xl p-4 bg-amber-50 border border-amber-200 text-amber-900 animate-fadeIn";
+      noticeElem.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-extrabold text-sm text-amber-950">Biodata Terverifikasi (Belum Ada Sesi Aktif)</h4>
+            <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+              Halo <strong>${panitia.nama}</strong>, biodata Anda terdaftar resmi pada SK Panitia KIP 2026. Tombol kehadiran akan aktif secara otomatis saat pimpinan sidang membuka agenda rapat resmi.
+            </p>
+          </div>
+        </div>
+      `;
+      noticeElem.classList.remove('hidden');
+    }
+
+    if (sessionField) sessionField.classList.add('hidden');
+
+    if (btnHadir) {
+      btnHadir.disabled = true;
+      btnHadir.className = "w-full min-h-[54px] py-3.5 px-6 rounded-2xl bg-slate-200 text-slate-500 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 cursor-not-allowed shadow-none";
+    }
+    if (btnHadirText) btnHadirText.textContent = 'AGENDA RAPAT BELUM DIBUKA';
+    if (btnHadirIcon) {
+      btnHadirIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
+    }
   }
 
   const bioContainer = document.getElementById('biodataContainer');
@@ -585,6 +706,11 @@ function submitKehadiran() {
           if (res.duplicate) {
             showAlert('warning', res.message);
             showToast('warning', 'Sudah Presensi', res.message);
+            if (currentPanitiaData) {
+              currentPanitiaData.alreadyAttended = true;
+              currentPanitiaData.waktuPresensi = formatPresensiTime(res.waktuPresensi || new Date());
+              renderPanitiaBiodata(currentPanitiaData);
+            }
           } else {
             showAlert('error', res.message);
             showToast('error', 'Presensi Gagal', res.message);
@@ -623,6 +749,11 @@ function submitKehadiran() {
         if (res.duplicate) {
           showAlert('warning', res.message);
           showToast('warning', 'Sudah Presensi', res.message);
+          if (currentPanitiaData) {
+            currentPanitiaData.alreadyAttended = true;
+            currentPanitiaData.waktuPresensi = formatPresensiTime(res.waktuPresensi || new Date());
+            renderPanitiaBiodata(currentPanitiaData);
+          }
         } else {
           showAlert('error', res.message);
           showToast('error', 'Presensi Gagal', res.message);
@@ -662,6 +793,11 @@ function fallbackLocalSubmit(payload, btnText, btnSpinner, btn) {
       const msg = `Anda (${currentPanitiaData.nama}) SUDAH melakukan presensi untuk agenda '${window.activeAgendaState.title}' pada pukul ${alreadySubmitted.waktu} WIB.`;
       showAlert('warning', msg);
       showToast('warning', 'Duplikasi Terdeteksi', msg);
+      if (currentPanitiaData) {
+        currentPanitiaData.alreadyAttended = true;
+        currentPanitiaData.waktuPresensi = formatPresensiTime(alreadySubmitted.waktu);
+        renderPanitiaBiodata(currentPanitiaData);
+      }
       return;
     }
 

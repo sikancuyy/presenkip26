@@ -331,7 +331,7 @@
                       <h4 id="bioNama" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">-</h4>
                       <div class="flex items-center gap-2 mt-1 flex-wrap">
                         <span id="bioNim" class="font-mono text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2.5 py-0.5 rounded-lg">-</span>
-                        <span class="badge-pnl-emerald px-2.5 py-0.5 text-[11px]">Terdaftar di SK Panitia</span>
+                        <span id="bioStatusBadge" class="badge-pnl-emerald px-2.5 py-0.5 text-[11px]">Terdaftar di SK Panitia</span>
                       </div>
                     </div>
                   </div>
@@ -354,6 +354,9 @@
 
                 </div>
 
+                <!-- Status Presensi Notice (Sudah Absen / Sesi Tidak Aktif) -->
+                <div id="bioAttendanceNotice" class="hidden rounded-2xl p-4 text-xs font-medium border transition-all animate-fadeIn"></div>
+
                 <!-- Session Code Field -->
                 <div id="sessionCodeField" class="hidden">
                   <label for="inputSessionCode" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
@@ -372,13 +375,13 @@
                   type="button" 
                   id="btnHadir" 
                   onclick="submitKehadiran()" 
-                  class="btn-pnl-red w-full h-13 text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+                  class="btn-pnl-red w-full min-h-[54px] py-3.5 px-6 rounded-2xl text-sm sm:text-base font-extrabold tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-[0.99]"
                 >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg id="btnHadirIcon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span id="btnHadirText">KONFIRMASI HADIR</span>
-                  <div id="btnHadirSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
+                  <div id="btnHadirSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" aria-hidden="true"></div>
                 </button>
 
               </div>
