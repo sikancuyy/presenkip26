@@ -100,11 +100,6 @@
       return;
     }
 
-    if (!activeAgendaState) {
-      showToast('error', 'Agenda Belum Aktif', 'Tidak ada agenda rapat yang sedang berlangsung untuk diisi presensi.');
-      return;
-    }
-
     // UI Loading state
     const btnText = document.getElementById('btnCariText');
     const btnSpinner = document.getElementById('btnCariSpinner');
@@ -147,23 +142,54 @@
     const names = panitia.nama.split(' ').filter(Boolean);
     let initials = names[0] ? names[0][0] : 'K';
     if (names.length > 1) initials += names[names.length - 1][0];
-    document.getElementById('avatarInitials').textContent = initials.toUpperCase();
+    const avatarElem = document.getElementById('avatarInitials');
+    if (avatarElem) avatarElem.textContent = initials.toUpperCase();
 
-    document.getElementById('bioNama').textContent = panitia.nama;
-    document.getElementById('bioNim').textContent = panitia.nim;
-    document.getElementById('bioJabatan').textContent = panitia.jabatan || '-';
-    document.getElementById('bioSie').textContent = panitia.sie || '-';
-    document.getElementById('bioDelegasi').textContent = panitia.delegasi || '-';
+    const bioNama = document.getElementById('bioNama');
+    const bioNim = document.getElementById('bioNim');
+    const bioJabatan = document.getElementById('bioJabatan');
+    const bioSie = document.getElementById('bioSie');
+    const bioDelegasi = document.getElementById('bioDelegasi');
+
+    if (bioNama) bioNama.textContent = panitia.nama;
+    if (bioNim) bioNim.textContent = panitia.nim;
+    if (bioJabatan) bioJabatan.textContent = panitia.jabatan || '-';
+    if (bioSie) bioSie.textContent = panitia.sie || '-';
+    if (bioDelegasi) bioDelegasi.textContent = panitia.delegasi || '-';
 
     // Show session code field if active agenda requires it
     const sessionField = document.getElementById('sessionCodeField');
-    if (activeAgendaState && activeAgendaState.hasSessionCode) {
-      sessionField.classList.remove('hidden');
-    } else {
-      sessionField.classList.add('hidden');
+    if (sessionField) {
+      if (activeAgendaState && activeAgendaState.hasSessionCode) {
+        sessionField.classList.remove('hidden');
+      } else {
+        sessionField.classList.add('hidden');
+      }
     }
 
-    document.getElementById('biodataContainer').classList.remove('hidden');
+    const btnHadir = document.getElementById('btnHadir');
+    const btnHadirText = document.getElementById('btnHadirText');
+
+    if (!activeAgendaState) {
+      showAlert('info', 'Biodata panitia terverifikasi di SK Panitia KIP 2026. Presensi dapat dikonfirmasi saat pimpinan rapat telah membuka agenda.');
+      if (btnHadir) {
+        btnHadir.disabled = true;
+        btnHadir.classList.remove('btn-pnl-red');
+        btnHadir.classList.add('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
+      }
+      if (btnHadirText) btnHadirText.textContent = 'AGENDA RAPAT BELUM DIBUKA';
+    } else {
+      hideAlert();
+      if (btnHadir) {
+        btnHadir.disabled = false;
+        btnHadir.classList.add('btn-pnl-red');
+        btnHadir.classList.remove('bg-slate-300', 'text-slate-600', 'cursor-not-allowed');
+      }
+      if (btnHadirText) btnHadirText.textContent = 'KONFIRMASI HADIR';
+    }
+
+    const bioContainer = document.getElementById('biodataContainer');
+    if (bioContainer) bioContainer.classList.remove('hidden');
   }
 
   /**
@@ -380,34 +406,55 @@
   }
 
   function renderDashboard(data) {
-    // 1. Stats Counter
-    document.getElementById('statTotalPanitia').textContent = data.stats.totalPanitia;
-    document.getElementById('statSudahHadir').textContent = data.stats.sudahHadir;
-    document.getElementById('statBelumHadir').textContent = data.stats.belumHadir;
-    document.getElementById('statPersentase').textContent = data.stats.persentase;
-    document.getElementById('statProgressBar').style.width = `${Math.min(100, parseFloat(data.stats.persentase))}%`;
+    // 1. Stats Counter with safe lookups
+    const totalElem = document.getElementById('statTotalPanitia');
+    const hadirElem = document.getElementById('statSudahHadir') || document.getElementById('statHadir');
+    const belumHadirElem = document.getElementById('statBelumHadir');
+    const persentaseElem = document.getElementById('statPersentase');
+    const progressElem = document.getElementById('statProgressBar');
+
+    if (totalElem) totalElem.textContent = data.stats.totalPanitia;
+    if (hadirElem) hadirElem.textContent = data.stats.sudahHadir;
+    if (belumHadirElem) belumHadirElem.textContent = data.stats.belumHadir;
+    if (persentaseElem) {
+      const rawPct = String(data.stats.persentase || '0');
+      persentaseElem.textContent = rawPct.endsWith('%') ? rawPct : `${rawPct}%`;
+    }
+    if (progressElem) {
+      progressElem.style.width = `${Math.min(100, parseFloat(data.stats.persentase || 0))}%`;
+    }
 
     // 2. Active Agenda Meta
-    if (data.activeAgenda) {
-      document.getElementById('adminAgendaTitle').textContent = data.activeAgenda.title;
-      document.getElementById('adminAgendaMeta').innerHTML = `ID: <span class="font-mono">${data.activeAgenda.id}</span> • ${data.activeAgenda.date}, ${data.activeAgenda.time}`;
+    const agendaIdElem = document.getElementById('adminAgendaId');
+    const agendaTitleElem = document.getElementById('adminAgendaTitle');
+    const agendaMetaElem = document.getElementById('adminAgendaMeta');
+
+    if (data.activeAgenda && data.activeAgenda.status === 'AKTIF') {
+      if (agendaIdElem) agendaIdElem.textContent = data.activeAgenda.id;
+      if (agendaTitleElem) agendaTitleElem.textContent = data.activeAgenda.title;
+      if (agendaMetaElem) {
+        agendaMetaElem.innerHTML = `<span>Tanggal: ${data.activeAgenda.date}</span><span>•</span><span>Waktu: ${data.activeAgenda.time}</span><span>•</span><span>Lokasi: ${data.activeAgenda.location || '-'}</span>`;
+      }
     } else {
-      document.getElementById('adminAgendaTitle').textContent = 'Tidak Ada Agenda Aktif';
-      document.getElementById('adminAgendaMeta').textContent = 'Klik "Generate Agenda" untuk membuat agenda rapat baru.';
+      if (agendaIdElem) agendaIdElem.textContent = 'OFFLINE';
+      if (agendaTitleElem) agendaTitleElem.textContent = 'Tidak Ada Agenda Aktif';
+      if (agendaMetaElem) agendaMetaElem.textContent = 'Klik "Generate Agenda" untuk membuat agenda rapat baru.';
     }
 
     // 3. Populate Filter Sie Dropdown
     const filterSie = document.getElementById('filterSie');
-    const curSieVal = filterSie.value;
-    filterSie.innerHTML = '<option value="">Semua Sie</option>';
-    if (data.sieList) {
-      data.sieList.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        if (s === curSieVal) opt.selected = true;
-        filterSie.appendChild(opt);
-      });
+    if (filterSie) {
+      const curSieVal = filterSie.value;
+      filterSie.innerHTML = '<option value="">Semua Sie</option>';
+      if (data.sieList) {
+        data.sieList.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = s;
+          if (s === curSieVal) opt.selected = true;
+          filterSie.appendChild(opt);
+        });
+      }
     }
 
     // 4. Update Visual Sie Chart (Quixotic Engagement Style)
@@ -457,16 +504,20 @@
   function applyFilters() {
     if (!dashboardCache || !dashboardCache.panitia) return;
 
-    const filterSie = document.getElementById('filterSie').value;
-    const filterStatus = document.getElementById('filterStatus').value;
-    const searchVal = document.getElementById('searchPanitiaInput').value.toLowerCase().trim();
+    const filterSieElem = document.getElementById('filterSie');
+    const filterStatusElem = document.getElementById('filterStatus');
+    const searchInputElem = document.getElementById('searchPanitiaInput');
+
+    const filterSie = filterSieElem ? filterSieElem.value : '';
+    const filterStatus = filterStatusElem ? filterStatusElem.value : '';
+    const searchVal = searchInputElem ? searchInputElem.value.toLowerCase().trim() : '';
 
     const filtered = dashboardCache.panitia.filter(item => {
       if (filterSie && item.sie !== filterSie) return false;
       if (filterStatus && item.status !== filterStatus) return false;
       if (searchVal) {
-        const matchNama = item.nama.toLowerCase().includes(searchVal);
-        const matchNim = item.nim.toLowerCase().includes(searchVal);
+        const matchNama = (item.nama || '').toLowerCase().includes(searchVal);
+        const matchNim = (item.nim || '').toLowerCase().includes(searchVal);
         if (!matchNama && !matchNim) return false;
       }
       return true;
@@ -476,17 +527,23 @@
   }
 
   function renderPanitiaTable(list) {
-    const tbody = document.getElementById('panitiaTableBody');
+    const tbody = document.getElementById('panitiaTableBody') || document.getElementById('tableBodyPanitia');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
-    if (list.length === 0) {
+    const summaryElem = document.getElementById('tableSummary') || document.getElementById('tableSummaryLabel');
+
+    if (!list || list.length === 0) {
       tbody.innerHTML = `
         <tr>
           <td colspan="8" class="p-6 text-center text-slate-400">
             Tidak ada data panitia yang cocok dengan filter pencarian.
           </td>
         </tr>`;
-      document.getElementById('tableSummary').textContent = `Menampilkan 0 dari ${dashboardCache.panitia.length} panitia`;
+      if (summaryElem) {
+        const total = dashboardCache && dashboardCache.panitia ? dashboardCache.panitia.length : 0;
+        summaryElem.textContent = `Menampilkan 0 dari ${total} panitia`;
+      }
       return;
     }
 
@@ -519,7 +576,10 @@
       tbody.appendChild(tr);
     });
 
-    document.getElementById('tableSummary').textContent = `Menampilkan ${list.length} dari ${dashboardCache.panitia.length} panitia`;
+    if (summaryElem) {
+      const total = dashboardCache && dashboardCache.panitia ? dashboardCache.panitia.length : list.length;
+      summaryElem.textContent = `Menampilkan ${list.length} dari ${total} panitia`;
+    }
   }
 
   /**
@@ -616,11 +676,60 @@
   }
 
   /**
+   * Export CSV Helper with UTF-8 BOM
+   */
+  function exportTableToCSV() {
+    let listToExport = [];
+    if (dashboardCache && dashboardCache.panitia && dashboardCache.panitia.length > 0) {
+      listToExport = dashboardCache.panitia;
+    }
+
+    if (listToExport.length === 0) {
+      showToast('warning', 'Data Kosong', 'Tidak ada data panitia untuk diekspor.');
+      return;
+    }
+
+    const title = (activeAgendaState ? activeAgendaState.title : 'Rekap Kehadiran Panitia KIP 2026');
+    let csv = '\uFEFF';
+    csv += `"No","Nama Lengkap","NIM","Sie","Jabatan","Delegasi","Status Kehadiran","Waktu Presensi"\n`;
+
+    listToExport.forEach((p, i) => {
+      const no = p.no || (i + 1);
+      const nama = (p.nama || '').replace(/"/g, '""');
+      const nim = p.nim ? `'${p.nim}` : '-';
+      const sie = (p.sie || '-').replace(/"/g, '""');
+      const jabatan = (p.jabatan || '-').replace(/"/g, '""');
+      const delegasi = (p.delegasi || '-').replace(/"/g, '""');
+      const status = p.status || 'BELUM HADIR';
+      const waktu = p.waktuPresensi || '-';
+      csv += `"${no}","${nama}","${nim}","${sie}","${jabatan}","${delegasi}","${status}","${waktu}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const cleanTitle = title.replace(/[^a-zA-Z0-9_-]/g, '_');
+    a.download = `Presensi_${cleanTitle}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('success', 'CSV Berhasil Diunduh', `File CSV (${listToExport.length} data panitia) berhasil disimpan.`);
+  }
+
+  function printAttendanceSheet() {
+    window.print();
+  }
+
+  /**
    * QR Code Presensi
    */
   function showQRCodeModal() {
-    const curUrl = window.location.href;
+    let curUrl = window.location.href;
+    curUrl = curUrl.replace('page=admin', 'page=presensi');
     const wrapper = document.getElementById('qrcodeWrapper');
+    if (!wrapper) return;
     wrapper.innerHTML = '';
 
     qrcodeInstance = new QRCode(wrapper, {
@@ -633,10 +742,14 @@
     });
 
     const title = activeAgendaState ? activeAgendaState.title : 'Presensi KIP 2026';
-    document.getElementById('qrAgendaLabel').textContent = title;
+    const label = document.getElementById('qrAgendaLabel');
+    if (label) label.textContent = title;
 
-    document.getElementById('modalQRCode').classList.remove('hidden');
-    document.getElementById('modalQRCode').classList.add('flex');
+    const modal = document.getElementById('modalQRCode');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
   }
 
   function closeQRCodeModal() {
