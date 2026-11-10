@@ -309,11 +309,18 @@ function handleActiveAgendaResponse(res) {
     // Presensi view banner (index.html)
     const bId = document.getElementById('bannerAgendaId');
     const bTitle = document.getElementById('bannerAgendaTitle');
+    const bSubtitle = document.getElementById('bannerAgendaSubtitle');
+    const bStatus = document.getElementById('bannerStatusBadge');
     const bDate = document.getElementById('bannerAgendaDate');
     const bTime = document.getElementById('bannerAgendaTime');
     const bLoc = document.getElementById('bannerAgendaLocation');
     if (bId) bId.textContent = window.activeAgendaState.id;
     if (bTitle) bTitle.textContent = window.activeAgendaState.title;
+    if (bSubtitle) bSubtitle.textContent = 'Rapat sedang berlangsung. Silakan konfirmasi presensi.';
+    if (bStatus) {
+      bStatus.className = 'badge-pnl-emerald';
+      bStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 indicator-pulse"></span><span>Aktif</span>';
+    }
     if (bDate) bDate.textContent = window.activeAgendaState.date;
     if (bTime) bTime.textContent = window.activeAgendaState.time;
     if (bLoc) bLoc.textContent = window.activeAgendaState.location;
@@ -322,8 +329,12 @@ function handleActiveAgendaResponse(res) {
     const aId = document.getElementById('adminAgendaId');
     const aTitle = document.getElementById('adminAgendaTitle');
     const aMeta = document.getElementById('adminAgendaMeta');
+    const aDate = document.getElementById('adminAgendaDate');
+    const aTime = document.getElementById('adminAgendaTime');
     if (aId) aId.textContent = window.activeAgendaState.id;
     if (aTitle) aTitle.textContent = window.activeAgendaState.title;
+    if (aDate) aDate.textContent = window.activeAgendaState.date || '-';
+    if (aTime) aTime.textContent = window.activeAgendaState.time || '-';
     if (aMeta) {
       const codeBadge = window.activeAgendaState.sessionCode 
         ? `<span class="badge-pnl-gold font-mono font-bold px-2 py-0.5 text-[11px] ml-2">KODE: ${window.activeAgendaState.sessionCode}</span>` 
@@ -348,20 +359,31 @@ function renderNoAgendaState() {
   window.activeAgendaState = null;
   const bId = document.getElementById('bannerAgendaId');
   const bTitle = document.getElementById('bannerAgendaTitle');
+  const bSubtitle = document.getElementById('bannerAgendaSubtitle');
+  const bStatus = document.getElementById('bannerStatusBadge');
   const bDate = document.getElementById('bannerAgendaDate');
   const bTime = document.getElementById('bannerAgendaTime');
   const bLoc = document.getElementById('bannerAgendaLocation');
   if (bId) bId.textContent = 'OFFLINE';
   if (bTitle) bTitle.textContent = 'Tidak Ada Agenda Aktif';
-  if (bDate) bDate.textContent = 'Belum ada rapat dibuka';
-  if (bTime) bTime.textContent = 'Menunggu Sekretaris / Admin';
-  if (bLoc) bLoc.textContent = 'Silakan hubungi pimpinan rapat';
+  if (bSubtitle) bSubtitle.textContent = 'Belum ada rapat yang dibuka saat ini.';
+  if (bStatus) {
+    bStatus.className = 'badge-pnl-offline';
+    bStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span><span>Offline</span>';
+  }
+  if (bDate) bDate.textContent = '-';
+  if (bTime) bTime.textContent = '-';
+  if (bLoc) bLoc.textContent = '-';
 
   const aId = document.getElementById('adminAgendaId');
   const aTitle = document.getElementById('adminAgendaTitle');
   const aMeta = document.getElementById('adminAgendaMeta');
+  const aDate = document.getElementById('adminAgendaDate');
+  const aTime = document.getElementById('adminAgendaTime');
   if (aId) aId.textContent = 'OFFLINE';
   if (aTitle) aTitle.textContent = 'Tidak Ada Agenda Aktif';
+  if (aDate) aDate.textContent = '-';
+  if (aTime) aTime.textContent = '-';
   if (aMeta) aMeta.textContent = 'Klik "Generate Agenda" untuk membuka agenda rapat baru.';
 }
 
@@ -550,10 +572,10 @@ function renderPanitiaBiodata(panitia) {
     }
 
     if (noticeElem) {
-      noticeElem.className = "rounded-2xl p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 animate-fadeIn";
+      noticeElem.className = "rounded-xl p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 animate-fadeIn";
       noticeElem.innerHTML = `
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
@@ -576,7 +598,7 @@ function renderPanitiaBiodata(panitia) {
 
     if (btnHadir) {
       btnHadir.disabled = true;
-      btnHadir.className = "btn-pnl-emerald w-full min-h-[54px] py-3.5 px-6 rounded-2xl text-sm sm:text-base font-extrabold tracking-wider flex items-center justify-center gap-2.5 cursor-default opacity-95 shadow-sm";
+      btnHadir.className = "btn-pnl-emerald w-full min-h-[50px] py-3 px-6 text-sm sm:text-base font-extrabold tracking-wider flex items-center justify-center gap-2.5 cursor-default opacity-95 shadow-sm";
     }
     if (btnHadirText) btnHadirText.textContent = `SUDAH ABSEN (${waktuText})`;
     if (btnHadirIcon) {
@@ -605,7 +627,7 @@ function renderPanitiaBiodata(panitia) {
 
     if (btnHadir) {
       btnHadir.disabled = false;
-      btnHadir.className = "btn-pnl-red w-full min-h-[54px] py-3.5 px-6 rounded-2xl text-sm sm:text-base font-extrabold tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-[0.99]";
+      btnHadir.className = "btn-pnl-red w-full min-h-[50px] py-3 px-6 text-sm sm:text-base font-extrabold tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm active:scale-[0.99]";
     }
     if (btnHadirText) btnHadirText.textContent = 'KONFIRMASI HADIR';
     if (btnHadirIcon) {
@@ -620,10 +642,10 @@ function renderPanitiaBiodata(panitia) {
     }
 
     if (noticeElem) {
-      noticeElem.className = "rounded-2xl p-4 bg-amber-50 border border-amber-200 text-amber-900 animate-fadeIn";
+      noticeElem.className = "rounded-xl p-4 bg-amber-50 border border-amber-200 text-amber-900 animate-fadeIn";
       noticeElem.innerHTML = `
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
@@ -643,7 +665,7 @@ function renderPanitiaBiodata(panitia) {
 
     if (btnHadir) {
       btnHadir.disabled = true;
-      btnHadir.className = "w-full min-h-[54px] py-3.5 px-6 rounded-2xl bg-slate-200 text-slate-500 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 cursor-not-allowed shadow-none";
+      btnHadir.className = "w-full min-h-[50px] py-3 px-6 rounded-lg bg-slate-200 text-slate-500 font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 cursor-not-allowed shadow-none";
     }
     if (btnHadirText) btnHadirText.textContent = 'AGENDA RAPAT BELUM DIBUKA';
     if (btnHadirIcon) {

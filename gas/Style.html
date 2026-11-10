@@ -1,265 +1,609 @@
 <style>
 /* ==========================================================================
-   PEMILWA PNL Modern Minimalist Dashboard - Presensi Panitia KIP 2026
-   Visual Identity: White Dominant, Red (#DC2626) & Gold (#F59E0B) Accents
+   DESIGN SYSTEM - KIP 2026 (PEMILWA PNL)
+   Visual Identity: Primary Red (#D91616), Dark Navy (#0F172A), Light Gray (#F4F6F9)
+   Mobile App & Desktop Admin View - Pixel Perfect to Reference Mockup
    ========================================================================== */
 
 :root {
-  --color-canvas: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-surface-hover: #F1F5F9;
-  
-  /* PEMILWA PNL Brand Palette */
-  --pnl-red: #DC2626;
-  --pnl-red-hover: #B91C1C;
-  --pnl-red-light: #FEF2F2;
-  --pnl-red-border: #FECACA;
-  
-  --pnl-gold: #F59E0B;
-  --pnl-gold-hover: #D97706;
-  --pnl-gold-light: #FFFBEB;
-  --pnl-gold-border: #FDE68A;
+  /* Core Brand Colors */
+  --primary-red: #D91616;
+  --primary-red-hover: #B81010;
+  --primary-red-active: #991010;
+  --primary-red-light: #FEE2E2;
+  --primary-red-border: #FECACA;
+  --primary-red-ring: rgba(217, 22, 22, 0.2);
 
-  --pnl-black: #0F172A;
-  --pnl-slate: #1E293B;
-  --pnl-slate-muted: #475569;
-  --pnl-slate-subtle: #64748B;
-  --pnl-border: #E2E8F0;
-  --pnl-border-subtle: #F1F5F9;
+  --dark-navy: #0F172A;
+  --dark-navy-muted: #1E293B;
+  --dark-navy-subtle: #334155;
 
-  --pnl-emerald: #059669;
-  --pnl-emerald-light: #ECFDF5;
-  --pnl-emerald-border: #A7F3D0;
+  --bg-light: #F4F6F9;
+  --card-bg: #FFFFFF;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --text-subtle: #94A3B8;
+  --border-color: #E2E8F0;
+  --border-color-strong: #CBD5E1;
+
+  /* Status Colors */
+  --status-success-bg: #DCFCE7;
+  --status-success-text: #166534;
+  --status-success-border: #86EFAC;
+
+  --status-warning-bg: #FFFBEB;
+  --status-warning-text: #B45309;
+  --status-warning-border: #FDE68A;
+
+  --status-offline-bg: #F1F5F9;
+  --status-offline-text: #475569;
+  --status-offline-border: #E2E8F0;
+
+  /* Radii Scale (Soft & Pill Shaped as per Spec) */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-btn: 12px;
+  --radius-input: 14px;
+  --radius-card: 20px;
+  --radius-pill: 50px;
+
+  /* Elevation Shadows */
+  --shadow-xs: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 16px 36px rgba(15, 23, 42, 0.1);
+  --shadow-btn-red: 0 4px 14px rgba(217, 22, 22, 0.28);
 }
 
 /* Base Body Surface */
 body {
-  background-color: var(--color-canvas);
-  color: var(--pnl-slate);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* Card Styling (Clean Minimalist with Soft Shadow) */
+/* Tabular Numerals for Alignment */
+.font-numeric,
+.font-mono,
+#bannerAgendaDate,
+#bannerAgendaTime,
+#bioNim,
+#receiptNim,
+#receiptWaktu,
+.dash-metric-card span[id^="stat"],
+#tablePanitia td {
+  font-feature-settings: 'tnum' 1, 'cv05' 1;
+}
+
+/* ==========================================================================
+   DECORATIVE LAYERED WAVES (HEADER & FOOTER)
+   Carefully sized to never overlap brand headers or content text
+   ========================================================================== */
+.wave-decoration-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.wave-top-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 240px;
+  max-width: 55vw;
+  height: 140px;
+  pointer-events: none;
+  opacity: 0.95;
+  z-index: 0;
+}
+
+.wave-bottom-left {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 240px;
+  max-width: 55vw;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0.95;
+  z-index: 0;
+}
+
+@media (min-width: 1024px) {
+  .wave-top-right {
+    width: 480px;
+    max-width: 40vw;
+    height: 200px;
+  }
+  .wave-bottom-left {
+    width: 420px;
+    max-width: 35vw;
+    height: 170px;
+  }
+}
+
+/* ==========================================================================
+   CARD DESIGN (KIP CARD & AGENDA HERO CARD)
+   ========================================================================== */
+.kip-card,
 .dash-card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--pnl-border);
-  border-radius: 1.25rem;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  position: relative;
+  transition: all 0.2s ease;
 }
 
+.kip-card:hover,
 .dash-card:hover {
-  box-shadow: 0 8px 25px -4px rgba(15, 23, 42, 0.06), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
+  box-shadow: var(--shadow-md);
 }
 
-.dash-card-elevated {
-  background-color: var(--color-surface);
-  border: 1px solid var(--pnl-border);
-  border-radius: 1.5rem;
-  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
-}
-
-/* Agenda Banner Card (High-Impact Hero Card) */
+/* Agenda Card with Bottom Wave Accent (matching Image 1 Mockup) */
 .dash-card-agenda {
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-  border: 1px solid #334155;
-  border-radius: 1.5rem;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
-  color: #FFFFFF;
+  background: #FFFFFF;
+  border-radius: var(--radius-card);
+  padding: 20px 20px 28px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(226, 232, 240, 0.9);
   position: relative;
   overflow: hidden;
 }
 
-.dash-card-agenda::before {
+.dash-card-agenda::after {
   content: '';
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #DC2626 0%, #F59E0B 100%);
+  height: 16px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 20' preserveAspectRatio='none'><path fill='%23D91616' d='M0,14 C80,4 160,18 240,8 C310,0 360,10 400,16 L400,20 L0,20 Z'/><path fill='%230F172A' d='M160,16 C230,6 310,18 400,10 L400,20 L160,20 Z'/></svg>");
+  background-size: 100% 100%;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* Form Inputs */
-.dash-input {
-  background-color: #FFFFFF;
-  border: 1.5px solid var(--pnl-border);
-  border-radius: 0.875rem;
-  color: var(--pnl-black);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+/* KPI Metric Cards (Admin Dashboard) */
+.dash-metric-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  position: relative;
 }
 
-.dash-input:focus {
-  outline: none;
-  border-color: var(--pnl-red);
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+.dash-metric-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
-/* Buttons */
+/* ==========================================================================
+   BUTTONS & INPUTS (PILL-SHAPED PER SPEC)
+   ========================================================================== */
+.btn-primary-red,
 .btn-pnl-red {
-  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  background-color: var(--primary-red);
   color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 24px;
   font-weight: 700;
-  border-radius: 1rem;
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: var(--shadow-btn-red);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 52px;
-  padding: 0.875rem 1.5rem;
+  min-height: 48px;
+  cursor: pointer;
 }
 
+.btn-primary-red:hover,
 .btn-pnl-red:hover {
-  background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
-  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.38);
+  background-color: var(--primary-red-hover);
   transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(217, 22, 22, 0.35);
 }
 
+.btn-primary-red:active,
 .btn-pnl-red:active {
+  background-color: var(--primary-red-active);
   transform: translateY(1px);
-}
-
-.btn-pnl-emerald {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: #FFFFFF;
-  font-weight: 700;
-  border-radius: 1rem;
-  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.28);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 52px;
-  padding: 0.875rem 1.5rem;
-}
-
-.btn-pnl-emerald:hover {
-  background: linear-gradient(135deg, #047857 0%, #065F46 100%);
-  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.38);
 }
 
 .btn-pnl-gold {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  background-color: #D97706;
   color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 10px 20px;
   font-weight: 700;
-  border-radius: 1rem;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 52px;
-  padding: 0.875rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+  transition: all 0.2s ease;
+  min-height: 42px;
+  cursor: pointer;
 }
 
 .btn-pnl-gold:hover {
-  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
-  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.38);
+  background-color: #B45309;
   transform: translateY(-1px);
 }
 
-.btn-pnl-gold:active {
-  transform: translateY(1px);
+.btn-pnl-emerald {
+  background-color: #059669;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 24px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+  transition: all 0.2s ease;
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.btn-pnl-emerald:hover {
+  background-color: #047857;
 }
 
 .btn-pnl-outline {
   background-color: #FFFFFF;
-  color: var(--pnl-slate);
-  border: 1.5px solid var(--pnl-border);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  padding: 8px 18px;
   font-weight: 600;
-  border-radius: 0.875rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
+  min-height: 40px;
+  cursor: pointer;
 }
 
 .btn-pnl-outline:hover {
-  background-color: var(--color-surface-hover);
+  background-color: #F8FAFC;
   border-color: #CBD5E1;
-  color: var(--pnl-black);
+  color: #000000;
 }
 
-/* Badges & Status Pills */
+/* Input Fields */
+.input-field,
+.dash-input {
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--border-color);
+  padding: 12px 18px;
+  background-color: #FFFFFF;
+  color: var(--text-main);
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-field:focus,
+.dash-input:focus {
+  outline: none;
+  border-color: var(--primary-red);
+  box-shadow: 0 0 0 3px var(--primary-red-ring);
+  background-color: #FFFFFF;
+}
+
+/* Pill Input for Search NIM (as in Image 1 Mockup) */
+.input-pill {
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-color);
+  padding: 14px 20px 14px 46px;
+  background-color: #FFFFFF;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ==============================================================
+   BADGES & STATUS PILLS
+   ============================================================== */
 .badge-pnl-red {
-  background-color: var(--pnl-red-light);
-  color: var(--pnl-red);
-  border: 1px solid var(--pnl-red-border);
-  border-radius: 9999px;
+  background-color: var(--primary-red);
+  color: #FFFFFF;
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 0.75rem;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.badge-pnl-gold {
-  background-color: var(--pnl-gold-light);
-  color: #92400E;
-  border: 1px solid var(--pnl-gold-border);
-  border-radius: 9999px;
-  font-weight: 700;
+.badge-pnl-offline {
+  background-color: var(--status-offline-bg);
+  color: var(--status-offline-text);
+  border: 1px solid var(--status-offline-border);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .badge-pnl-emerald {
-  background-color: var(--pnl-emerald-light);
-  color: var(--pnl-emerald);
-  border: 1px solid var(--pnl-emerald-border);
-  border-radius: 9999px;
+  background-color: var(--status-success-bg);
+  color: var(--status-success-text);
+  border: 1px solid var(--status-success-border);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 0.75rem;
   font-weight: 700;
-}
-
-.badge-pnl-slate {
-  background-color: #F1F5F9;
-  color: #475569;
-  border: 1px solid #E2E8F0;
-  border-radius: 9999px;
-  font-weight: 600;
-}
-
-/* Nav Tabs Segmented Controller */
-.pnl-nav-container {
-  background-color: #F1F5F9;
-  border-radius: 0.875rem;
-  padding: 0.25rem;
   display: inline-flex;
-  border: 1px solid #E2E8F0;
+  align-items: center;
+  gap: 6px;
 }
 
-.pnl-nav-item-active {
-  background-color: #FFFFFF;
-  color: var(--pnl-red);
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
-  border-radius: 0.625rem;
+.badge-pnl-gold {
+  background-color: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  border: 1px solid var(--status-warning-border);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 0.75rem;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.pnl-nav-item-idle {
-  color: var(--pnl-slate-muted);
-  background-color: transparent;
-  border-radius: 0.625rem;
+/* ==============================================================
+   QUICK ACTION BUTTON TILES (IMAGE 1)
+   ============================================================== */
+.quick-action-tile {
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.quick-action-tile:hover {
+  transform: translateY(-1px);
+}
+
+.quick-action-red {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border-color: #FECACA;
+}
+.quick-action-red:hover {
+  background-color: #FECDCD;
+}
+
+.quick-action-blue {
+  background-color: #EFF6FF;
+  color: #1E40AF;
+  border-color: #BFDBFE;
+}
+.quick-action-blue:hover {
+  background-color: #DBEAFE;
+}
+
+/* ==========================================================================
+   STICKY TOP NAVIGATION BAR (MOBILE APP - BEKUKAN NAV ATAS)
+   ========================================================================== */
+.sticky-top-nav {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(244, 246, 249, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+  padding-bottom: 0.75rem;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* ==========================================================================
+   BOTTOM NAVIGATION BAR (MOBILE APP)
+   ========================================================================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 520px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 16px 14px 16px;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
+  z-index: 40;
+}
+
+.bottom-nav .nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.6875rem;
   font-weight: 600;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.pnl-nav-item-idle:hover {
-  color: var(--pnl-black);
+.bottom-nav .nav-item:hover {
+  color: var(--primary-red);
 }
 
-/* Sidebar Dock (Quixotic Style) */
+.bottom-nav .nav-item.active {
+  background-color: var(--primary-red);
+  color: #FFFFFF;
+  padding: 8px 22px;
+  box-shadow: 0 4px 12px rgba(217, 22, 22, 0.3);
+  position: relative;
+}
+
+.bottom-nav .nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background-color: var(--primary-red);
+  border-radius: 9999px;
+}
+
+.bottom-nav .nav-item.active svg {
+  color: #FFFFFF;
+}
+
+/* Tab Pane Transitions */
+.tab-pane {
+  animation: tabFadeIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==============================================================
+   SIDEBAR DOCK (DESKTOP ADMIN DASHBOARD)
+   ============================================================== */
 .sidebar-dock {
   background-color: #FFFFFF;
-  border: 1px solid var(--pnl-border);
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  box-shadow: var(--shadow-sm);
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 12px;
+  height: calc(100vh - 48px);
+  position: sticky;
+  top: 24px;
+  flex-shrink: 0;
 }
 
 .sidebar-icon-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 0.875rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748B;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .sidebar-icon-btn:hover {
   background-color: #F1F5F9;
-  color: var(--pnl-red);
+  color: var(--primary-red);
 }
 
 .sidebar-icon-btn.active {
-  background-color: var(--pnl-red);
+  background-color: var(--primary-red);
   color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+  box-shadow: 0 4px 12px rgba(217, 22, 22, 0.32);
 }
 
-/* Pulsing Live Indicator */
+/* ==============================================================
+   SEGMENTED CONTROLLER (SWITCH PRESENSI / ADMIN)
+   ============================================================== */
+.pnl-nav-container {
+  background-color: #F1F5F9;
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+}
+
+.pnl-nav-item-active {
+  background-color: #FFFFFF;
+  color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  padding: 6px 18px;
+}
+
+.pnl-nav-item-idle {
+  color: var(--text-muted);
+  background-color: transparent;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  padding: 6px 16px;
+  transition: all 0.15s ease;
+}
+
+.pnl-nav-item-idle:hover {
+  color: var(--primary-red);
+}
+
+/* Live Pulse Animation */
 @keyframes pnlPulse {
   0%, 100% {
     opacity: 1;
@@ -267,7 +611,7 @@ body {
   }
   50% {
     opacity: 0.4;
-    transform: scale(0.92);
+    transform: scale(0.9);
   }
 }
 
@@ -275,35 +619,13 @@ body {
   animation: pnlPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Accessibility affordances */
-a[href],
-button,
-select,
-label[for],
-input[type="checkbox"],
-input[type="radio"] {
-  cursor: pointer;
-}
-
-button:disabled,
-input:disabled,
-select:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-:focus-visible {
-  outline: 2px solid var(--pnl-red);
-  outline-offset: 2px;
-}
-
-/* Custom crisp scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F8FAFC;
+  background: var(--bg-light);
 }
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
@@ -313,29 +635,51 @@ select:disabled {
   background: #94A3B8;
 }
 
-/* Number input spin buttons reset */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-/* Smooth motion with user reduction fallback */
-.transition-smooth {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* Smooth Table Aesthetics */
+#tablePanitia th {
+  background-color: #F8FAFC;
+  color: #475569;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  padding: 12px 16px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+#tablePanitia td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+#tablePanitia tbody tr:hover {
+  background-color: #F8FAFC;
+}
+
+/* Print Stylesheet */
+@media print {
+  body {
+    background-color: #FFFFFF !important;
+  }
+  aside,
+  header,
+  footer,
+  .bottom-nav,
+  .wave-decoration-container,
+  #toastContainer,
+  nav,
+  button,
+  select,
+  input,
+  #adminLoginGate,
+  [role="dialog"] {
+    display: none !important;
+  }
+  .kip-card,
+  .dash-card,
+  .dash-metric-card {
+    border: 1px solid #CBD5E1 !important;
+    box-shadow: none !important;
+  }
+  #tablePanitia {
+    width: 100% !important;
   }
 }
 
