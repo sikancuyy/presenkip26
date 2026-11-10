@@ -270,6 +270,7 @@
     const viewAdmin = document.getElementById('viewAdmin');
     const navPresensi = document.getElementById('navPresensiBtn');
     const navAdmin = document.getElementById('navAdminBtn');
+    const sidebarDock = document.getElementById('sidebarDock');
     const sidePresensi = document.getElementById('sidebarBtnPresensi');
     const sideAdmin = document.getElementById('sidebarBtnAdmin');
 
@@ -278,6 +279,12 @@
       viewAdmin.classList.remove('hidden');
       navAdmin.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
       navPresensi.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+      
+      // Tampilkan sidebar HANYA pada panel admin
+      if (sidebarDock) {
+        sidebarDock.classList.remove('hidden');
+        sidebarDock.classList.add('lg:flex');
+      }
       if (sideAdmin) sideAdmin.classList.add('active');
       if (sidePresensi) sidePresensi.classList.remove('active');
 
@@ -289,6 +296,12 @@
       viewPresensi.classList.remove('hidden');
       navPresensi.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
       navAdmin.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+      
+      // Sembunyikan sidebar di halaman presensi / formSection
+      if (sidebarDock) {
+        sidebarDock.classList.add('hidden');
+        sidebarDock.classList.remove('lg:flex');
+      }
       if (sidePresensi) sidePresensi.classList.add('active');
       if (sideAdmin) sideAdmin.classList.remove('active');
       fetchActiveAgenda();

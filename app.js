@@ -16,11 +16,17 @@ let currentAdminPin = sessionStorage.getItem('kip_admin_pin') || null;
 let dashboardCache = null;
 let qrcodeInstance = null;
 
+const PERMANENT_GAS_URL = "https://script.google.com/macros/s/AKfycbwVAw5bmI1WgjQYQAyU93onjSi2TwvUfPPd5J28Dvp1zzA5w-cWWR7eumr40NcIE-MX/exec";
+
 function getGasApiUrl() {
+  const customUrl = localStorage.getItem('kip_gas_url');
+  if (customUrl && customUrl.trim()) {
+    return customUrl.trim();
+  }
   if (window.APP_CONFIG && window.APP_CONFIG.GAS_API_URL) {
     return window.APP_CONFIG.GAS_API_URL.trim();
   }
-  return (localStorage.getItem('kip_gas_url') || '').trim();
+  return PERMANENT_GAS_URL;
 }
 
 // Initial Local Storage Data for Simulation (if empty)
@@ -101,9 +107,19 @@ function handleUrlParameters() {
   const params = new URLSearchParams(window.location.search);
   const nimParam = params.get('nim');
   const pageParam = params.get('page');
+  const hash = window.location.hash;
 
-  if (pageParam === 'admin') {
+  if (pageParam === 'admin' || hash === '#admin') {
     switchView('admin');
+  } else {
+    switchView('presensi');
+  }
+
+  if (hash === '#formSection') {
+    const formElem = document.getElementById('formSection');
+    if (formElem) {
+      setTimeout(() => formElem.scrollIntoView({ behavior: 'smooth' }), 200);
+    }
   }
 
   if (nimParam) {
@@ -114,6 +130,8 @@ function handleUrlParameters() {
     }
   }
 }
+
+window.addEventListener('hashchange', handleUrlParameters);
 
 /**
  * Audio Chime Synthesizer (Web Audio API - No external file needed)
@@ -570,6 +588,7 @@ function switchView(viewName) {
   const viewAdmin = document.getElementById('viewAdmin');
   const navPresensi = document.getElementById('navPresensiBtn');
   const navAdmin = document.getElementById('navAdminBtn');
+  const sidebarDock = document.getElementById('sidebarDock');
   const sidePresensi = document.getElementById('sidebarBtnPresensi');
   const sideAdmin = document.getElementById('sidebarBtnAdmin');
 
@@ -578,6 +597,12 @@ function switchView(viewName) {
     viewAdmin.classList.remove('hidden');
     navAdmin.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
     navPresensi.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    
+    // Tampilkan sidebar HANYA pada panel admin
+    if (sidebarDock) {
+      sidebarDock.classList.remove('hidden');
+      sidebarDock.classList.add('lg:flex');
+    }
     if (sideAdmin) sideAdmin.classList.add('active');
     if (sidePresensi) sidePresensi.classList.remove('active');
 
@@ -589,6 +614,12 @@ function switchView(viewName) {
     viewPresensi.classList.remove('hidden');
     navPresensi.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
     navAdmin.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    
+    // Sembunyikan sidebar di halaman presensi / formSection
+    if (sidebarDock) {
+      sidebarDock.classList.add('hidden');
+      sidebarDock.classList.remove('lg:flex');
+    }
     if (sidePresensi) sidePresensi.classList.add('active');
     if (sideAdmin) sideAdmin.classList.remove('active');
     fetchActiveAgenda();
@@ -1002,11 +1033,9 @@ function saveGsheetConfig() {
 
   if (!url) {
     localStorage.removeItem('kip_gas_url');
-    if (window.APP_CONFIG) window.APP_CONFIG.GAS_API_URL = '';
-    showToast('info', 'Mode Lokal Aktif', 'Menggunakan database internal panitia.');
+    showToast('info', 'Webhook Default Aktif', 'Menggunakan webhook default permanen Google Apps Script.');
   } else {
     localStorage.setItem('kip_gas_url', url);
-    if (window.APP_CONFIG) window.APP_CONFIG.GAS_API_URL = url;
     showToast('success', 'URL Disimpan', 'Website sekarang membaca dan menulis langsung ke Google Sheet!');
   }
 
@@ -1014,6 +1043,14 @@ function saveGsheetConfig() {
   closeModalGsheetConfig();
   fetchActiveAgenda();
   if (currentAdminPin) refreshDashboard();
+}
+
+function resetGsheetConfigDefault() {
+  localStorage.removeItem('kip_gas_url');
+  const input = document.getElementById('gasUrlInput');
+  if (input) input.value = PERMANENT_GAS_URL;
+  showToast('info', 'Webhook Default Aktif', 'URL dikembalikan ke Webhook default permanen Google Apps Script.');
+  updateConnectionBadge();
 }
 
 function testGsheetConnection() {
