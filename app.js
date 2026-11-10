@@ -83,9 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Restore Admin Session if logged in
   if (currentAdminPin) {
-    document.getElementById('adminLoginGate').classList.add('hidden');
-    document.getElementById('adminPanel').classList.remove('hidden');
-    refreshDashboard();
+    const gate = document.getElementById('adminLoginGate');
+    const panel = document.getElementById('adminPanel');
+    if (gate) gate.classList.add('hidden');
+    if (panel) panel.classList.remove('hidden');
+    if (panel) refreshDashboard();
   }
 });
 
@@ -108,11 +110,17 @@ function handleUrlParameters() {
   const nimParam = params.get('nim');
   const pageParam = params.get('page');
   const hash = window.location.hash;
+  const isIndexPage = !document.getElementById('adminPanel') && !document.getElementById('adminLoginGate');
+  const isAdminPage = !document.getElementById('viewPresensi');
 
-  if (pageParam === 'admin' || hash === '#admin') {
-    switchView('admin');
-  } else {
-    switchView('presensi');
+  if (isIndexPage && (pageParam === 'admin' || hash === '#admin')) {
+    window.location.href = 'admin.html';
+    return;
+  }
+
+  if (isAdminPage && (pageParam === 'presensi' || hash === '#presensi')) {
+    window.location.href = 'index.html';
+    return;
   }
 
   if (hash === '#formSection') {
@@ -214,17 +222,25 @@ function fallbackLocalActiveAgenda() {
 function handleActiveAgendaResponse(res) {
   if (res && res.success && res.agenda) {
     window.activeAgendaState = res.agenda;
-    document.getElementById('bannerAgendaId').textContent = window.activeAgendaState.id;
-    document.getElementById('bannerAgendaTitle').textContent = window.activeAgendaState.title;
-    document.getElementById('bannerAgendaDate').textContent = window.activeAgendaState.date;
-    document.getElementById('bannerAgendaTime').textContent = window.activeAgendaState.time;
-    document.getElementById('bannerAgendaLocation').textContent = window.activeAgendaState.location;
+    const bannerId = document.getElementById('bannerAgendaId');
+    const bannerTitle = document.getElementById('bannerAgendaTitle');
+    const bannerDate = document.getElementById('bannerAgendaDate');
+    const bannerTime = document.getElementById('bannerAgendaTime');
+    const bannerLoc = document.getElementById('bannerAgendaLocation');
+
+    if (bannerId) bannerId.textContent = window.activeAgendaState.id;
+    if (bannerTitle) bannerTitle.textContent = window.activeAgendaState.title;
+    if (bannerDate) bannerDate.textContent = window.activeAgendaState.date;
+    if (bannerTime) bannerTime.textContent = window.activeAgendaState.time;
+    if (bannerLoc) bannerLoc.textContent = window.activeAgendaState.location;
 
     const sessionField = document.getElementById('sessionCodeField');
-    if (window.activeAgendaState.hasSessionCode) {
-      sessionField.classList.remove('hidden');
-    } else {
-      sessionField.classList.add('hidden');
+    if (sessionField) {
+      if (window.activeAgendaState.hasSessionCode) {
+        sessionField.classList.remove('hidden');
+      } else {
+        sessionField.classList.add('hidden');
+      }
     }
   } else {
     renderNoAgendaState();
@@ -233,11 +249,17 @@ function handleActiveAgendaResponse(res) {
 
 function renderNoAgendaState() {
   window.activeAgendaState = null;
-  document.getElementById('bannerAgendaId').textContent = 'OFFLINE';
-  document.getElementById('bannerAgendaTitle').textContent = 'Tidak Ada Agenda Aktif';
-  document.getElementById('bannerAgendaDate').textContent = 'Belum ada rapat dibuka';
-  document.getElementById('bannerAgendaTime').textContent = 'Menunggu Sekretaris / Admin';
-  document.getElementById('bannerAgendaLocation').textContent = 'Silakan hubungi pimpinan rapat';
+  const bannerId = document.getElementById('bannerAgendaId');
+  const bannerTitle = document.getElementById('bannerAgendaTitle');
+  const bannerDate = document.getElementById('bannerAgendaDate');
+  const bannerTime = document.getElementById('bannerAgendaTime');
+  const bannerLoc = document.getElementById('bannerAgendaLocation');
+
+  if (bannerId) bannerId.textContent = 'OFFLINE';
+  if (bannerTitle) bannerTitle.textContent = 'Tidak Ada Agenda Aktif';
+  if (bannerDate) bannerDate.textContent = 'Belum ada rapat dibuka';
+  if (bannerTime) bannerTime.textContent = 'Menunggu Sekretaris / Admin';
+  if (bannerLoc) bannerLoc.textContent = 'Silakan hubungi pimpinan rapat';
 }
 
 /**
@@ -584,6 +606,21 @@ function closeReceiptModal() {
  * =========================================================================
  */
 function switchView(viewName) {
+  const isIndexPage = !document.getElementById('adminPanel') && !document.getElementById('adminLoginGate');
+  const isAdminPage = !document.getElementById('viewPresensi');
+
+  if (viewName === 'admin') {
+    if (isIndexPage) {
+      window.location.href = 'admin.html';
+      return;
+    }
+  } else {
+    if (isAdminPage) {
+      window.location.href = 'index.html';
+      return;
+    }
+  }
+
   const viewPresensi = document.getElementById('viewPresensi');
   const viewAdmin = document.getElementById('viewAdmin');
   const navPresensi = document.getElementById('navPresensiBtn');
@@ -593,12 +630,11 @@ function switchView(viewName) {
   const sideAdmin = document.getElementById('sidebarBtnAdmin');
 
   if (viewName === 'admin') {
-    viewPresensi.classList.add('hidden');
-    viewAdmin.classList.remove('hidden');
-    navAdmin.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
-    navPresensi.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (viewPresensi) viewPresensi.classList.add('hidden');
+    if (viewAdmin) viewAdmin.classList.remove('hidden');
+    if (navAdmin) navAdmin.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (navPresensi) navPresensi.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
     
-    // Tampilkan sidebar HANYA pada panel admin
     if (sidebarDock) {
       sidebarDock.classList.remove('hidden');
       sidebarDock.classList.add('lg:flex');
@@ -610,12 +646,11 @@ function switchView(viewName) {
       refreshDashboard();
     }
   } else {
-    viewAdmin.classList.add('hidden');
-    viewPresensi.classList.remove('hidden');
-    navPresensi.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
-    navAdmin.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (viewAdmin) viewAdmin.classList.add('hidden');
+    if (viewPresensi) viewPresensi.classList.remove('hidden');
+    if (navPresensi) navPresensi.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (navAdmin) navAdmin.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
     
-    // Sembunyikan sidebar di halaman presensi / formSection
     if (sidebarDock) {
       sidebarDock.classList.add('hidden');
       sidebarDock.classList.remove('lg:flex');
@@ -1274,12 +1309,16 @@ function fallbackLocalCloseAgenda(agenda) {
  * QR Code Presensi Modal
  */
 function showQRCodeModal() {
-  const curUrl = window.location.href;
+  let targetUrl = window.location.href;
+  if (targetUrl.includes('admin.html')) {
+    targetUrl = targetUrl.replace('admin.html', 'index.html');
+  }
   const wrapper = document.getElementById('qrcodeWrapper');
+  if (!wrapper) return;
   wrapper.innerHTML = '';
 
   qrcodeInstance = new QRCode(wrapper, {
-    text: curUrl,
+    text: targetUrl,
     width: 200,
     height: 200,
     colorDark: "#1e3a8a",
@@ -1288,10 +1327,14 @@ function showQRCodeModal() {
   });
 
   const title = window.activeAgendaState ? window.activeAgendaState.title : 'Presensi KIP 2026';
-  document.getElementById('qrAgendaLabel').textContent = title;
+  const label = document.getElementById('qrAgendaLabel');
+  if (label) label.textContent = title;
 
-  document.getElementById('modalQRCode').classList.remove('hidden');
-  document.getElementById('modalQRCode').classList.add('flex');
+  const modal = document.getElementById('modalQRCode');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
 }
 
 function closeQRCodeModal() {
