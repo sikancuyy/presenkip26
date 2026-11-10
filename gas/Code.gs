@@ -602,9 +602,8 @@ function syncPresensiMatrix(ss, agenda, nim, waktu) {
     const data = presensiSheet.getDataRange().getValues();
     if (data.length <= 2) return;
 
-    // Pastikan format waktu selalu bersih "HH:mm:ss"
-    const cleanTime = formatPresensiTime(waktu);
-    const cellValue = cleanTime ? ("HADIR (" + cleanTime + ")") : "HADIR";
+    // Format status kehadiran pada sheet PRESENSI murni "HADIR" (jam hanya disimpan di raw_presensi)
+    const cellValue = "HADIR";
 
     // Cari kolom untuk agenda ini di Row 1 & 2
     let targetCol = -1;
@@ -897,11 +896,9 @@ function runFullRecapForAgenda(agendaId) {
     }
 
     if (rowNim && attendeeMap[rowNim] !== undefined) {
-      const cleanTime = attendeeMap[rowNim];
-      const cellText = cleanTime ? ("HADIR (" + cleanTime + ")") : "HADIR";
       presensiSheet.getRange(r + 1, targetCol)
         .setNumberFormat("@")
-        .setValue(cellText)
+        .setValue("HADIR")
         .setFontColor("#15803d")
         .setFontWeight("bold")
         .setHorizontalAlignment("center");
@@ -910,13 +907,11 @@ function runFullRecapForAgenda(agendaId) {
       const curVal = curCell.getValue();
       const curStr = String(curVal || "").trim();
 
-      // Perbaiki data lama jika memuat format 1899 yang salah
-      if (curStr.includes("HADIR") && (curStr.includes("1899") || curStr.includes("GMT"))) {
-        const extractedTime = formatPresensiTime(curStr);
-        const fixedText = extractedTime ? ("HADIR (" + extractedTime + ")") : "HADIR";
+      // Perbaiki data lama yang memuat jam menjadi murni "HADIR"
+      if (curStr.startsWith("HADIR")) {
         curCell
           .setNumberFormat("@")
-          .setValue(fixedText)
+          .setValue("HADIR")
           .setFontColor("#15803d")
           .setFontWeight("bold")
           .setHorizontalAlignment("center");
@@ -1150,8 +1145,8 @@ function menuCheckActiveAgenda() {
 }
 
 /**
- * Memindai sheet PRESENSI dan membersihkan string waktu kehadiran yang memuat format '1899'
- * Mengonversi seluruh nilai menjadi format standar 'HADIR (HH:mm:ss)' tanpa merusak data lama.
+ * Memindai sheet PRESENSI dan membersihkan string waktu kehadiran
+ * Mengonversi seluruh nilai 'HADIR (HH:mm:ss)' menjadi murni 'HADIR' (waktu tersimpan di raw_presensi).
  */
 function repairExistingPresensiTimes(ss) {
   try {
@@ -1168,13 +1163,14 @@ function repairExistingPresensiTimes(ss) {
       for (let c = 0; c < values[r].length; c++) {
         const val = values[r][c];
         if (val instanceof Date) {
-          const formatted = formatPresensiTime(val);
-          values[r][c] = formatted ? ("HADIR (" + formatted + ")") : "HADIR";
+          values[r][c] = "HADIR";
           modified = true;
-        } else if (typeof val === "string" && (val.includes("1899") || val.includes("GMT"))) {
-          const formatted = formatPresensiTime(val);
-          values[r][c] = formatted ? ("HADIR (" + formatted + ")") : val;
-          modified = true;
+        } else if (typeof val === "string") {
+          const s = val.trim();
+          if (s.startsWith("HADIR") && s !== "HADIR") {
+            values[r][c] = "HADIR";
+            modified = true;
+          }
         }
       }
     }
@@ -1192,14 +1188,14 @@ function menuManualSync() {
   const ui = SpreadsheetApp.getUi();
   const ss = getSpreadsheet();
 
-  // 1. Bersihkan sel presensi yang terdampak format 1899
+  // 1. Bersihkan sel matriks presensi agar berstatus 'HADIR' murni tanpa jam
   repairExistingPresensiTimes(ss);
 
   // 2. Jalankan sinkronisasi untuk agenda aktif atau seluruh agenda di sheet AGENDA
   const res = getActiveAgenda();
   if (res.success && res.agenda) {
     runFullRecapForAgenda(res.agenda.id);
-    ui.alert("Sukses", "Sinkronisasi ke sheet PRESENSI berhasil untuk agenda: " + res.agenda.title + "\nSeluruh waktu kehadiran telah diformat ke format standar HH:mm:ss.", ui.ButtonSet.OK);
+    ui.alert("Sukses", "Sinkronisasi ke sheet PRESENSI berhasil untuk agenda: " + res.agenda.title + "\nStatus kehadiran diatur ke 'HADIR' murni. Waktu kehadiran detail tersimpan di sheet raw_presensi.", ui.ButtonSet.OK);
   } else {
     const agendaSheet = ss.getSheetByName(SHEET_AGENDA);
     if (agendaSheet && agendaSheet.getLastRow() > 1) {
@@ -1208,7 +1204,7 @@ function menuManualSync() {
         const agId = String(aData[i][0] || "").trim();
         if (agId) runFullRecapForAgenda(agId);
       }
-      ui.alert("Sukses", "Sinkronisasi rekap selesai untuk seluruh riwayat agenda. Seluruh waktu telah diformat rapi (HH:mm:ss).", ui.ButtonSet.OK);
+      ui.alert("Sukses", "Sinkronisasi rekap selesai untuk seluruh riwayat agenda.\nStatus kehadiran diatur ke 'HADIR' murni di sheet PRESENSI.", ui.ButtonSet.OK);
     } else {
       ui.alert("Perhatian", "Belum ada agenda yang tersimpan di sheet AGENDA.", ui.ButtonSet.OK);
     }
