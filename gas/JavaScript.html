@@ -142,11 +142,13 @@ function updateConnectionBadge() {
 
   const gasUrl = getGasApiUrl();
   if (gasUrl) {
-    badge.className = "text-[10px] font-semibold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1";
-    badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> GSheet Live`;
+    badge.title = "Google Sheets Live Terhubung";
+    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+    badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`;
   } else {
-    badge.className = "text-[10px] font-semibold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full";
-    badge.textContent = "Data 46 Panitia Ready";
+    badge.title = "Data Panitia Siap";
+    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+    badge.innerHTML = `<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>`;
   }
 }
 
