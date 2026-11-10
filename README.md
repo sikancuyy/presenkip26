@@ -2,8 +2,9 @@
 
 Aplikasi presensi digital terpadu berbasis **Google Apps Script (GAS)**, **Google Sheets**, dan antarmuka web modern (**HTML5, Tailwind CSS, JavaScript**) yang dirancang khusus untuk seluruh kegiatan rapat, koordinasi, dan evaluasi **Panitia KIP 2026 Politeknik Negeri Lhokseumawe**.
 
+- **URL Live Production:** [https://presenkip26.sikancuyy.my.id](https://presenkip26.sikancuyy.my.id)
 - **Repository GitHub:** [https://github.com/sikancuyy/presenkip26](https://github.com/sikancuyy/presenkip26)
-- **Target Subdomain:** `presenkip26.sikancuyy.my.id`
+- **Target Subdomain:** `presenkip26.sikancuyy.my.id` (SSL Active via Let's Encrypt)
 
 ---
 
