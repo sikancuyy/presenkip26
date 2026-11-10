@@ -302,17 +302,39 @@ function fallbackLocalActiveAgenda() {
 function handleActiveAgendaResponse(res) {
   if (res && res.success && res.agenda) {
     window.activeAgendaState = res.agenda;
-    document.getElementById('bannerAgendaId').textContent = window.activeAgendaState.id;
-    document.getElementById('bannerAgendaTitle').textContent = window.activeAgendaState.title;
-    document.getElementById('bannerAgendaDate').textContent = window.activeAgendaState.date;
-    document.getElementById('bannerAgendaTime').textContent = window.activeAgendaState.time;
-    document.getElementById('bannerAgendaLocation').textContent = window.activeAgendaState.location;
+
+    // Presensi view banner (index.html)
+    const bId = document.getElementById('bannerAgendaId');
+    const bTitle = document.getElementById('bannerAgendaTitle');
+    const bDate = document.getElementById('bannerAgendaDate');
+    const bTime = document.getElementById('bannerAgendaTime');
+    const bLoc = document.getElementById('bannerAgendaLocation');
+    if (bId) bId.textContent = window.activeAgendaState.id;
+    if (bTitle) bTitle.textContent = window.activeAgendaState.title;
+    if (bDate) bDate.textContent = window.activeAgendaState.date;
+    if (bTime) bTime.textContent = window.activeAgendaState.time;
+    if (bLoc) bLoc.textContent = window.activeAgendaState.location;
+
+    // Admin view banner (admin.html)
+    const aId = document.getElementById('adminAgendaId');
+    const aTitle = document.getElementById('adminAgendaTitle');
+    const aMeta = document.getElementById('adminAgendaMeta');
+    if (aId) aId.textContent = window.activeAgendaState.id;
+    if (aTitle) aTitle.textContent = window.activeAgendaState.title;
+    if (aMeta) {
+      const codeBadge = window.activeAgendaState.sessionCode 
+        ? `<span class="badge-pnl-gold font-mono font-bold px-2 py-0.5 text-[11px] ml-2">KODE: ${window.activeAgendaState.sessionCode}</span>` 
+        : '';
+      aMeta.innerHTML = `<span class="font-medium text-slate-600">${window.activeAgendaState.date} &bull; ${window.activeAgendaState.time} &bull; ${window.activeAgendaState.location}</span>${codeBadge}`;
+    }
 
     const sessionField = document.getElementById('sessionCodeField');
-    if (window.activeAgendaState.hasSessionCode) {
-      sessionField.classList.remove('hidden');
-    } else {
-      sessionField.classList.add('hidden');
+    if (sessionField) {
+      if (window.activeAgendaState.hasSessionCode) {
+        sessionField.classList.remove('hidden');
+      } else {
+        sessionField.classList.add('hidden');
+      }
     }
   } else {
     renderNoAgendaState();
@@ -321,11 +343,23 @@ function handleActiveAgendaResponse(res) {
 
 function renderNoAgendaState() {
   window.activeAgendaState = null;
-  document.getElementById('bannerAgendaId').textContent = 'OFFLINE';
-  document.getElementById('bannerAgendaTitle').textContent = 'Tidak Ada Agenda Aktif';
-  document.getElementById('bannerAgendaDate').textContent = 'Belum ada rapat dibuka';
-  document.getElementById('bannerAgendaTime').textContent = 'Menunggu Sekretaris / Admin';
-  document.getElementById('bannerAgendaLocation').textContent = 'Silakan hubungi pimpinan rapat';
+  const bId = document.getElementById('bannerAgendaId');
+  const bTitle = document.getElementById('bannerAgendaTitle');
+  const bDate = document.getElementById('bannerAgendaDate');
+  const bTime = document.getElementById('bannerAgendaTime');
+  const bLoc = document.getElementById('bannerAgendaLocation');
+  if (bId) bId.textContent = 'OFFLINE';
+  if (bTitle) bTitle.textContent = 'Tidak Ada Agenda Aktif';
+  if (bDate) bDate.textContent = 'Belum ada rapat dibuka';
+  if (bTime) bTime.textContent = 'Menunggu Sekretaris / Admin';
+  if (bLoc) bLoc.textContent = 'Silakan hubungi pimpinan rapat';
+
+  const aId = document.getElementById('adminAgendaId');
+  const aTitle = document.getElementById('adminAgendaTitle');
+  const aMeta = document.getElementById('adminAgendaMeta');
+  if (aId) aId.textContent = 'OFFLINE';
+  if (aTitle) aTitle.textContent = 'Tidak Ada Agenda Aktif';
+  if (aMeta) aMeta.textContent = 'Klik "Generate Agenda" untuk membuka agenda rapat baru.';
 }
 
 /**
