@@ -81,29 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('adminPanel').classList.remove('hidden');
     refreshDashboard();
   }
-
-  // Smooth Preloader Dismissal
-  setTimeout(() => {
-    hidePreloader();
-  }, 450);
 });
-
-function hidePreloader() {
-  const preloader = document.getElementById('appPreloader');
-  if (preloader) {
-    preloader.classList.add('opacity-0', 'pointer-events-none');
-    setTimeout(() => {
-      preloader.style.display = 'none';
-    }, 500);
-  }
-}
-
-function scrollToAgenda() {
-  const card = document.getElementById('agendaCard');
-  if (card) {
-    card.scrollIntoView({ behavior: 'smooth' });
-  }
-}
 
 function updateConnectionBadge() {
   const badge = document.getElementById('envBadge');
@@ -596,8 +574,8 @@ function switchView(viewName) {
   if (viewName === 'admin') {
     viewPresensi.classList.add('hidden');
     viewAdmin.classList.remove('hidden');
-    navAdmin.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700";
-    navPresensi.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+    navAdmin.className = "neu-nav-item-active flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-bold transition-all";
+    navPresensi.className = "neu-nav-item-idle flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:text-slate-900";
 
     if (currentAdminPin) {
       refreshDashboard();
@@ -605,8 +583,8 @@ function switchView(viewName) {
   } else {
     viewAdmin.classList.add('hidden');
     viewPresensi.classList.remove('hidden');
-    navPresensi.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700";
-    navAdmin.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+    navPresensi.className = "neu-nav-item-active flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-bold transition-all";
+    navAdmin.className = "neu-nav-item-idle flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:text-slate-900";
     fetchActiveAgenda();
   }
 }
@@ -877,26 +855,29 @@ function renderPanitiaTable(list) {
 
   list.forEach((p, idx) => {
     const tr = document.createElement('tr');
-    tr.className = "hover:bg-[#FAF6EF] transition-colors";
+    tr.className = "hover:bg-[#E3EAF2]/60 transition-colors";
 
     const isHadir = (p.status === 'HADIR');
     const badgeStatus = isHadir 
-      ? `<span class="inline-flex items-center gap-1 bg-emerald-50 text-[#047857] border border-emerald-200 font-extrabold px-2.5 py-0.5 rounded-full text-[11px]">
-           <span class="w-1.5 h-1.5 rounded-full bg-[#047857]"></span> HADIR
+      ? `<span class="neu-pill-emboss inline-flex items-center gap-1.5 px-3 py-1 font-bold text-[11px] text-emerald-700 bg-[#E9EEF5]">
+           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HADIR
          </span>`
-      : `<span class="inline-flex items-center gap-1 bg-[#F4EDE2] text-[#7A746B] border border-[#E8E0D2] font-bold px-2.5 py-0.5 rounded-full text-[11px]">
+      : `<span class="neu-pill-recess inline-flex items-center gap-1 px-3 py-1 font-semibold text-[11px] text-slate-500 bg-[#E3EAF2]">
            BELUM
          </span>`;
 
+    const namaDisplay = p.nama || '<span class="italic text-slate-400 font-normal">(Belum Terisi)</span>';
+    const nimDisplay = p.nim ? `<span class="font-mono text-slate-700 font-bold">${p.nim}</span>` : '<span class="italic text-slate-400 font-mono">-</span>';
+
     tr.innerHTML = `
-      <td class="p-3.5 text-center text-[#7A746B] font-mono">${idx + 1}</td>
-      <td class="p-3.5 font-bold text-[#191817]">${p.nama}</td>
-      <td class="p-3.5 font-mono font-bold text-[#524E48]">${p.nim}</td>
-      <td class="p-3.5"><span class="bg-[#F4EDE2] text-[#191817] border border-[#E8E0D2] px-2.5 py-0.5 rounded-full font-bold text-[11px]">${p.sie}</span></td>
-      <td class="p-3.5 text-[#191817]">${p.jabatan}</td>
-      <td class="p-3.5 truncate max-w-xs text-[#524E48]">${p.delegasi}</td>
-      <td class="p-3.5 text-center">${badgeStatus}</td>
-      <td class="p-3.5 text-center font-mono text-[#524E48]">${p.waktuPresensi || '-'}</td>
+      <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
+      <td class="p-3 font-bold text-slate-900">${namaDisplay}</td>
+      <td class="p-3">${nimDisplay}</td>
+      <td class="p-3"><span class="neu-pill-emboss px-2.5 py-0.5 text-blue-700 font-bold text-[11px]">${p.sie}</span></td>
+      <td class="p-3 font-semibold text-slate-700">${p.jabatan}</td>
+      <td class="p-3 truncate max-w-xs text-slate-600">${p.delegasi || '-'}</td>
+      <td class="p-3 text-center">${badgeStatus}</td>
+      <td class="p-3 text-center font-mono text-slate-600 font-semibold">${p.waktuPresensi || '-'}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1212,31 +1193,27 @@ function fallbackLocalCloseAgenda(agenda) {
 function showQRCodeModal() {
   const curUrl = window.location.href;
   const wrapper = document.getElementById('qrcodeWrapper');
-  if (wrapper) {
-    wrapper.innerHTML = '';
-    qrcodeInstance = new QRCode(wrapper, {
-      text: curUrl,
-      width: 200,
-      height: 200,
-      colorDark: "#191817",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.H
-    });
-  }
+  wrapper.innerHTML = '';
 
-  const modal = document.getElementById('qrcodeModal') || document.getElementById('modalQRCode');
-  if (modal) {
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-  }
+  qrcodeInstance = new QRCode(wrapper, {
+    text: curUrl,
+    width: 200,
+    height: 200,
+    colorDark: "#1e3a8a",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  const title = window.activeAgendaState ? window.activeAgendaState.title : 'Presensi KIP 2026';
+  document.getElementById('qrAgendaLabel').textContent = title;
+
+  document.getElementById('modalQRCode').classList.remove('hidden');
+  document.getElementById('modalQRCode').classList.add('flex');
 }
 
 function closeQRCodeModal() {
-  const modal = document.getElementById('qrcodeModal') || document.getElementById('modalQRCode');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
+  document.getElementById('modalQRCode').classList.add('hidden');
+  document.getElementById('modalQRCode').classList.remove('flex');
 }
 
 function copyPresensiLink() {
@@ -1270,26 +1247,25 @@ function hideAlert() {
 
 function showToast(type, title, message) {
   const container = document.getElementById('toastContainer');
-  if (!container) return;
   const toast = document.createElement('div');
-  toast.className = `p-4 rounded-2xl shadow-xl border text-xs font-medium transition-all transform pointer-events-auto flex items-start gap-3 bg-[#191817] text-white border-[#332F2A] animate-modal-spring`;
+  toast.className = `p-4 neu-raised-md bg-[#E9EEF5] border border-white/80 text-xs font-medium transition-all transform pointer-events-auto flex items-start gap-3 animate-fadeIn`;
 
   let icon = '';
   if (type === 'success') {
-    icon = `<svg class="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>`;
+    icon = `<div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></div>`;
   } else if (type === 'error') {
-    icon = `<svg class="w-5 h-5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+    icon = `<div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0 shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></div>`;
   } else if (type === 'warning') {
-    icon = `<svg class="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+    icon = `<div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div>`;
   } else {
-    icon = `<svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+    icon = `<div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>`;
   }
 
   toast.innerHTML = `
     ${icon}
     <div class="flex-1">
-      <strong class="block font-black text-sm leading-tight text-white">${title}</strong>
-      <p class="text-[#D9CEBE] mt-0.5 text-xs">${message}</p>
+      <strong class="block font-bold text-slate-900 text-sm leading-tight">${title}</strong>
+      <p class="text-slate-600 mt-0.5 text-xs">${message}</p>
     </div>
   `;
 
