@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presensi Digital Panitia KIP 2026 - Soft UI Dashboard</title>
+  <meta name="theme-color" content="#DC2626">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Presensi KIP PNL">
+  <title>Presensi Digital Panitia KIP 2026 - PEMILWA PNL</title>
+
+  <!-- Favicon: PEMILWA PNL Logo -->
+  <link rel="icon" type="image/jpeg" href="assets/logo_pemilwa.jpg">
   
   <!-- Typography: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,11 +32,14 @@
             sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
           },
           colors: {
-            neu: {
-              bg: '#E9EEF5',
-              surface: '#E9EEF5',
-              dark: '#C4D0E0',
-              primary: '#2563EB',
+            pnl: {
+              red: '#DC2626',
+              'red-hover': '#B91C1C',
+              'red-light': '#FEF2F2',
+              gold: '#F59E0B',
+              'gold-hover': '#D97706',
+              'gold-light': '#FFFBEB',
+              dark: '#0F172A',
             }
           }
         }
@@ -37,489 +47,662 @@
     }
   </script>
 </head>
-<body class="bg-[#E9EEF5] text-slate-800 font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+<body class="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-red-600 selection:text-white">
 
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none" aria-live="polite"></div>
 
-  <!-- HEADER / NAVBAR (NEUMORPHIC FLOATING BAR) -->
-  <header class="w-full sticky top-0 z-40 px-3 sm:px-6 pt-3 sm:pt-4 pb-2 backdrop-blur-sm">
-    <div class="max-w-6xl mx-auto neu-raised-md px-4 sm:px-6 py-3 flex items-center justify-between border border-white/60">
+  <!-- APPLICATION OUTER CONTAINER -->
+  <div class="max-w-[1400px] mx-auto w-full p-3 sm:p-5 lg:p-6 flex flex-col lg:flex-row gap-5 flex-1">
+
+    <!-- ============================================================== -->
+    <!-- SIDEBAR DOCK (QUIXOTIC MINIMALIST STYLE)                        -->
+    <!-- ============================================================== -->
+    <aside class="hidden lg:flex flex-col items-center justify-between w-20 py-6 px-2.5 bg-white border border-slate-200/80 rounded-3xl shadow-sm flex-shrink-0 sticky top-6 h-[calc(100vh-3rem)]">
       
-      <!-- Logo & Branding -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 neu-raised-sm flex items-center justify-center font-extrabold text-blue-600 text-sm tracking-wider flex-shrink-0 border border-white/80" aria-hidden="true">
-          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
+      <!-- Logo PEMILWA PNL -->
+      <div class="flex flex-col items-center gap-2">
+        <div class="w-13 h-13 p-1 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center">
+          <img src="assets/logo_pemilwa.jpg" alt="Logo PEMILWA PNL" class="w-11 h-11 object-contain rounded-xl">
         </div>
-        <div class="flex flex-col">
-          <div class="flex items-center gap-2">
-            <h1 class="text-sm sm:text-base font-extrabold text-slate-900 leading-tight tracking-tight">PANITIA KIP 2026</h1>
-            <span id="envBadge" class="neu-pill-recess px-2.5 py-0.5 text-[11px] font-bold text-slate-600">
-              46 Panitia
-            </span>
-          </div>
-          <p class="text-xs text-slate-500 hidden sm:block leading-none mt-0.5">Sistem Presensi Digital Terpadu Berbasis Google Sheets</p>
-        </div>
+        <span class="text-[10px] font-extrabold uppercase tracking-widest text-red-600">KIP '26</span>
       </div>
 
-      <!-- Navigation Segmented Tabs -->
-      <nav class="neu-nav-container flex items-center" aria-label="Navigasi Utama">
+      <!-- Center Icon Navigation -->
+      <div class="flex flex-col items-center gap-3">
         <button 
-          id="navPresensiBtn" 
+          id="sidebarBtnPresensi"
           onclick="switchView('presensi')" 
-          class="neu-nav-item-active flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-bold transition-all"
+          title="Presensi Anggota" 
+          class="sidebar-icon-btn active"
+          aria-label="Menu Presensi"
         >
-          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>Presensi</span>
         </button>
+
         <button 
-          id="navAdminBtn" 
+          id="sidebarBtnAdmin"
           onclick="switchView('admin')" 
-          class="neu-nav-item-idle flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:text-slate-900"
+          title="Dashboard Admin" 
+          class="sidebar-icon-btn"
+          aria-label="Menu Admin"
         >
-          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
-          <span>Admin</span>
         </button>
-      </nav>
 
-    </div>
-  </header>
+        <button 
+          onclick="showQRCodeModal()" 
+          title="Tampilkan QR Code" 
+          class="sidebar-icon-btn"
+          aria-label="Tampilkan QR Code"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+          </svg>
+        </button>
 
-  <!-- MAIN WRAPPER -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1 w-full">
-
-    <!-- ============================================================== -->
-    <!-- VIEW 1: PRESENSI ANGGOTA                                       -->
-    <!-- ============================================================== -->
-    <section id="viewPresensi" class="block max-w-xl mx-auto space-y-6 sm:space-y-7">
-
-      <!-- EVENT INFORMATION CARD (AGENDA AKTIF - SOFT DARK NEUMORPHISM) -->
-      <div id="agendaBannerCard" class="neu-agenda-card text-white p-5 sm:p-7 space-y-5">
-        
-        <!-- Top Metadata Row -->
-        <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
-          <div class="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 indicator-pulse" aria-hidden="true"></span>
-            <span>Agenda Berlangsung</span>
-          </div>
-          <span id="bannerAgendaId" class="text-xs font-mono text-slate-300 bg-white/5 px-2 py-0.5 rounded-md border border-white/10">KIP-20261110-001</span>
-        </div>
-
-        <!-- Main Title -->
-        <div>
-          <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Rapat / Kegiatan</span>
-          <h2 id="bannerAgendaTitle" class="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-snug">
-            Rapat Koordinasi Kasie
-          </h2>
-        </div>
-
-        <!-- Details Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-          <div class="neu-agenda-tile flex items-center gap-2.5 p-3">
-            <div class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-            <span id="bannerAgendaDate" class="text-slate-100 font-semibold">10 November 2026</span>
-          </div>
-
-          <div class="neu-agenda-tile flex items-center gap-2.5 p-3">
-            <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <span id="bannerAgendaTime" class="text-slate-100 font-semibold">14:00 WIB</span>
-          </div>
-
-          <div class="sm:col-span-2 neu-agenda-tile flex items-center gap-2.5 p-3">
-            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-            </div>
-            <span id="bannerAgendaLocation" class="text-slate-100 font-semibold truncate">Ruang Rapat Panitia / Gedung PKM</span>
-          </div>
-        </div>
-
+        <button 
+          onclick="refreshDashboard()" 
+          title="Refresh Data" 
+          class="sidebar-icon-btn"
+          aria-label="Refresh Data"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
       </div>
 
-      <!-- FORM PRESENSI CARD (NEUMORPHIC SOFT RAISED) -->
-      <div class="neu-raised-lg p-6 sm:p-8 space-y-6 border border-white/70">
+      <!-- Bottom Settings & Link -->
+      <div class="flex flex-col items-center gap-2">
+        <button 
+          onclick="openModalGsheetConfig()" 
+          title="Pengaturan Google Sheets" 
+          class="sidebar-icon-btn"
+          aria-label="Pengaturan Google Sheets"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+
+        <button 
+          onclick="logoutAdmin()" 
+          title="Keluar" 
+          class="sidebar-icon-btn hover:text-red-600"
+          aria-label="Keluar"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ============================================================== -->
+    <!-- MAIN DASHBOARD CONTENT AREA                                    -->
+    <!-- ============================================================== -->
+    <div class="flex-1 flex flex-col gap-5 min-w-0">
+
+      <!-- TOP HEADER BAR (MODERN QUIXOTIC STYLE) -->
+      <header class="dash-card px-5 sm:px-7 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
-        <div class="border-b border-slate-300/60 pb-3">
-          <h3 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">Formulir Kehadiran Panitia</h3>
-          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Masukkan NIM untuk memverifikasi biodata kepanitiaan Anda.</p>
+        <!-- Organization Identity -->
+        <div class="flex items-center gap-3.5">
+          <div class="lg:hidden w-11 h-11 p-1 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0">
+            <img src="assets/logo_pemilwa.jpg" alt="Logo PEMILWA PNL" class="w-9 h-9 object-contain rounded-lg">
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-tight">
+                KOMISI INDEPENDEN PEMILIHAN 2026
+              </h1>
+              <span id="envBadge" class="badge-pnl-red px-2.5 py-0.5 text-[11px]">
+                PEMILWA PNL
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5 font-medium">Sistem Presensi Digital Panitia Terpadu Berbasis Google Sheets</p>
+          </div>
         </div>
 
-        <!-- Input Section -->
-        <div class="space-y-4">
-          <div>
-            <label for="inputNim" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-              Nomor Induk Mahasiswa (NIM)
-            </label>
+        <!-- Right Action Items & Nav Segmented Tabs -->
+        <div class="flex items-center gap-3 self-end sm:self-center">
+          
+          <!-- Segmented Navigation Controller -->
+          <nav class="pnl-nav-container" aria-label="Navigasi Utama">
+            <button 
+              id="navPresensiBtn" 
+              onclick="switchView('presensi')" 
+              class="pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all"
+            >
+              <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Presensi</span>
+            </button>
+            <button 
+              id="navAdminBtn" 
+              onclick="switchView('admin')" 
+              class="pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all"
+            >
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+              <span>Admin Panel</span>
+            </button>
+          </nav>
+
+        </div>
+
+      </header>
+
+      <!-- ============================================================== -->
+      <!-- VIEW 1: PRESENSI ANGGOTA                                       -->
+      <!-- ============================================================== -->
+      <section id="viewPresensi" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- LEFT COLUMN: EVENT INFORMATION CARD (AGENDA AKTIF) -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+          
+          <div id="agendaBannerCard" class="dash-card-agenda p-6 sm:p-7 space-y-5 flex-1 flex flex-col justify-between">
             
-            <div class="flex items-center gap-3">
-              <div class="relative flex-1">
-                <input 
-                  type="text" 
-                  id="inputNim" 
-                  inputmode="numeric" 
-                  placeholder="Contoh: 2024203020008" 
-                  class="neu-input w-full h-12 px-4 text-slate-900 font-bold tracking-wide text-sm sm:text-base placeholder:text-slate-400 placeholder:font-normal"
-                  onkeypress="if(event.key === 'Enter') searchNIM()"
-                >
+            <div class="space-y-4">
+              <!-- Top Metadata Row -->
+              <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+                <div class="inline-flex items-center gap-2 bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                  <span class="w-2 h-2 rounded-full bg-red-400 indicator-pulse" aria-hidden="true"></span>
+                  <span>Agenda Berlangsung</span>
+                </div>
+                <span id="bannerAgendaId" class="text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-0.5 rounded-md border border-white/10">KIP-20261110-001</span>
               </div>
 
-              <button 
-                type="button" 
-                id="btnCariNIM" 
-                onclick="searchNIM()" 
-                class="neu-btn-primary h-12 px-5 flex items-center justify-center gap-2 text-xs font-bold tracking-wider flex-shrink-0"
-              >
-                <span id="btnCariText">CARI DATA</span>
-                <div id="btnCariSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
-              </button>
-            </div>
+              <!-- Main Title -->
+              <div>
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block mb-1">Rapat / Kegiatan Resmi</span>
+                <h2 id="bannerAgendaTitle" class="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-snug">
+                  Rapat Koordinasi Kasie
+                </h2>
+              </div>
 
-            <!-- Quick Pill Suggestions -->
-            <div class="flex items-center gap-2 text-xs text-slate-500 mt-3 flex-wrap">
-              <span class="text-[11px] font-semibold text-slate-600">Coba NIM Panitia:</span>
-              <button type="button" onclick="quickFillNIM('2024203020008')" class="neu-pill-emboss px-3 py-1 text-[11px] font-mono font-bold text-blue-700 hover:text-blue-900 transition-smooth">
-                2024203020008
-              </button>
-              <button type="button" onclick="quickFillNIM('2024613060016')" class="neu-pill-emboss px-3 py-1 text-[11px] font-mono font-bold text-blue-700 hover:text-blue-900 transition-smooth">
-                2024613060016
-              </button>
-            </div>
-          </div>
-
-          <!-- BIODATA CARD CONTAINER (MUNCUL SETELAH NIM DITEMUKAN) -->
-          <div id="biodataContainer" class="hidden space-y-4 pt-2 animate-fadeIn">
-            
-            <div class="neu-inset p-5 space-y-4 border border-white/40">
-              
-              <div class="flex items-center gap-3.5 border-b border-slate-300/50 pb-3.5">
-                <div id="avatarInitials" class="w-12 h-12 neu-raised-sm bg-[#E9EEF5] text-blue-700 font-extrabold text-base flex items-center justify-center flex-shrink-0 border border-white/80" aria-hidden="true">
-                  RH
+              <!-- Details Grid -->
+              <div class="grid grid-cols-1 gap-2.5 text-xs pt-1">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Tanggal</span>
+                    <span id="bannerAgendaDate" class="text-white font-semibold text-sm">10 November 2026</span>
+                  </div>
                 </div>
-                <div class="min-w-0 flex-1">
-                  <h4 id="bioNama" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">Rahmat Haikal</h4>
-                  <div class="flex items-center gap-2 mt-1 flex-wrap">
-                    <span id="bioNim" class="neu-pill-emboss px-2.5 py-0.5 text-xs font-mono font-bold text-slate-700">2024203020008</span>
-                    <span class="neu-pill-emboss px-2.5 py-0.5 text-[11px] font-bold text-emerald-700">Terverifikasi</span>
+
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Waktu</span>
+                    <span id="bannerAgendaTime" class="text-white font-semibold text-sm">14:00 WIB</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                  <div class="w-8 h-8 rounded-lg bg-slate-700 text-slate-300 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">Lokasi</span>
+                    <span id="bannerAgendaLocation" class="text-white font-semibold text-sm truncate block">Ruang Rapat Panitia / Gedung PKM</span>
                   </div>
                 </div>
               </div>
-
-              <!-- Key Value Table -->
-              <div class="grid grid-cols-2 gap-2.5 text-xs">
-                <div class="neu-raised-sm p-3 border border-white/60">
-                  <span class="text-slate-500 block text-[10px] uppercase font-extrabold tracking-wider">Jabatan</span>
-                  <span id="bioJabatan" class="font-bold text-slate-900 text-sm mt-0.5 block">Sekretaris Pelaksana</span>
-                </div>
-                <div class="neu-raised-sm p-3 border border-white/60">
-                  <span class="text-slate-500 block text-[10px] uppercase font-extrabold tracking-wider">Sie</span>
-                  <span id="bioSie" class="font-bold text-slate-900 text-sm mt-0.5 block">Pejabat Acara</span>
-                </div>
-                <div class="neu-raised-sm p-3 border border-white/60 col-span-2">
-                  <span class="text-slate-500 block text-[10px] uppercase font-extrabold tracking-wider">Delegasi Ormawa</span>
-                  <span id="bioDelegasi" class="font-bold text-slate-900 text-sm mt-0.5 truncate block">UKM POLYROBOCOM</span>
-                </div>
-              </div>
-
             </div>
 
-            <!-- Session Code Field -->
-            <div id="sessionCodeField" class="hidden">
-              <label for="inputSessionCode" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-                Kode Sesi Rapat (Anti-Titip Absen)
-              </label>
-              <input 
-                type="text" 
-                id="inputSessionCode" 
-                placeholder="Masukkan kode rapat dari panitia di ruangan" 
-                class="neu-input w-full h-12 px-4 text-slate-900 font-extrabold tracking-widest text-center uppercase text-sm"
-              >
-            </div>
-
-            <!-- Button Konfirmasi Hadir -->
-            <button 
-              type="button" 
-              id="btnHadir" 
-              onclick="submitKehadiran()" 
-              class="neu-btn-success w-full h-12 text-sm font-bold tracking-wider flex items-center justify-center gap-2"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-              </svg>
-              <span id="btnHadirText">KONFIRMASI HADIR</span>
-              <div id="btnHadirSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
-            </button>
-
-          </div>
-
-          <!-- Alert Notification Box -->
-          <div id="presensiAlert" class="hidden neu-inset p-4 text-xs font-medium border" role="alert"></div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- ============================================================== -->
-    <!-- VIEW 2: ADMIN DASHBOARD                                        -->
-    <!-- ============================================================== -->
-    <section id="viewAdmin" class="hidden space-y-6">
-
-      <!-- GATE LOGIN PIN ADMIN -->
-      <div id="adminLoginGate" class="max-w-md mx-auto neu-raised-lg p-6 sm:p-8 text-center space-y-6 border border-white/70">
-        <div class="w-14 h-14 neu-raised-sm mx-auto flex items-center justify-center text-blue-600 border border-white/80" aria-hidden="true">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-          </svg>
-        </div>
-        <div>
-          <h3 class="text-lg font-extrabold text-slate-900">Autentikasi Administrator</h3>
-          <p class="text-xs text-slate-500 mt-1">Masukkan PIN keamanan untuk mengakses data monitoring dan manajemen agenda.</p>
-        </div>
-
-        <div class="space-y-4">
-          <input 
-            type="password" 
-            id="adminPinInput" 
-            placeholder="Masukkan PIN Admin" 
-            class="neu-input w-full text-center text-lg tracking-widest font-extrabold h-12"
-            onkeypress="if(event.key === 'Enter') doAdminLogin()"
-          >
-          <button 
-            type="button" 
-            id="btnAdminLogin" 
-            onclick="doAdminLogin()" 
-            class="neu-btn-primary w-full h-12 text-xs uppercase tracking-wider flex items-center justify-center gap-2"
-          >
-            <span id="btnAdminLoginText">Masuk Dashboard</span>
-            <div id="btnAdminLoginSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
-          </button>
-          <p class="text-[11px] text-slate-500">PIN Default: <code class="neu-pill-recess font-mono font-bold text-slate-800 px-2 py-0.5">KIP2026</code></p>
-        </div>
-      </div>
-
-      <!-- MAIN ADMIN PANEL (AFTER AUTH) -->
-      <div id="adminPanel" class="hidden space-y-6">
-
-        <!-- Top Bar Admin Controls -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 neu-raised-md p-4 sm:p-5 border border-white/60">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 indicator-pulse" aria-hidden="true"></span>
-              <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Dashboard Administrator</h2>
-            </div>
-            <p class="text-xs text-slate-500 mt-0.5">Monitoring kehadiran panitia KIP 2026 secara real-time</p>
-          </div>
-          
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <button onclick="openModalGsheetConfig()" class="neu-btn-success h-10 px-3.5 text-xs font-bold flex items-center gap-1.5">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              <span>Sambung GSheet</span>
-            </button>
-
-            <button onclick="openModalGenerateAgenda()" class="neu-btn-primary h-10 px-4 text-xs font-bold flex items-center gap-1.5">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
-              <span>Generate Agenda</span>
-            </button>
-
-            <button onclick="refreshDashboard()" class="neu-btn h-10 px-3.5 text-slate-700 text-xs font-bold flex items-center gap-1.5">
-              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-              <span>Refresh</span>
-            </button>
-
-            <button onclick="logoutAdmin()" class="neu-btn h-10 px-3.5 text-rose-600 hover:text-rose-700 text-xs font-bold">
-              Keluar
-            </button>
-          </div>
-        </div>
-
-        <!-- 4 STATS CARDS (NEUMORPHIC SOFT EMBOSS) -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-          
-          <div class="neu-raised-md p-5 border border-white/60">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Total Panitia</span>
-            <div id="statTotalPanitia" class="text-2xl sm:text-3xl font-extrabold text-slate-900">46</div>
-            <p class="text-[11px] text-slate-500 mt-1">Master Sheet PANITIA KIP</p>
-          </div>
-
-          <div class="neu-raised-md p-5 border border-white/60">
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 block mb-1">Sudah Hadir</span>
-            <div id="statSudahHadir" class="text-2xl sm:text-3xl font-extrabold text-emerald-600">0</div>
-            <p class="text-[11px] text-slate-500 mt-1">Tercatat di raw_presensi</p>
-          </div>
-
-          <div class="neu-raised-md p-5 border border-white/60">
-            <span class="text-xs font-bold uppercase tracking-wider text-amber-700 block mb-1">Belum Hadir</span>
-            <div id="statBelumHadir" class="text-2xl sm:text-3xl font-extrabold text-amber-600">46</div>
-            <p class="text-[11px] text-slate-500 mt-1">Belum melakukan presensi</p>
-          </div>
-
-          <div class="neu-raised-md p-5 border border-white/60">
-            <span class="text-xs font-bold uppercase tracking-wider text-blue-700 block mb-1">Kehadiran</span>
-            <div class="flex items-baseline gap-1">
-              <span id="statPersentase" class="text-2xl sm:text-3xl font-extrabold text-blue-600">0.0</span>
-              <span class="text-sm font-extrabold text-blue-600">%</span>
-            </div>
-            <div class="neu-inset-sm h-2 mt-2.5 overflow-hidden">
-              <div id="statProgressBar" class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- ACTIVE AGENDA CONTROL & TABLE CARD -->
-        <div class="neu-raised-lg p-5 sm:p-7 space-y-6 border border-white/70">
-          
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-300/60 pb-4">
-            <div>
-              <span class="neu-pill-emboss px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-blue-700 inline-block">
-                Agenda Berjalan
-              </span>
-              <h3 id="adminAgendaTitle" class="text-lg sm:text-xl font-extrabold text-slate-900 mt-2">Rapat Koordinasi Kasie</h3>
-              <p id="adminAgendaMeta" class="text-xs text-slate-500 mt-0.5">ID: <span class="font-mono text-slate-800 font-bold">KIP-20261110-001</span> • 10 November 2026, 14:00 WIB</p>
-            </div>
-
-            <div class="flex items-center gap-2 flex-wrap">
-              <button onclick="showQRCodeModal()" class="neu-btn h-9 px-3 text-slate-700 text-xs font-bold flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+            <!-- Quick Action Buttons -->
+            <div class="flex items-center gap-2 pt-4 border-t border-white/10">
+              <button onclick="showQRCodeModal()" class="flex-1 h-10 px-3 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border border-white/10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                 </svg>
                 <span>Tampilkan QR</span>
               </button>
 
-              <button onclick="copyPresensiLink()" class="neu-btn h-9 px-3 text-slate-700 text-xs font-bold flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              <button onclick="copyPresensiLink()" class="flex-1 h-10 px-3 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border border-white/10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                <span>Salin Link</span>
-              </button>
-
-              <button onclick="confirmCloseAgenda()" class="neu-btn h-9 px-3 text-rose-600 hover:text-rose-700 text-xs font-bold flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                <span>Tutup Agenda</span>
+                <span>Salin Tautan</span>
               </button>
             </div>
+
           </div>
 
-          <!-- TABLE SECTION -->
-          <div class="space-y-4">
+          <!-- Information Guide Card -->
+          <div class="dash-card p-5 space-y-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500 block">Petunjuk Presensi</span>
+            <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside leading-relaxed">
+              <li>Masukkan NIM Anda yang terdaftar pada SK Panitia KIP 2026.</li>
+              <li>Periksa kesesuaian Nama, Sie, dan Jabatan kepanitiaan.</li>
+              <li>Klik <strong class="text-red-600">KONFIRMASI HADIR</strong> untuk menyimpan bukti kehadiran.</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: FORM PRESENSI CARD -->
+        <div class="lg:col-span-7">
+          
+          <div class="dash-card p-6 sm:p-8 space-y-6">
             
-            <!-- Filters Toolbar -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h4 class="text-sm font-extrabold text-slate-900">Daftar Kehadiran Anggota</h4>
-              
-              <div class="flex items-center gap-2 flex-wrap">
-                <select id="filterSie" onchange="applyFilters()" class="neu-input h-9 text-xs px-3 font-semibold text-slate-700">
-                  <option value="">Semua Sie</option>
-                </select>
-
-                <select id="filterStatus" onchange="applyFilters()" class="neu-input h-9 text-xs px-3 font-semibold text-slate-700">
-                  <option value="">Semua Status</option>
-                  <option value="HADIR">Sudah Hadir</option>
-                  <option value="BELUM HADIR">Belum Hadir</option>
-                </select>
-
-                <input 
-                  type="text" 
-                  id="searchPanitiaInput" 
-                  placeholder="Cari Nama / NIM..." 
-                  oninput="applyFilters()" 
-                  class="neu-input h-9 text-xs px-3 font-semibold text-slate-800"
-                >
-
-                <button onclick="exportTableToCSV()" title="Unduh CSV" class="neu-btn h-9 px-3 text-slate-700 text-xs font-bold flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                  </svg>
-                  <span>CSV</span>
-                </button>
-
-                <button onclick="printAttendanceSheet()" title="Cetak Daftar Hadir" class="neu-btn h-9 px-3 text-slate-700 text-xs font-bold flex items-center gap-1.5">
-                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                  </svg>
-                  <span>Cetak</span>
-                </button>
+            <div class="border-b border-slate-200/80 pb-4">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-6 bg-red-600 rounded-full" aria-hidden="true"></div>
+                <h3 class="text-lg font-extrabold text-slate-900 tracking-tight">Formulir Kehadiran Panitia</h3>
               </div>
+              <p class="text-xs sm:text-sm text-slate-500 mt-1 pl-4">Masukkan Nomor Induk Mahasiswa (NIM) untuk memverifikasi biodata kepanitiaan Anda.</p>
             </div>
 
-            <!-- Table Wrapper (Soft Recessed Well) -->
-            <div class="neu-inset p-1.5 overflow-x-auto border border-white/50">
-              <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr class="text-slate-600 font-extrabold border-b border-slate-300/60 uppercase tracking-wider text-[11px]">
-                    <th class="p-3 w-10 text-center">No</th>
-                    <th class="p-3">Nama Lengkap</th>
-                    <th class="p-3">NIM</th>
-                    <th class="p-3">Sie</th>
-                    <th class="p-3">Jabatan</th>
-                    <th class="p-3">Delegasi</th>
-                    <th class="p-3 text-center">Status</th>
-                    <th class="p-3 text-center">Waktu Presensi</th>
-                  </tr>
-                </thead>
-                <tbody id="panitiaTableBody" class="divide-y divide-slate-300/40 text-slate-700 font-medium">
-                  <tr>
-                    <td colspan="8" class="p-5 text-center text-slate-500">Memuat data panitia...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <!-- Input Section -->
+            <div class="space-y-4">
+              <div>
+                <label for="inputNim" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  Nomor Induk Mahasiswa (NIM)
+                </label>
+                
+                <div class="flex items-center gap-3">
+                  <div class="relative flex-1">
+                    <input 
+                      type="text" 
+                      id="inputNim" 
+                      inputmode="numeric" 
+                      placeholder="Contoh: 2024203020008" 
+                      class="dash-input w-full h-12 px-4 text-slate-900 font-bold tracking-wide text-base placeholder:text-slate-400 placeholder:font-normal"
+                      onkeypress="if(event.key === 'Enter') searchNIM()"
+                    >
+                  </div>
 
-            <div class="flex items-center justify-between text-xs text-slate-500 px-1">
-              <span id="tableSummary" class="font-semibold">Menampilkan 0 dari 0 panitia</span>
-              <span>Data otomatis tersinkron ke Sheet <strong class="text-slate-700">raw_presensi</strong> dan <strong class="text-slate-700">PRESENSI</strong></span>
+                  <button 
+                    type="button" 
+                    id="btnCariNIM" 
+                    onclick="searchNIM()" 
+                    class="btn-pnl-red h-12 px-6 flex items-center justify-center gap-2 text-xs uppercase tracking-wider flex-shrink-0"
+                  >
+                    <span id="btnCariText">CARI DATA</span>
+                    <div id="btnCariSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
+                  </button>
+                </div>
+
+                <!-- Quick Pill Suggestions -->
+                <div class="flex items-center gap-2 text-xs text-slate-500 mt-3 flex-wrap">
+                  <span class="text-[11px] font-semibold text-slate-600">Contoh Cepat:</span>
+                  <button type="button" onclick="quickFillNIM('2024203020008')" class="badge-pnl-gold px-3 py-1 text-[11px] font-mono hover:bg-amber-100 transition-colors">
+                    2024203020008 (Rahmat Haikal)
+                  </button>
+                  <button type="button" onclick="quickFillNIM('2024613060016')" class="badge-pnl-gold px-3 py-1 text-[11px] font-mono hover:bg-amber-100 transition-colors">
+                    2024613060016 (Ananda Haikal)
+                  </button>
+                </div>
+              </div>
+
+              <!-- BIODATA CARD CONTAINER (MUNCUL SETELAH NIM DITEMUKAN) -->
+              <div id="biodataContainer" class="hidden space-y-4 pt-2 animate-fadeIn">
+                
+                <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-4">
+                  
+                  <div class="flex items-center gap-3.5 border-b border-slate-200 pb-3.5">
+                    <div id="avatarInitials" class="w-13 h-13 rounded-2xl bg-red-600 text-white font-extrabold text-lg flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">
+                      RH
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <h4 id="bioNama" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">Rahmat Haikal</h4>
+                      <div class="flex items-center gap-2 mt-1 flex-wrap">
+                        <span id="bioNim" class="font-mono text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2.5 py-0.5 rounded-lg">2024203020008</span>
+                        <span class="badge-pnl-emerald px-2.5 py-0.5 text-[11px]">Terdaftar di SK Panitia</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Key Value Tiles -->
+                  <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
+                      <span class="text-slate-400 block text-[10px] uppercase font-extrabold tracking-wider">Jabatan</span>
+                      <span id="bioJabatan" class="font-extrabold text-slate-900 text-sm mt-0.5 block">Sekretaris Pelaksana</span>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
+                      <span class="text-slate-400 block text-[10px] uppercase font-extrabold tracking-wider">Sie</span>
+                      <span id="bioSie" class="font-extrabold text-slate-900 text-sm mt-0.5 block">Pejabat Acara</span>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 col-span-2">
+                      <span class="text-slate-400 block text-[10px] uppercase font-extrabold tracking-wider">Delegasi Ormawa</span>
+                      <span id="bioDelegasi" class="font-extrabold text-slate-900 text-sm mt-0.5 truncate block">UKM POLYROBOCOM</span>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Session Code Field -->
+                <div id="sessionCodeField" class="hidden">
+                  <label for="inputSessionCode" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    Kode Sesi Rapat (Anti-Titip Absen)
+                  </label>
+                  <input 
+                    type="text" 
+                    id="inputSessionCode" 
+                    placeholder="Masukkan kode rapat dari pimpinan ruangan" 
+                    class="dash-input w-full h-12 px-4 text-slate-900 font-extrabold tracking-widest text-center uppercase text-sm"
+                  >
+                </div>
+
+                <!-- Button Konfirmasi Hadir -->
+                <button 
+                  type="button" 
+                  id="btnHadir" 
+                  onclick="submitKehadiran()" 
+                  class="btn-pnl-red w-full h-13 text-sm uppercase tracking-wider flex items-center justify-center gap-2"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span id="btnHadirText">KONFIRMASI HADIR</span>
+                  <div id="btnHadirSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
+                </button>
+
+              </div>
+
+              <!-- Alert Notification Box -->
+              <div id="presensiAlert" class="hidden rounded-xl p-4 text-xs font-medium border" role="alert"></div>
+
             </div>
 
           </div>
 
         </div>
 
-      </div>
+      </section>
 
-    </section>
+      <!-- ============================================================== -->
+      <!-- VIEW 2: ADMIN DASHBOARD                                        -->
+      <!-- ============================================================== -->
+      <section id="viewAdmin" class="hidden space-y-6">
 
-  </main>
+        <!-- GATE LOGIN PIN ADMIN -->
+        <div id="adminLoginGate" class="max-w-md mx-auto dash-card p-6 sm:p-8 text-center space-y-6 my-6">
+          <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl mx-auto flex items-center justify-center border border-red-100 shadow-sm" aria-hidden="true">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">Autentikasi Administrator</h3>
+            <p class="text-xs text-slate-500 mt-1">Masukkan PIN keamanan untuk mengakses statistik, rekap kehadiran, dan manajemen agenda.</p>
+          </div>
+
+          <div class="space-y-4">
+            <input 
+              type="password" 
+              id="adminPinInput" 
+              placeholder="Masukkan PIN Admin" 
+              class="dash-input w-full text-center text-lg tracking-widest font-extrabold h-12"
+              onkeypress="if(event.key === 'Enter') doAdminLogin()"
+            >
+            <button 
+              type="button" 
+              id="btnAdminLogin" 
+              onclick="doAdminLogin()" 
+              class="btn-pnl-red w-full h-12 text-xs uppercase tracking-wider flex items-center justify-center gap-2"
+            >
+              <span id="btnAdminLoginText">Masuk Dashboard</span>
+              <div id="btnAdminLoginSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
+            </button>
+            <p class="text-[11px] text-slate-500">PIN Akses Default: <code class="badge-pnl-gold font-mono font-bold px-2 py-0.5">KIP2026</code></p>
+          </div>
+        </div>
+
+        <!-- MAIN ADMIN PANEL (AFTER AUTH) -->
+        <div id="adminPanel" class="hidden space-y-6">
+
+          <!-- Top Bar Admin Controls (Quixotic Header Style) -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 dash-card p-4 sm:p-5">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 indicator-pulse" aria-hidden="true"></span>
+                <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Monitoring & Manajemen Presensi</h2>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">Rekapitulasi kehadiran panitia KIP PEMILWA PNL secara real-time</p>
+            </div>
+            
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <button onclick="openModalGenerateAgenda()" class="btn-pnl-red h-10 px-4 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m8-8H4"></path>
+                </svg>
+                <span>Generate Agenda</span>
+              </button>
+
+              <button onclick="openModalGsheetConfig()" class="btn-pnl-gold h-10 px-3.5 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span>Sambung GSheet</span>
+              </button>
+
+              <button onclick="refreshDashboard()" class="btn-pnl-outline h-10 px-3.5 text-xs flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>Refresh</span>
+              </button>
+
+              <button onclick="logoutAdmin()" class="btn-pnl-outline h-10 px-3.5 text-red-600 hover:text-red-700 text-xs">
+                Keluar
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 STATS CARDS (QUIXOTIC STATS ROW) -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="dash-card p-5 border-l-4 border-l-slate-900">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">Total Panitia</span>
+              <div id="statTotalPanitia" class="text-2xl sm:text-3xl font-extrabold text-slate-900">46</div>
+              <p class="text-[11px] text-slate-500 mt-1">Master Sheet PANITIA KIP</p>
+            </div>
+
+            <div class="dash-card p-5 border-l-4 border-l-emerald-600">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 block mb-1">Sudah Hadir</span>
+              <div id="statSudahHadir" class="text-2xl sm:text-3xl font-extrabold text-emerald-600">0</div>
+              <p class="text-[11px] text-slate-500 mt-1">Tercatat di raw_presensi</p>
+            </div>
+
+            <div class="dash-card p-5 border-l-4 border-l-amber-500">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-700 block mb-1">Belum Hadir</span>
+              <div id="statBelumHadir" class="text-2xl sm:text-3xl font-extrabold text-amber-600">46</div>
+              <p class="text-[11px] text-slate-500 mt-1">Belum melakukan presensi</p>
+            </div>
+
+            <div class="dash-card p-5 border-l-4 border-l-red-600">
+              <span class="text-xs font-bold uppercase tracking-wider text-red-700 block mb-1">Persentase Kehadiran</span>
+              <div class="flex items-baseline gap-1">
+                <span id="statPersentase" class="text-2xl sm:text-3xl font-extrabold text-red-600">0.0</span>
+                <span class="text-sm font-extrabold text-red-600">%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 mt-2.5 overflow-hidden border border-slate-200">
+                <div id="statProgressBar" class="bg-red-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- VISUAL GRAPH & DISTRIBUTION SECTION (INSPIRED BY QUIXOTIC ENGAGEMENT CHART) -->
+          <div class="dash-card p-5 sm:p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div>
+                <span class="badge-pnl-red px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider">Statistik Sie</span>
+                <h3 class="text-base font-extrabold text-slate-900 mt-1">Distribusi Kehadiran Berdasarkan Sie Kepanitiaan</h3>
+              </div>
+              <span class="text-xs text-slate-500 font-medium">Panitia KIP PEMILWA PNL</span>
+            </div>
+
+            <!-- Visual Bar Grid -->
+            <div id="sieChartGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+              <!-- Dynamically populated via app.js updateSieChart() -->
+            </div>
+          </div>
+
+          <!-- ACTIVE AGENDA CONTROL & TABLE CARD -->
+          <div class="dash-card p-5 sm:p-7 space-y-6">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+              <div>
+                <span class="badge-pnl-red px-3 py-1 text-[11px] uppercase tracking-wider inline-block">
+                  Agenda Sedang Berlangsung
+                </span>
+                <h3 id="adminAgendaTitle" class="text-lg sm:text-xl font-extrabold text-slate-900 mt-2">Rapat Koordinasi Kasie</h3>
+                <p id="adminAgendaMeta" class="text-xs text-slate-500 mt-0.5">ID: <span class="font-mono text-slate-800 font-bold">KIP-20261110-001</span> • 10 November 2026, 14:00 WIB</p>
+              </div>
+
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="showQRCodeModal()" class="btn-pnl-outline h-9 px-3 text-xs flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                  </svg>
+                  <span>Tampilkan QR</span>
+                </button>
+
+                <button onclick="copyPresensiLink()" class="btn-pnl-outline h-9 px-3 text-xs flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                  </svg>
+                  <span>Salin Link</span>
+                </button>
+
+                <button onclick="confirmCloseAgenda()" class="btn-pnl-outline h-9 px-3 text-red-600 hover:text-red-700 text-xs flex items-center gap-1.5 border-red-200">
+                  <svg class="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  <span>Tutup Agenda</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- TABLE SECTION -->
+            <div class="space-y-4">
+              
+              <!-- Filters Toolbar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h4 class="text-sm font-extrabold text-slate-900">Daftar Kehadiran Anggota Panitia</h4>
+                
+                <div class="flex items-center gap-2 flex-wrap">
+                  <select id="filterSie" onchange="applyFilters()" class="dash-input h-9 text-xs px-3 font-semibold text-slate-700">
+                    <option value="">Semua Sie</option>
+                  </select>
+
+                  <select id="filterStatus" onchange="applyFilters()" class="dash-input h-9 text-xs px-3 font-semibold text-slate-700">
+                    <option value="">Semua Status</option>
+                    <option value="HADIR">Sudah Hadir</option>
+                    <option value="BELUM HADIR">Belum Hadir</option>
+                  </select>
+
+                  <input 
+                    type="text" 
+                    id="searchPanitiaInput" 
+                    placeholder="Cari Nama / NIM..." 
+                    oninput="applyFilters()" 
+                    class="dash-input h-9 text-xs px-3 font-semibold text-slate-800"
+                  >
+
+                  <button onclick="exportTableToCSV()" title="Unduh CSV" class="btn-pnl-outline h-9 px-3 text-xs flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span>CSV</span>
+                  </button>
+
+                  <button onclick="printAttendanceSheet()" title="Cetak Rekap" class="btn-pnl-outline h-9 px-3 text-xs flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    <span>Cetak</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Table Wrapper (Clean Structured Border) -->
+              <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="bg-slate-50 text-slate-700 font-extrabold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                      <th class="p-3.5 w-10 text-center">No</th>
+                      <th class="p-3.5">Nama Lengkap</th>
+                      <th class="p-3.5">NIM</th>
+                      <th class="p-3.5">Sie</th>
+                      <th class="p-3.5">Jabatan</th>
+                      <th class="p-3.5">Delegasi</th>
+                      <th class="p-3.5 text-center">Status</th>
+                      <th class="p-3.5 text-center">Waktu Presensi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="panitiaTableBody" class="divide-y divide-slate-100 text-slate-700 font-medium bg-white">
+                    <tr>
+                      <td colspan="8" class="p-6 text-center text-slate-500">Memuat data panitia...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+                <span id="tableSummary" class="font-semibold">Menampilkan 0 dari 0 panitia</span>
+                <span>Tersinkron otomatis ke Sheet <strong class="text-slate-700">raw_presensi</strong> dan <strong class="text-slate-700">PRESENSI</strong></span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="dash-card py-4 px-6 mt-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+          <p class="font-medium">Komisi Independen Pemilihan (KIP) 2026 • PEMILWA Politeknik Negeri Lhokseumawe</p>
+          <p class="text-[11px] text-slate-400">Database: <span class="font-mono text-slate-600 font-semibold">PANITIA KIP | AGENDA | raw_presensi | PRESENSI</span></p>
+        </div>
+      </footer>
+
+    </div>
+
+  </div>
 
   <!-- ============================================================== -->
   <!-- MODAL: GOOGLE SHEETS API CONFIGURATION                         -->
   <!-- ============================================================== -->
   <div id="modalGsheetConfig" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalGsheetTitle">
-    <div class="neu-raised-lg bg-[#E9EEF5] max-w-lg w-full p-6 sm:p-7 border border-white/80 space-y-5 animate-fadeIn">
-      <div class="flex items-center justify-between border-b border-slate-300/60 pb-3">
+    <div class="dash-card bg-white max-w-lg w-full p-6 sm:p-7 space-y-5 animate-fadeIn">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <h3 id="modalGsheetTitle" class="text-base font-extrabold text-slate-900">Koneksi Google Sheets (Web App URL)</h3>
-        <button onclick="closeModalGsheetConfig()" class="neu-btn p-1.5 text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
+        <button onclick="closeModalGsheetConfig()" class="btn-pnl-outline p-1.5 text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
 
       <p class="text-xs text-slate-600 leading-relaxed">
-        Masukkan URL Web App hasil deploy Google Apps Script agar aplikasi terhubung secara live ke Google Sheets.
+        Masukkan URL Web App hasil deploy Google Apps Script agar aplikasi terhubung secara live ke Google Sheets Panitia KIP.
       </p>
 
       <div class="space-y-3.5 text-xs">
@@ -529,25 +712,25 @@
             type="url" 
             id="gasUrlInput" 
             placeholder="https://script.google.com/macros/s/AKfycbx.../exec" 
-            class="neu-input w-full h-11 px-3.5 font-mono text-xs text-slate-800"
+            class="dash-input w-full h-11 px-3.5 font-mono text-xs text-slate-800"
           >
           <p class="text-[11px] text-slate-500 mt-1">Dapatkan URL dari menu: <strong>Deploy > New deployment > Web app (Who has access: Anyone)</strong>.</p>
         </div>
 
-        <div id="gsheetConnectionStatus" class="neu-inset p-3.5 text-xs text-slate-600">
+        <div id="gsheetConnectionStatus" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
           Status saat ini: <span id="gsheetStatusLabel" class="font-bold text-slate-800">Mode Lokal (Simulasi)</span>
         </div>
       </div>
 
-      <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-300/60">
-        <button onclick="testGsheetConnection()" type="button" class="neu-btn h-10 px-3.5 text-slate-700 font-bold text-xs">
+      <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-200">
+        <button onclick="testGsheetConnection()" type="button" class="btn-pnl-outline h-10 px-3.5 text-slate-700 font-bold text-xs">
           Uji Koneksi
         </button>
         <div class="flex items-center gap-2">
-          <button onclick="closeModalGsheetConfig()" type="button" class="neu-btn h-10 px-4 text-slate-700 font-bold text-xs">
+          <button onclick="closeModalGsheetConfig()" type="button" class="btn-pnl-outline h-10 px-4 text-slate-700 font-bold text-xs">
             Batal
           </button>
-          <button onclick="saveGsheetConfig()" type="button" class="neu-btn-success h-10 px-4 text-xs font-bold">
+          <button onclick="saveGsheetConfig()" type="button" class="btn-pnl-gold h-10 px-4 text-xs font-bold">
             Simpan & Sambungkan
           </button>
         </div>
@@ -559,10 +742,10 @@
   <!-- MODAL: GENERATE AGENDA BARU                                     -->
   <!-- ============================================================== -->
   <div id="modalGenerateAgenda" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalAgendaTitle">
-    <div class="neu-raised-lg bg-[#E9EEF5] max-w-lg w-full p-6 sm:p-7 border border-white/80 space-y-5 animate-fadeIn">
-      <div class="flex items-center justify-between border-b border-slate-300/60 pb-3">
+    <div class="dash-card bg-white max-w-lg w-full p-6 sm:p-7 space-y-5 animate-fadeIn">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <h3 id="modalAgendaTitle" class="text-base font-extrabold text-slate-900">Generate Agenda Rapat Baru</h3>
-        <button onclick="closeModalGenerateAgenda()" class="neu-btn p-1.5 text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
+        <button onclick="closeModalGenerateAgenda()" class="btn-pnl-outline p-1.5 text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
@@ -570,37 +753,37 @@
       <div class="space-y-3.5 text-xs">
         <div>
           <label for="agendaInputTitle" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Judul Agenda / Rapat</label>
-          <input type="text" id="agendaInputTitle" placeholder="Contoh: Rapat Pleno Panitia KIP 2026" class="neu-input w-full h-11 px-3.5 font-bold text-slate-800 text-xs">
+          <input type="text" id="agendaInputTitle" placeholder="Contoh: Rapat Pleno Panitia KIP PEMILWA PNL" class="dash-input w-full h-11 px-3.5 font-bold text-slate-800 text-xs">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label for="agendaInputDate" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tanggal</label>
-            <input type="date" id="agendaInputDate" class="neu-input w-full h-11 px-3.5 font-bold text-slate-800 text-xs">
+            <input type="date" id="agendaInputDate" class="dash-input w-full h-11 px-3.5 font-bold text-slate-800 text-xs">
           </div>
           <div>
             <label for="agendaInputTime" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Waktu</label>
-            <input type="time" id="agendaInputTime" class="neu-input w-full h-11 px-3.5 font-bold text-slate-800 text-xs">
+            <input type="time" id="agendaInputTime" class="dash-input w-full h-11 px-3.5 font-bold text-slate-800 text-xs">
           </div>
         </div>
 
         <div>
           <label for="agendaInputLocation" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Lokasi Rapat</label>
-          <input type="text" id="agendaInputLocation" placeholder="Contoh: Gedung PKM Lantai 2 / Ruang Rapat" class="neu-input w-full h-11 px-3.5 font-semibold text-slate-800 text-xs">
+          <input type="text" id="agendaInputLocation" placeholder="Contoh: Gedung PKM Lantai 2 / Ruang Rapat" class="dash-input w-full h-11 px-3.5 font-semibold text-slate-800 text-xs">
         </div>
 
         <div>
           <label for="agendaInputCode" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Kode Sesi Rapat (Opsional Anti-Titip Absen)</label>
-          <input type="text" id="agendaInputCode" placeholder="Biarkan kosong jika tidak memakai kode" class="neu-input w-full h-11 px-3.5 uppercase tracking-wider font-extrabold text-slate-800 text-xs">
+          <input type="text" id="agendaInputCode" placeholder="Biarkan kosong jika tidak memakai kode" class="dash-input w-full h-11 px-3.5 uppercase tracking-wider font-extrabold text-slate-800 text-xs">
           <p class="text-[11px] text-slate-500 mt-1">Jika diisi, anggota wajib memasukkan kode ini agar kehadiran sah.</p>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-300/60">
-        <button onclick="closeModalGenerateAgenda()" type="button" class="neu-btn h-10 px-4 text-slate-700 font-bold text-xs">
+      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200">
+        <button onclick="closeModalGenerateAgenda()" type="button" class="btn-pnl-outline h-10 px-4 text-slate-700 font-bold text-xs">
           Batal
         </button>
-        <button onclick="submitGenerateAgenda()" id="btnSubmitAgenda" type="button" class="neu-btn-primary h-10 px-4 text-xs font-bold flex items-center gap-2">
+        <button onclick="submitGenerateAgenda()" id="btnSubmitAgenda" type="button" class="btn-pnl-red h-10 px-4 text-xs font-bold flex items-center gap-2">
           <span>Aktifkan Agenda</span>
           <div id="btnSubmitAgendaSpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
         </button>
@@ -612,25 +795,25 @@
   <!-- MODAL: QR CODE PRESENSI                                         -->
   <!-- ============================================================== -->
   <div id="modalQRCode" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalQRTitle">
-    <div class="neu-raised-lg bg-[#E9EEF5] max-w-sm w-full p-6 sm:p-7 border border-white/80 text-center space-y-4 animate-fadeIn">
-      <div class="flex items-center justify-between border-b border-slate-300/60 pb-2">
+    <div class="dash-card bg-white max-w-sm w-full p-6 sm:p-7 text-center space-y-4 animate-fadeIn">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
         <h3 id="modalQRTitle" class="text-base font-extrabold text-slate-900">Scan QR Code Presensi</h3>
-        <button onclick="closeQRCodeModal()" class="neu-btn p-1.5 text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
+        <button onclick="closeQRCodeModal()" class="btn-pnl-outline p-1.5 text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
 
       <p class="text-xs text-slate-600">Arahkan kamera smartphone ke QR Code untuk membuka formulir presensi.</p>
 
-      <div class="neu-inset p-4 flex justify-center items-center">
-        <div id="qrcodeWrapper" class="bg-white p-3 rounded-xl shadow-md border border-slate-200"></div>
+      <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex justify-center items-center">
+        <div id="qrcodeWrapper" class="bg-white p-3 rounded-xl shadow-sm border border-slate-200"></div>
       </div>
 
       <div class="text-xs text-slate-500">
         Agenda: <strong id="qrAgendaLabel" class="text-slate-900 font-bold">Rapat Panitia</strong>
       </div>
 
-      <button onclick="closeQRCodeModal()" type="button" class="neu-btn w-full h-10 text-slate-800 font-bold text-xs">
+      <button onclick="closeQRCodeModal()" type="button" class="btn-pnl-outline w-full h-10 text-slate-800 font-bold text-xs">
         Tutup
       </button>
     </div>
@@ -640,9 +823,9 @@
   <!-- MODAL: BUKTI TIKET PRESENSI BERHASIL                           -->
   <!-- ============================================================== -->
   <div id="modalReceipt" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalReceiptTitle">
-    <div class="neu-raised-lg bg-[#E9EEF5] max-w-sm w-full p-6 sm:p-7 border border-white/80 text-center space-y-5 animate-fadeIn">
+    <div class="dash-card bg-white max-w-sm w-full p-6 sm:p-7 text-center space-y-5 animate-fadeIn">
       
-      <div class="w-14 h-14 neu-raised-sm bg-[#E9EEF5] text-emerald-600 rounded-2xl mx-auto flex items-center justify-center border border-white/80" aria-hidden="true">
+      <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center border border-emerald-100 shadow-sm" aria-hidden="true">
         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
         </svg>
@@ -650,47 +833,39 @@
 
       <div>
         <h3 id="modalReceiptTitle" class="text-lg font-extrabold text-slate-900">PRESENSI BERHASIL</h3>
-        <p class="text-xs font-bold text-emerald-700 mt-0.5">Kehadiran Anda Telah Terverifikasi</p>
+        <p class="text-xs font-bold text-emerald-700 mt-0.5">Kehadiran Anda Telah Terverifikasi Sistem</p>
       </div>
 
-      <div class="neu-inset p-4 text-left text-xs space-y-2.5 border border-white/50">
+      <div class="bg-slate-50 p-4 rounded-xl text-left text-xs space-y-2.5 border border-slate-200">
         <div>
-          <span class="text-[10px] uppercase font-extrabold text-slate-500 block">Nama Anggota</span>
+          <span class="text-[10px] uppercase font-extrabold text-slate-400 block">Nama Anggota</span>
           <span id="receiptNama" class="font-extrabold text-slate-900 text-sm">Rahmat Haikal</span>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <span class="text-[10px] uppercase font-extrabold text-slate-500 block">NIM</span>
+            <span class="text-[10px] uppercase font-extrabold text-slate-400 block">NIM</span>
             <span id="receiptNim" class="font-bold text-slate-900 font-mono">2024203020008</span>
           </div>
           <div>
-            <span class="text-[10px] uppercase font-extrabold text-slate-500 block">Sie</span>
+            <span class="text-[10px] uppercase font-extrabold text-slate-400 block">Sie</span>
             <span id="receiptSie" class="font-bold text-slate-900">Pejabat Acara</span>
           </div>
         </div>
         <div>
-          <span class="text-[10px] uppercase font-extrabold text-slate-500 block">Agenda Rapat</span>
+          <span class="text-[10px] uppercase font-extrabold text-slate-400 block">Agenda Rapat</span>
           <span id="receiptAgenda" class="font-bold text-slate-900 truncate block">Rapat Koordinasi Kasie</span>
         </div>
         <div>
-          <span class="text-[10px] uppercase font-extrabold text-slate-500 block">Waktu Presensi</span>
+          <span class="text-[10px] uppercase font-extrabold text-slate-400 block">Waktu Presensi</span>
           <span id="receiptWaktu" class="font-semibold text-slate-700">10 November 2026, 14:15:20 WIB</span>
         </div>
       </div>
 
-      <button onclick="closeReceiptModal()" type="button" class="neu-btn-primary w-full h-11 font-bold text-xs">
+      <button onclick="closeReceiptModal()" type="button" class="btn-pnl-red w-full h-11 text-xs uppercase tracking-wider font-bold">
         Selesai
       </button>
     </div>
   </div>
-
-  <!-- FOOTER -->
-  <footer class="w-full py-6 mt-8">
-    <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-500 space-y-1">
-      <p class="font-medium">Panitia KIP 2026 &copy; Politeknik Negeri Lhokseumawe • Terintegrasi Google Sheets</p>
-      <p class="text-[11px] text-slate-400">Database: <span class="font-mono text-slate-600 font-semibold">PANITIA KIP | AGENDA | raw_presensi | PRESENSI</span></p>
-    </div>
-  </footer>
 
   <!-- Scripts -->
   <script src="config.js"></script>

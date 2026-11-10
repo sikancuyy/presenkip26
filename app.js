@@ -570,12 +570,16 @@ function switchView(viewName) {
   const viewAdmin = document.getElementById('viewAdmin');
   const navPresensi = document.getElementById('navPresensiBtn');
   const navAdmin = document.getElementById('navAdminBtn');
+  const sidePresensi = document.getElementById('sidebarBtnPresensi');
+  const sideAdmin = document.getElementById('sidebarBtnAdmin');
 
   if (viewName === 'admin') {
     viewPresensi.classList.add('hidden');
     viewAdmin.classList.remove('hidden');
-    navAdmin.className = "neu-nav-item-active flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-bold transition-all";
-    navPresensi.className = "neu-nav-item-idle flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:text-slate-900";
+    navAdmin.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    navPresensi.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (sideAdmin) sideAdmin.classList.add('active');
+    if (sidePresensi) sidePresensi.classList.remove('active');
 
     if (currentAdminPin) {
       refreshDashboard();
@@ -583,8 +587,10 @@ function switchView(viewName) {
   } else {
     viewAdmin.classList.add('hidden');
     viewPresensi.classList.remove('hidden');
-    navPresensi.className = "neu-nav-item-active flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-bold transition-all";
-    navAdmin.className = "neu-nav-item-idle flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all hover:text-slate-900";
+    navPresensi.className = "pnl-nav-item-active flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    navAdmin.className = "pnl-nav-item-idle flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm transition-all";
+    if (sidePresensi) sidePresensi.classList.add('active');
+    if (sideAdmin) sideAdmin.classList.remove('active');
     fetchActiveAgenda();
   }
 }
@@ -813,8 +819,48 @@ function renderDashboard(data) {
     });
   }
 
-  // 4. Render Table
+  // 4. Update Visual Sie Chart (Quixotic Engagement Style)
+  updateSieChart(data.panitia);
+
+  // 5. Render Table
   applyFilters();
+}
+
+function updateSieChart(panitiaList) {
+  const chartContainer = document.getElementById('sieChartGrid');
+  if (!chartContainer || !panitiaList) return;
+
+  const sieStats = {};
+  const sies = ['Pejabat Acara', 'Acara', 'Konsumsi', 'Pubdok', 'Perdek', 'Keamanan'];
+  sies.forEach(s => sieStats[s] = { total: 0, hadir: 0 });
+
+  panitiaList.forEach(p => {
+    if (sieStats[p.sie]) {
+      sieStats[p.sie].total++;
+      if (p.status === 'HADIR') sieStats[p.sie].hadir++;
+    }
+  });
+
+  chartContainer.innerHTML = '';
+  sies.forEach(s => {
+    const stat = sieStats[s];
+    const pct = stat.total > 0 ? Math.round((stat.hadir / stat.total) * 100) : 0;
+    const barHeight = Math.max(10, Math.round(pct * 0.9));
+
+    const col = document.createElement('div');
+    col.className = "flex flex-col items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 hover:bg-white hover:shadow-sm transition-all";
+    col.innerHTML = `
+      <div class="text-center w-full">
+        <span class="text-[11px] font-extrabold text-slate-800 block truncate" title="${s}">${s}</span>
+        <span class="text-[10px] font-semibold text-slate-500">${stat.hadir}/${stat.total} Hadir</span>
+      </div>
+      <div class="h-20 w-7 bg-slate-200/80 rounded-full flex flex-col justify-end p-1 my-2 overflow-hidden">
+        <div class="w-full bg-gradient-to-t from-red-600 to-amber-500 rounded-full transition-all duration-500" style="height: ${barHeight}%"></div>
+      </div>
+      <span class="badge-pnl-red px-2 py-0.5 text-[10px] font-bold">${pct}%</span>
+    `;
+    chartContainer.appendChild(col);
+  });
 }
 
 function applyFilters() {
@@ -855,29 +901,29 @@ function renderPanitiaTable(list) {
 
   list.forEach((p, idx) => {
     const tr = document.createElement('tr');
-    tr.className = "hover:bg-[#E3EAF2]/60 transition-colors";
+    tr.className = "hover:bg-slate-50/80 transition-colors";
 
     const isHadir = (p.status === 'HADIR');
     const badgeStatus = isHadir 
-      ? `<span class="neu-pill-emboss inline-flex items-center gap-1.5 px-3 py-1 font-bold text-[11px] text-emerald-700 bg-[#E9EEF5]">
+      ? `<span class="badge-pnl-emerald inline-flex items-center gap-1.5 px-3 py-1 text-[11px]">
            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HADIR
          </span>`
-      : `<span class="neu-pill-recess inline-flex items-center gap-1 px-3 py-1 font-semibold text-[11px] text-slate-500 bg-[#E3EAF2]">
+      : `<span class="badge-pnl-slate inline-flex items-center gap-1 px-3 py-1 text-[11px]">
            BELUM
          </span>`;
 
     const namaDisplay = p.nama || '<span class="italic text-slate-400 font-normal">(Belum Terisi)</span>';
-    const nimDisplay = p.nim ? `<span class="font-mono text-slate-700 font-bold">${p.nim}</span>` : '<span class="italic text-slate-400 font-mono">-</span>';
+    const nimDisplay = p.nim ? `<span class="font-mono text-slate-800 font-bold">${p.nim}</span>` : '<span class="italic text-slate-400 font-mono">-</span>';
 
     tr.innerHTML = `
-      <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
-      <td class="p-3 font-bold text-slate-900">${namaDisplay}</td>
-      <td class="p-3">${nimDisplay}</td>
-      <td class="p-3"><span class="neu-pill-emboss px-2.5 py-0.5 text-blue-700 font-bold text-[11px]">${p.sie}</span></td>
-      <td class="p-3 font-semibold text-slate-700">${p.jabatan}</td>
-      <td class="p-3 truncate max-w-xs text-slate-600">${p.delegasi || '-'}</td>
-      <td class="p-3 text-center">${badgeStatus}</td>
-      <td class="p-3 text-center font-mono text-slate-600 font-semibold">${p.waktuPresensi || '-'}</td>
+      <td class="p-3.5 text-center text-slate-400 font-mono">${idx + 1}</td>
+      <td class="p-3.5 font-bold text-slate-900">${namaDisplay}</td>
+      <td class="p-3.5">${nimDisplay}</td>
+      <td class="p-3.5"><span class="badge-pnl-gold px-2.5 py-0.5 text-[11px]">${p.sie}</span></td>
+      <td class="p-3.5 font-semibold text-slate-700">${p.jabatan}</td>
+      <td class="p-3.5 truncate max-w-xs text-slate-600">${p.delegasi || '-'}</td>
+      <td class="p-3.5 text-center">${badgeStatus}</td>
+      <td class="p-3.5 text-center font-mono text-slate-600 font-semibold">${p.waktuPresensi || '-'}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1248,17 +1294,17 @@ function hideAlert() {
 function showToast(type, title, message) {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
-  toast.className = `p-4 neu-raised-md bg-[#E9EEF5] border border-white/80 text-xs font-medium transition-all transform pointer-events-auto flex items-start gap-3 animate-fadeIn`;
+  toast.className = `p-4 dash-card bg-white border border-slate-200 text-xs font-medium transition-all transform pointer-events-auto flex items-start gap-3 shadow-xl animate-fadeIn`;
 
   let icon = '';
   if (type === 'success') {
-    icon = `<div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></div>`;
+    icon = `<div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 border border-emerald-100"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></div>`;
   } else if (type === 'error') {
-    icon = `<div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0 shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></div>`;
+    icon = `<div class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0 border border-red-100"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></div>`;
   } else if (type === 'warning') {
-    icon = `<div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div>`;
+    icon = `<div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0 border border-amber-100"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div>`;
   } else {
-    icon = `<div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>`;
+    icon = `<div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center flex-shrink-0 border border-slate-200"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>`;
   }
 
   toast.innerHTML = `
