@@ -219,14 +219,14 @@
                   <span class="w-2 h-2 rounded-full bg-red-400 indicator-pulse" aria-hidden="true"></span>
                   <span>Agenda Berlangsung</span>
                 </div>
-                <span id="bannerAgendaId" class="text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-0.5 rounded-md border border-white/10">KIP-20261110-001</span>
+                <span id="bannerAgendaId" class="text-xs font-mono text-slate-300 bg-white/10 px-2.5 py-0.5 rounded-md border border-white/10">-</span>
               </div>
 
               <!-- Main Title -->
               <div>
                 <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block mb-1">Rapat / Kegiatan Resmi</span>
                 <h2 id="bannerAgendaTitle" class="text-xl sm:text-2xl font-extrabold tracking-tight text-white leading-snug">
-                  Rapat Koordinasi Kasie
+                  Memuat agenda rapat...
                 </h2>
               </div>
 
@@ -240,7 +240,7 @@
                   </div>
                   <div>
                     <span class="text-[10px] text-slate-400 uppercase font-bold block">Tanggal</span>
-                    <span id="bannerAgendaDate" class="text-white font-semibold text-sm">10 November 2026</span>
+                    <span id="bannerAgendaDate" class="text-white font-semibold text-sm">-</span>
                   </div>
                 </div>
 
@@ -252,7 +252,7 @@
                   </div>
                   <div>
                     <span class="text-[10px] text-slate-400 uppercase font-bold block">Waktu</span>
-                    <span id="bannerAgendaTime" class="text-white font-semibold text-sm">14:00 WIB</span>
+                    <span id="bannerAgendaTime" class="text-white font-semibold text-sm">-</span>
                   </div>
                 </div>
 
@@ -265,7 +265,7 @@
                   </div>
                   <div class="min-w-0 flex-1">
                     <span class="text-[10px] text-slate-400 uppercase font-bold block">Lokasi</span>
-                    <span id="bannerAgendaLocation" class="text-white font-semibold text-sm truncate block">Ruang Rapat Panitia / Gedung PKM</span>
+                    <span id="bannerAgendaLocation" class="text-white font-semibold text-sm truncate block">-</span>
                   </div>
                 </div>
               </div>
@@ -328,9 +328,9 @@
                       type="text" 
                       id="inputNim" 
                       inputmode="numeric" 
-                      placeholder="Contoh: 2024203020008" 
-                      class="dash-input w-full h-12 px-4 text-slate-900 font-bold tracking-wide text-base placeholder:text-slate-400 placeholder:font-normal"
+                      class="dash-input w-full h-12 px-4 text-slate-900 font-bold tracking-wide text-base"
                       onkeypress="if(event.key === 'Enter') searchNIM()"
+                      aria-label="Nomor Induk Mahasiswa (NIM)"
                     >
                   </div>
 
@@ -344,17 +344,6 @@
                     <div id="btnCariSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true"></div>
                   </button>
                 </div>
-
-                <!-- Quick Pill Suggestions -->
-                <div class="flex items-center gap-2 text-xs text-slate-500 mt-3 flex-wrap">
-                  <span class="text-[11px] font-semibold text-slate-600">Contoh Cepat:</span>
-                  <button type="button" onclick="quickFillNIM('2024203020008')" class="badge-pnl-gold px-3 py-1 text-[11px] font-mono hover:bg-amber-100 transition-colors">
-                    2024203020008 (Rahmat Haikal)
-                  </button>
-                  <button type="button" onclick="quickFillNIM('2024613060016')" class="badge-pnl-gold px-3 py-1 text-[11px] font-mono hover:bg-amber-100 transition-colors">
-                    2024613060016 (Ananda Haikal)
-                  </button>
-                </div>
               </div>
 
               <!-- BIODATA CARD CONTAINER (MUNCUL SETELAH NIM DITEMUKAN) -->
@@ -364,12 +353,12 @@
                   
                   <div class="flex items-center gap-3.5 border-b border-slate-200 pb-3.5">
                     <div id="avatarInitials" class="w-13 h-13 rounded-2xl bg-red-600 text-white font-extrabold text-lg flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">
-                      RH
+                      -
                     </div>
                     <div class="min-w-0 flex-1">
-                      <h4 id="bioNama" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">Rahmat Haikal</h4>
+                      <h4 id="bioNama" class="text-base sm:text-lg font-extrabold text-slate-900 truncate">-</h4>
                       <div class="flex items-center gap-2 mt-1 flex-wrap">
-                        <span id="bioNim" class="font-mono text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2.5 py-0.5 rounded-lg">2024203020008</span>
+                        <span id="bioNim" class="font-mono text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2.5 py-0.5 rounded-lg">-</span>
                         <span class="badge-pnl-emerald px-2.5 py-0.5 text-[11px]">Terdaftar di SK Panitia</span>
                       </div>
                     </div>
@@ -379,15 +368,15 @@
                   <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="bg-white p-3.5 rounded-xl border border-slate-200">
                       <span class="text-slate-400 block text-[10px] uppercase font-extrabold tracking-wider">Jabatan</span>
-                      <span id="bioJabatan" class="font-extrabold text-slate-900 text-sm mt-0.5 block">Sekretaris Pelaksana</span>
+                      <span id="bioJabatan" class="font-extrabold text-slate-900 text-sm mt-0.5 block">-</span>
                     </div>
                     <div class="bg-white p-3.5 rounded-xl border border-slate-200">
                       <span class="text-slate-400 block text-[10px] uppercase font-extrabold tracking-wider">Sie</span>
-                      <span id="bioSie" class="font-extrabold text-slate-900 text-sm mt-0.5 block">Pejabat Acara</span>
+                      <span id="bioSie" class="font-extrabold text-slate-900 text-sm mt-0.5 block">-</span>
                     </div>
                     <div class="bg-white p-3.5 rounded-xl border border-slate-200 col-span-2">
                       <span class="text-slate-400 block text-[10px] uppercase font-extrabold tracking-wider">Delegasi Ormawa</span>
-                      <span id="bioDelegasi" class="font-extrabold text-slate-900 text-sm mt-0.5 truncate block">UKM POLYROBOCOM</span>
+                      <span id="bioDelegasi" class="font-extrabold text-slate-900 text-sm mt-0.5 truncate block">-</span>
                     </div>
                   </div>
 
@@ -401,8 +390,8 @@
                   <input 
                     type="text" 
                     id="inputSessionCode" 
-                    placeholder="Masukkan kode rapat dari pimpinan ruangan" 
                     class="dash-input w-full h-12 px-4 text-slate-900 font-extrabold tracking-widest text-center uppercase text-sm"
+                    aria-label="Kode Sesi Rapat"
                   >
                 </div>
 
@@ -844,25 +833,25 @@
       <div class="bg-slate-50 p-4 rounded-xl text-left text-xs space-y-2.5 border border-slate-200">
         <div>
           <span class="text-[10px] uppercase font-extrabold text-slate-400 block">Nama Anggota</span>
-          <span id="receiptNama" class="font-extrabold text-slate-900 text-sm">Rahmat Haikal</span>
+          <span id="receiptNama" class="font-extrabold text-slate-900 text-sm">-</span>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <span class="text-[10px] uppercase font-extrabold text-slate-400 block">NIM</span>
-            <span id="receiptNim" class="font-bold text-slate-900 font-mono">2024203020008</span>
+            <span id="receiptNim" class="font-bold text-slate-900 font-mono">-</span>
           </div>
           <div>
             <span class="text-[10px] uppercase font-extrabold text-slate-400 block">Sie</span>
-            <span id="receiptSie" class="font-bold text-slate-900">Pejabat Acara</span>
+            <span id="receiptSie" class="font-bold text-slate-900">-</span>
           </div>
         </div>
         <div>
           <span class="text-[10px] uppercase font-extrabold text-slate-400 block">Agenda Rapat</span>
-          <span id="receiptAgenda" class="font-bold text-slate-900 truncate block">Rapat Koordinasi Kasie</span>
+          <span id="receiptAgenda" class="font-bold text-slate-900 truncate block">-</span>
         </div>
         <div>
           <span class="text-[10px] uppercase font-extrabold text-slate-400 block">Waktu Presensi</span>
-          <span id="receiptWaktu" class="font-semibold text-slate-700">10 November 2026, 14:15:20 WIB</span>
+          <span id="receiptWaktu" class="font-semibold text-slate-700">-</span>
         </div>
       </div>
 
