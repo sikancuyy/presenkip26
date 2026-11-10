@@ -2,6 +2,9 @@
 
 Aplikasi presensi digital terpadu berbasis **Google Apps Script (GAS)**, **Google Sheets**, dan antarmuka web modern (**HTML5, Tailwind CSS, JavaScript**) yang dirancang khusus untuk seluruh kegiatan rapat, koordinasi, dan evaluasi **Panitia KIP 2026 Politeknik Negeri Lhokseumawe**.
 
+- **Repository GitHub:** [https://github.com/sikancuyy/presenkip26](https://github.com/sikancuyy/presenkip26)
+- **Target Subdomain:** `presenkip26.sikancuyy.my.id`
+
 ---
 
 ## 📁 Struktur Direktori Proyek
@@ -12,9 +15,14 @@ c:\laragon\www\presensi_kip26\
 ├── ANGGOTA KIP 2026 (1).xlsx   # File master spreadsheet panitia
 ├── index.html                  # Aplikasi web siap pakai (Local Simulation & Web App)
 ├── style.css                   # Custom styling, scrollbar, dan animasi glow
-├── app.js                      # Controller client, anti-duplikasi & simulasi
+├── app.js                      # Controller client, anti-duplikasi, GSheet API & audio chime
+├── config.js                   # Konfigurasi subdomain & Google Apps Script API URL
 ├── data_panitia.js             # Data master 46 panitia hasil ekstraksi dari file Excel
 ├── panitia_extracted.json      # Backup JSON data 46 panitia
+├── vercel.json                 # Konfigurasi deployment Vercel
+│
+├── deploy/                     # PANDUAN & KONFIGURASI VPS
+│   └── nginx-presenkip26.conf  # Konfigurasi virtual host Nginx untuk VPS
 │
 └── gas/                        # SOURCE CODE SIAP DEPLOY KE GOOGLE APPS SCRIPT
     ├── Code.gs                 # Backend GAS: Handler spreadsheet, anti-duplikasi, API
