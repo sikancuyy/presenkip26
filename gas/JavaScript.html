@@ -1,0 +1,649 @@
+<script>
+  /**
+   * =========================================================================
+   * CLIENT-SIDE JAVASCRIPT: PRESENSI DIGITAL PANITIA KIP 2026
+   * =========================================================================
+   */
+
+  // State Management
+  let activeAgendaState = null;
+  let currentPanitiaData = null;
+  let currentAdminPin = sessionStorage.getItem('kip_admin_pin') || null;
+  let dashboardCache = null;
+  let qrcodeInstance = null;
+
+  // Lifecycle Initialization
+  document.addEventListener('DOMContentLoaded', () => {
+    // Inisialisasi agenda aktif saat pertama kali dibuka
+    fetchActiveAgenda();
+
+    // Set tanggal & waktu default pada modal Generate Agenda
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const hh = String(today.getHours()).padStart(2, '0');
+    const min = String(today.getMinutes()).padStart(2, '0');
+
+    const dateInput = document.getElementById('agendaInputDate');
+    const timeInput = document.getElementById('agendaInputTime');
+    if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
+    if (timeInput) timeInput.value = `${hh}:${min}`;
+
+    // Cek status sesi login admin tersimpan
+    if (currentAdminPin) {
+      document.getElementById('adminLoginGate').classList.add('hidden');
+      document.getElementById('adminPanel').classList.remove('hidden');
+      refreshDashboard();
+    }
+  });
+
+  /**
+   * Mengambil Agenda Rapat yang sedang aktif dari Google Apps Script
+   */
+  function fetchActiveAgenda() {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(handleActiveAgendaResponse)
+        .withFailureHandler((err) => {
+          showToast('error', 'Gagal Memuat Agenda', err.message);
+          renderNoAgendaState();
+        })
+        .getActiveAgenda();
+    } else {
+      console.warn("GAS Environment not detected. Using simulation fallback.");
+    }
+  }
+
+  function handleActiveAgendaResponse(res) {
+    if (res && res.success && res.agenda) {
+      activeAgendaState = res.agenda;
+      document.getElementById('bannerAgendaId').textContent = activeAgendaState.id;
+      document.getElementById('bannerAgendaTitle').textContent = activeAgendaState.title;
+      document.getElementById('bannerAgendaDate').textContent = activeAgendaState.date;
+      document.getElementById('bannerAgendaTime').textContent = activeAgendaState.time;
+      document.getElementById('bannerAgendaLocation').textContent = activeAgendaState.location;
+
+      // Update Session code field visibility
+      const sessionField = document.getElementById('sessionCodeField');
+      if (activeAgendaState.hasSessionCode) {
+        sessionField.classList.remove('hidden');
+      } else {
+        sessionField.classList.add('hidden');
+      }
+    } else {
+      renderNoAgendaState();
+    }
+  }
+
+  function renderNoAgendaState() {
+    activeAgendaState = null;
+    document.getElementById('bannerAgendaId').textContent = 'OFFLINE';
+    document.getElementById('bannerAgendaTitle').textContent = 'Tidak Ada Agenda Aktif';
+    document.getElementById('bannerAgendaDate').textContent = 'Saat ini belum ada rapat dibuka';
+    document.getElementById('bannerAgendaTime').textContent = 'Menunggu Admin';
+    document.getElementById('bannerAgendaLocation').textContent = 'Silakan hubungi sekretaris panitia';
+  }
+
+  /**
+   * =========================================================================
+   * FITUR ANGGOTA: PENCARIAN NIM & KONFIRMASI HADIR
+   * =========================================================================
+   */
+  function searchNIM() {
+    const input = document.getElementById('inputNim');
+    const nim = input.value.trim();
+
+    if (!nim) {
+      showToast('warning', 'NIM Kosong', 'Silakan masukkan NIM Anda terlebih dahulu.');
+      input.focus();
+      return;
+    }
+
+    if (!activeAgendaState) {
+      showToast('error', 'Agenda Belum Aktif', 'Tidak ada agenda rapat yang sedang berlangsung untuk diisi presensi.');
+      return;
+    }
+
+    // UI Loading state
+    const btnText = document.getElementById('btnCariText');
+    const btnSpinner = document.getElementById('btnCariSpinner');
+    const btn = document.getElementById('btnCariNIM');
+    btnText.textContent = 'MENCARI...';
+    btnSpinner.classList.remove('hidden');
+    btn.disabled = true;
+
+    hideAlert();
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler((res) => {
+          btnText.textContent = 'CARI DATA';
+          btnSpinner.classList.add('hidden');
+          btn.disabled = false;
+
+          if (res.success && res.data) {
+            renderPanitiaBiodata(res.data);
+            showToast('success', 'Biodata Ditemukan', `Halo, ${res.data.nama}`);
+          } else {
+            document.getElementById('biodataContainer').classList.add('hidden');
+            showAlert('error', res.message || 'NIM tidak ditemukan dalam database Panitia KIP 2026.');
+          }
+        })
+        .withFailureHandler((err) => {
+          btnText.textContent = 'CARI DATA';
+          btnSpinner.classList.add('hidden');
+          btn.disabled = false;
+          showAlert('error', 'Terjadi kesalahan sistem: ' + err.message);
+        })
+        .searchPanitiaByNIM(nim);
+    }
+  }
+
+  function renderPanitiaBiodata(panitia) {
+    currentPanitiaData = panitia;
+
+    // Initials avatar
+    const names = panitia.nama.split(' ').filter(Boolean);
+    let initials = names[0] ? names[0][0] : 'K';
+    if (names.length > 1) initials += names[names.length - 1][0];
+    document.getElementById('avatarInitials').textContent = initials.toUpperCase();
+
+    document.getElementById('bioNama').textContent = panitia.nama;
+    document.getElementById('bioNim').textContent = panitia.nim;
+    document.getElementById('bioJabatan').textContent = panitia.jabatan || '-';
+    document.getElementById('bioSie').textContent = panitia.sie || '-';
+    document.getElementById('bioDelegasi').textContent = panitia.delegasi || '-';
+
+    // Show session code field if active agenda requires it
+    const sessionField = document.getElementById('sessionCodeField');
+    if (activeAgendaState && activeAgendaState.hasSessionCode) {
+      sessionField.classList.remove('hidden');
+    } else {
+      sessionField.classList.add('hidden');
+    }
+
+    document.getElementById('biodataContainer').classList.remove('hidden');
+  }
+
+  /**
+   * Submit Kehadiran Anggota ke Server
+   */
+  function submitKehadiran() {
+    if (!currentPanitiaData) {
+      showToast('warning', 'Peringatan', 'Silakan cari dan verifikasi NIM Anda terlebih dahulu.');
+      return;
+    }
+
+    if (!activeAgendaState) {
+      showToast('error', 'Gagal', 'Agenda rapat tidak aktif.');
+      return;
+    }
+
+    let sessionCode = '';
+    if (activeAgendaState.hasSessionCode) {
+      const codeInput = document.getElementById('inputSessionCode');
+      sessionCode = codeInput ? codeInput.value.trim() : '';
+      if (!sessionCode) {
+        showToast('warning', 'Kode Sesi Diperlukan', 'Masukkan kode sesi rapat yang diberikan panitia di ruangan.');
+        if (codeInput) codeInput.focus();
+        return;
+      }
+    }
+
+    // UI Loading state
+    const btn = document.getElementById('btnHadir');
+    const btnText = document.getElementById('btnHadirText');
+    const btnSpinner = document.getElementById('btnHadirSpinner');
+    btnText.textContent = 'MEMPROSES...';
+    btnSpinner.classList.remove('hidden');
+    btn.disabled = true;
+
+    const payload = {
+      nim: currentPanitiaData.nim,
+      agendaId: activeAgendaState.id,
+      sessionCode: sessionCode,
+      deviceInfo: navigator.userAgent.substring(0, 100)
+    };
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler((res) => {
+          btnText.textContent = 'KONFIRMASI HADIR';
+          btnSpinner.classList.add('hidden');
+          btn.disabled = false;
+
+          if (res.success) {
+            showReceiptModal(res.data);
+            resetPresensiForm();
+          } else {
+            if (res.duplicate) {
+              showAlert('warning', res.message);
+              showToast('warning', 'Sudah Presensi', res.message);
+            } else {
+              showAlert('error', res.message);
+              showToast('error', 'Presensi Gagal', res.message);
+            }
+          }
+        })
+        .withFailureHandler((err) => {
+          btnText.textContent = 'KONFIRMASI HADIR';
+          btnSpinner.classList.add('hidden');
+          btn.disabled = false;
+          showAlert('error', 'Gagal memproses presensi: ' + err.message);
+        })
+        .submitPresensi(payload);
+    }
+  }
+
+  function resetPresensiForm() {
+    document.getElementById('inputNim').value = '';
+    const codeInput = document.getElementById('inputSessionCode');
+    if (codeInput) codeInput.value = '';
+    document.getElementById('biodataContainer').classList.add('hidden');
+    currentPanitiaData = null;
+    hideAlert();
+  }
+
+  function showReceiptModal(data) {
+    document.getElementById('receiptNama').textContent = data.nama;
+    document.getElementById('receiptNim').textContent = data.nim;
+    document.getElementById('receiptSie').textContent = data.sie;
+    document.getElementById('receiptAgenda').textContent = data.agendaTitle;
+    document.getElementById('receiptWaktu').textContent = data.waktuPresensi;
+    document.getElementById('modalReceipt').classList.remove('hidden');
+    document.getElementById('modalReceipt').classList.add('flex');
+  }
+
+  function closeReceiptModal() {
+    document.getElementById('modalReceipt').classList.add('hidden');
+    document.getElementById('modalReceipt').classList.remove('flex');
+  }
+
+  /**
+   * =========================================================================
+   * FITUR ADMIN: LOGIN, AGENDA MANAGEMENT & MONITORING
+   * =========================================================================
+   */
+  function switchView(viewName) {
+    const viewPresensi = document.getElementById('viewPresensi');
+    const viewAdmin = document.getElementById('viewAdmin');
+    const navPresensi = document.getElementById('navPresensiBtn');
+    const navAdmin = document.getElementById('navAdminBtn');
+
+    if (viewName === 'admin') {
+      viewPresensi.classList.add('hidden');
+      viewAdmin.classList.remove('hidden');
+      navAdmin.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700";
+      navPresensi.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+
+      if (currentAdminPin) {
+        refreshDashboard();
+      }
+    } else {
+      viewAdmin.classList.add('hidden');
+      viewPresensi.classList.remove('hidden');
+      navPresensi.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-sm bg-white text-blue-700";
+      navAdmin.className = "flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+      fetchActiveAgenda();
+    }
+  }
+
+  function doAdminLogin() {
+    const pinInput = document.getElementById('adminPinInput');
+    const pin = pinInput.value.trim();
+
+    if (!pin) {
+      showToast('warning', 'PIN Diperlukan', 'Silakan masukkan PIN admin.');
+      pinInput.focus();
+      return;
+    }
+
+    const btnText = document.getElementById('btnAdminLoginText');
+    const btnSpinner = document.getElementById('btnAdminLoginSpinner');
+    btnText.textContent = 'Memverifikasi...';
+    btnSpinner.classList.remove('hidden');
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler((res) => {
+          btnText.textContent = 'Masuk Dashboard';
+          btnSpinner.classList.add('hidden');
+
+          if (res.success) {
+            currentAdminPin = pin;
+            sessionStorage.setItem('kip_admin_pin', pin);
+            document.getElementById('adminLoginGate').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            showToast('success', 'Login Berhasil', 'Selamat datang di panel admin.');
+            refreshDashboard();
+          } else {
+            showToast('error', 'Login Gagal', res.message || 'PIN Admin tidak valid.');
+            pinInput.focus();
+          }
+        })
+        .withFailureHandler((err) => {
+          btnText.textContent = 'Masuk Dashboard';
+          btnSpinner.classList.add('hidden');
+          showToast('error', 'Kesalahan Server', err.message);
+        })
+        .adminLogin(pin);
+    }
+  }
+
+  function logoutAdmin() {
+    currentAdminPin = null;
+    sessionStorage.removeItem('kip_admin_pin');
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('adminLoginGate').classList.remove('hidden');
+    document.getElementById('adminPinInput').value = '';
+    showToast('info', 'Logout', 'Anda telah keluar dari mode admin.');
+  }
+
+  function refreshDashboard() {
+    if (!currentAdminPin) return;
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler((res) => {
+          if (res.success) {
+            dashboardCache = res;
+            renderDashboard(res);
+          } else {
+            showToast('error', 'Gagal Memuat Dashboard', res.message);
+          }
+        })
+        .withFailureHandler((err) => {
+          showToast('error', 'Gagal Refresh', err.message);
+        })
+        .getDashboardStats(currentAdminPin);
+    }
+  }
+
+  function renderDashboard(data) {
+    // 1. Stats Counter
+    document.getElementById('statTotalPanitia').textContent = data.stats.totalPanitia;
+    document.getElementById('statSudahHadir').textContent = data.stats.sudahHadir;
+    document.getElementById('statBelumHadir').textContent = data.stats.belumHadir;
+    document.getElementById('statPersentase').textContent = data.stats.persentase;
+    document.getElementById('statProgressBar').style.width = `${Math.min(100, parseFloat(data.stats.persentase))}%`;
+
+    // 2. Active Agenda Meta
+    if (data.activeAgenda) {
+      document.getElementById('adminAgendaTitle').textContent = data.activeAgenda.title;
+      document.getElementById('adminAgendaMeta').innerHTML = `ID: <span class="font-mono">${data.activeAgenda.id}</span> • ${data.activeAgenda.date}, ${data.activeAgenda.time}`;
+    } else {
+      document.getElementById('adminAgendaTitle').textContent = 'Tidak Ada Agenda Aktif';
+      document.getElementById('adminAgendaMeta').textContent = 'Klik "Generate Agenda" untuk membuat agenda rapat baru.';
+    }
+
+    // 3. Populate Filter Sie Dropdown
+    const filterSie = document.getElementById('filterSie');
+    const curSieVal = filterSie.value;
+    filterSie.innerHTML = '<option value="">Semua Sie</option>';
+    if (data.sieList) {
+      data.sieList.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        if (s === curSieVal) opt.selected = true;
+        filterSie.appendChild(opt);
+      });
+    }
+
+    // 4. Render Table
+    applyFilters();
+  }
+
+  function applyFilters() {
+    if (!dashboardCache || !dashboardCache.panitia) return;
+
+    const filterSie = document.getElementById('filterSie').value;
+    const filterStatus = document.getElementById('filterStatus').value;
+    const searchVal = document.getElementById('searchPanitiaInput').value.toLowerCase().trim();
+
+    const filtered = dashboardCache.panitia.filter(item => {
+      if (filterSie && item.sie !== filterSie) return false;
+      if (filterStatus && item.status !== filterStatus) return false;
+      if (searchVal) {
+        const matchNama = item.nama.toLowerCase().includes(searchVal);
+        const matchNim = item.nim.toLowerCase().includes(searchVal);
+        if (!matchNama && !matchNim) return false;
+      }
+      return true;
+    });
+
+    renderPanitiaTable(filtered);
+  }
+
+  function renderPanitiaTable(list) {
+    const tbody = document.getElementById('panitiaTableBody');
+    tbody.innerHTML = '';
+
+    if (list.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="p-6 text-center text-slate-400">
+            Tidak ada data panitia yang cocok dengan filter pencarian.
+          </td>
+        </tr>`;
+      document.getElementById('tableSummary').textContent = `Menampilkan 0 dari ${dashboardCache.panitia.length} panitia`;
+      return;
+    }
+
+    list.forEach((p, idx) => {
+      const tr = document.createElement('tr');
+      tr.className = "hover:bg-slate-50 transition-colors";
+
+      const isHadir = (p.status === 'HADIR');
+      const badgeStatus = isHadir 
+        ? `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full text-[11px]">
+             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HADIR
+           </span>`
+        : `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-full text-[11px]">
+             BELUM
+           </span>`;
+
+      tr.innerHTML = `
+        <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
+        <td class="p-3 font-bold text-slate-800">${p.nama}</td>
+        <td class="p-3 font-mono text-slate-600">${p.nim}</td>
+        <td class="p-3"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-semibold text-[11px]">${p.sie}</span></td>
+        <td class="p-3">${p.jabatan}</td>
+        <td class="p-3 truncate max-w-xs text-slate-500">${p.delegasi}</td>
+        <td class="p-3 text-center">${badgeStatus}</td>
+        <td class="p-3 text-center font-mono text-slate-500">${p.waktuPresensi || '-'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('tableSummary').textContent = `Menampilkan ${list.length} dari ${dashboardCache.panitia.length} panitia`;
+  }
+
+  /**
+   * Modal Generate Agenda
+   */
+  function openModalGenerateAgenda() {
+    document.getElementById('modalGenerateAgenda').classList.remove('hidden');
+    document.getElementById('modalGenerateAgenda').classList.add('flex');
+    document.getElementById('agendaInputTitle').focus();
+  }
+
+  function closeModalGenerateAgenda() {
+    document.getElementById('modalGenerateAgenda').classList.add('hidden');
+    document.getElementById('modalGenerateAgenda').classList.remove('flex');
+  }
+
+  function submitGenerateAgenda() {
+    const title = document.getElementById('agendaInputTitle').value.trim();
+    const date = document.getElementById('agendaInputDate').value;
+    const time = document.getElementById('agendaInputTime').value;
+    const location = document.getElementById('agendaInputLocation').value.trim();
+    const sessionCode = document.getElementById('agendaInputCode').value.trim();
+
+    if (!title) {
+      showToast('warning', 'Judul Wajib', 'Silakan masukkan judul agenda rapat.');
+      return;
+    }
+
+    const btn = document.getElementById('btnSubmitAgenda');
+    const spinner = document.getElementById('btnSubmitAgendaSpinner');
+    spinner.classList.remove('hidden');
+    btn.disabled = true;
+
+    const payload = {
+      title: title,
+      date: date,
+      time: time,
+      location: location,
+      sessionCode: sessionCode
+    };
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler((res) => {
+          spinner.classList.add('hidden');
+          btn.disabled = false;
+
+          if (res.success) {
+            closeModalGenerateAgenda();
+            showToast('success', 'Agenda Berhasil Dibuat', res.message);
+            refreshDashboard();
+            fetchActiveAgenda();
+          } else {
+            showToast('error', 'Gagal Membuat Agenda', res.message);
+          }
+        })
+        .withFailureHandler((err) => {
+          spinner.classList.add('hidden');
+          btn.disabled = false;
+          showToast('error', 'Kesalahan', err.message);
+        })
+        .createAgenda(payload, currentAdminPin);
+    }
+  }
+
+  /**
+   * Tutup Agenda
+   */
+  function confirmCloseAgenda() {
+    if (!activeAgendaState && (!dashboardCache || !dashboardCache.activeAgenda)) {
+      showToast('info', 'Info', 'Tidak ada agenda yang aktif saat ini.');
+      return;
+    }
+
+    const agendaId = activeAgendaState ? activeAgendaState.id : dashboardCache.activeAgenda.id;
+    if (confirm(`Yakin ingin menutup agenda ini? Form presensi untuk rapat ini akan otomatis ditutup.`)) {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res.success) {
+              showToast('success', 'Agenda Ditutup', res.message);
+              refreshDashboard();
+              fetchActiveAgenda();
+            } else {
+              showToast('error', 'Gagal', res.message);
+            }
+          })
+          .withFailureHandler((err) => {
+            showToast('error', 'Kesalahan', err.message);
+          })
+          .closeAgenda(agendaId, currentAdminPin);
+      }
+    }
+  }
+
+  /**
+   * QR Code Presensi
+   */
+  function showQRCodeModal() {
+    const curUrl = window.location.href;
+    const wrapper = document.getElementById('qrcodeWrapper');
+    wrapper.innerHTML = '';
+
+    qrcodeInstance = new QRCode(wrapper, {
+      text: curUrl,
+      width: 200,
+      height: 200,
+      colorDark: "#1e3a8a",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    const title = activeAgendaState ? activeAgendaState.title : 'Presensi KIP 2026';
+    document.getElementById('qrAgendaLabel').textContent = title;
+
+    document.getElementById('modalQRCode').classList.remove('hidden');
+    document.getElementById('modalQRCode').classList.add('flex');
+  }
+
+  function closeQRCodeModal() {
+    document.getElementById('modalQRCode').classList.add('hidden');
+    document.getElementById('modalQRCode').classList.remove('flex');
+  }
+
+  function copyPresensiLink() {
+    const curUrl = window.location.href;
+    navigator.clipboard.writeText(curUrl).then(() => {
+      showToast('success', 'Link Tersalin', 'Tautan web presensi telah disalin ke clipboard.');
+    }).catch(() => {
+      showToast('info', 'Link Presensi', curUrl);
+    });
+  }
+
+  /**
+   * Alert & Toast Helpers
+   */
+  function showAlert(type, message) {
+    const alertBox = document.getElementById('presensiAlert');
+    alertBox.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200', 'bg-amber-50', 'text-amber-700', 'border-amber-200');
+
+    if (type === 'error') {
+      alertBox.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
+    } else if (type === 'warning') {
+      alertBox.classList.add('bg-amber-50', 'text-amber-700', 'border-amber-200');
+    }
+    alertBox.textContent = message;
+  }
+
+  function hideAlert() {
+    const alertBox = document.getElementById('presensiAlert');
+    alertBox.classList.add('hidden');
+  }
+
+  function showToast(type, title, message) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `p-4 rounded-xl shadow-lg border text-xs font-medium transition-all transform translate-y-2 pointer-events-auto flex items-start gap-3 animate-fadeIn`;
+
+    let icon = '';
+    if (type === 'success') {
+      toast.classList.add('bg-emerald-900', 'text-white', 'border-emerald-700');
+      icon = `<svg class="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+    } else if (type === 'error') {
+      toast.classList.add('bg-rose-900', 'text-white', 'border-rose-700');
+      icon = `<svg class="w-5 h-5 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+    } else if (type === 'warning') {
+      toast.classList.add('bg-amber-900', 'text-white', 'border-amber-700');
+      icon = `<svg class="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+    } else {
+      toast.classList.add('bg-slate-900', 'text-white', 'border-slate-700');
+      icon = `<svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+    }
+
+    toast.innerHTML = `
+      ${icon}
+      <div class="flex-1">
+        <strong class="block font-bold text-sm leading-tight">${title}</strong>
+        <p class="text-slate-200 mt-0.5 text-xs">${message}</p>
+      </div>
+    `;
+
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'scale-95');
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
+</script>
+
