@@ -16,3 +16,4 @@ window.APP_CONFIG = {
   // PIN Akses Default Admin Dashboard
   DEFAULT_ADMIN_PIN: "KIP2026"
 };
+
