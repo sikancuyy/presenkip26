@@ -353,6 +353,63 @@ function getActiveAgenda() {
 }
 
 /**
+ * Helper terstandarisasi untuk memformat waktu presensi menjadi "HH:mm:ss".
+ * Mengatasi issue Google Sheets yang mengonversi cell waktu menjadi objek Date 30 Desember 1899.
+ * Mengonversi objek Date menggunakan zona waktu Asia/Jakarta.
+ * Menangani objek Date, string waktu, string ISO, maupun string bertuliskan 'HADIR (Sat Dec 30 1899...)'.
+ */
+function formatPresensiTime(val) {
+  if (!val && val !== 0) return "";
+
+  // 1. Objek Date asli (Date object dari Google Sheets atau JavaScript)
+  if (val instanceof Date) {
+    if (isNaN(val.getTime())) return "";
+    try {
+      return Utilities.formatDate(val, "Asia/Jakarta", "HH:mm:ss");
+    } catch (err) {
+      const pad = function(n) { return (n < 10 ? "0" : "") + n; };
+      return pad(val.getHours()) + ":" + pad(val.getMinutes()) + ":" + pad(val.getSeconds());
+    }
+  }
+
+  const str = String(val).trim();
+  if (!str) return "";
+
+  // 2. Format murni HH:mm:ss atau HH:mm
+  const pureMatch = str.match(/^([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/);
+  if (pureMatch) {
+    const hh = pureMatch[1].padStart(2, "0");
+    const mm = pureMatch[2];
+    const ss = pureMatch[3] ? pureMatch[3] : "00";
+    return hh + ":" + mm + ":" + ss;
+  }
+
+  // 3. String mengandung substring waktu HH:mm:ss (misal: "HADIR (Sat Dec 30 1899 18:07:32 GMT+0707...)" atau "18:07:32 WIB")
+  const embeddedMatch = str.match(/\b([01]?\d|2[0-3]):([0-5]\d):([0-5]\d)\b/);
+  if (embeddedMatch) {
+    const hh = embeddedMatch[1].padStart(2, "0");
+    const mm = embeddedMatch[2];
+    const ss = embeddedMatch[3];
+    return hh + ":" + mm + ":" + ss;
+  }
+
+  // 4. Jika memuat teks 1899 atau format tanggal ISO/RFC yang dapat diparsing
+  if (str.includes("1899") || str.includes("T") || str.includes("GMT")) {
+    const parsed = new Date(str);
+    if (!isNaN(parsed.getTime())) {
+      try {
+        return Utilities.formatDate(parsed, "Asia/Jakarta", "HH:mm:ss");
+      } catch (err) {
+        const pad = function(n) { return (n < 10 ? "0" : "") + n; };
+        return pad(parsed.getHours()) + ":" + pad(parsed.getMinutes()) + ":" + pad(parsed.getSeconds());
+      }
+    }
+  }
+
+  return str;
+}
+
+/**
  * Menyimpan Presensi Anggota ke raw_presensi dan sync ke PRESENSI
  * Dilengkapi Anti-Duplikasi (NIM + ID Agenda) & Concurrency Lock
  */
@@ -427,7 +484,7 @@ function submitPresensi(payload) {
       }
 
       if (rowAgendaId === payload.agendaId && rowNim === cleanNim) {
-        let existingWaktu = row[9] || "sebelumnya";
+        let existingWaktu = formatPresensiTime(row[9]) || "sebelumnya";
         return {
           success: false,
           duplicate: true,
@@ -455,6 +512,12 @@ function submitPresensi(payload) {
       payload.deviceInfo || "Web Browser"
     ]);
 
+    // Format sel waktu presensi (Kolom 10) sebagai teks murni agar terhindar dari konversi otomatis Date 1899
+    const lastRawRow = rawSheet.getLastRow();
+    if (lastRawRow > 1) {
+      rawSheet.getRange(lastRawRow, 10).setNumberFormat("@");
+    }
+
     // 6. Update Jumlah Total Hadir di Sheet AGENDA
     if (agendaRowIdx > 0) {
       const curTotal = Number(agendaSheet.getRange(agendaRowIdx, 9).getValue()) || 0;
@@ -478,7 +541,7 @@ function submitPresensi(payload) {
         delegasi: panitia.delegasi,
         agendaTitle: activeAgenda.title,
         agendaId: activeAgenda.id,
-        waktuPresensi: tglFullFormatted
+        waktuPresensi: waktuFormatted
       }
     };
 
@@ -497,6 +560,10 @@ function syncPresensiMatrix(ss, agenda, nim, waktu) {
 
     const data = presensiSheet.getDataRange().getValues();
     if (data.length <= 2) return;
+
+    // Pastikan format waktu selalu bersih "HH:mm:ss"
+    const cleanTime = formatPresensiTime(waktu);
+    const cellValue = cleanTime ? ("HADIR (" + cleanTime + ")") : "HADIR";
 
     // Cari kolom untuk agenda ini di Row 1 & 2
     let targetCol = -1;
@@ -525,8 +592,10 @@ function syncPresensiMatrix(ss, agenda, nim, waktu) {
       }
 
       if (rowNim === nim) {
-        presensiSheet.getRange(r + 1, targetCol)
-          .setValue("HADIR (" + waktu + ")")
+        const targetCell = presensiSheet.getRange(r + 1, targetCol);
+        targetCell.setNumberFormat("@"); // Set format teks agar Google Sheets tidak mengubahnya
+        targetCell
+          .setValue(cellValue)
           .setFontColor("#15803d")
           .setFontWeight("bold")
           .setHorizontalAlignment("center");
@@ -737,7 +806,7 @@ function runFullRecapForAgenda(agendaId) {
   const presensiData = presensiSheet.getDataRange().getValues();
   if (presensiData.length <= 2) return;
 
-  // Kumpulkan list NIM yang hadir pada agenda ini beserta jamnya
+  // Kumpulkan list NIM yang hadir pada agenda ini beserta jamnya yang sudah terformat HH:mm:ss
   const attendeeMap = {};
   let agendaTitle = "";
 
@@ -751,7 +820,9 @@ function runFullRecapForAgenda(agendaId) {
       } else {
         nimStr = String(row[3]).trim().replace(/\D/g, "");
       }
-      attendeeMap[nimStr] = row[9] || "HADIR";
+      
+      const cleanWaktu = formatPresensiTime(row[9]);
+      attendeeMap[nimStr] = cleanWaktu;
     }
   }
 
@@ -770,6 +841,11 @@ function runFullRecapForAgenda(agendaId) {
     presensiSheet.getRange(2, targetCol).setValue(agendaTitle);
   }
 
+  // Set format kolom target sebagai teks murni (@) agar Google Sheets tidak mengubah string waktu menjadi Date
+  try {
+    presensiSheet.getRange(3, targetCol, presensiData.length - 2, 1).setNumberFormat("@");
+  } catch (fmtErr) {}
+
   // Tuliskan ke setiap baris anggota
   for (let r = 2; r < presensiData.length; r++) {
     let rowNim = "";
@@ -779,17 +855,35 @@ function runFullRecapForAgenda(agendaId) {
       rowNim = String(presensiData[r][2]).trim().replace(/\D/g, "");
     }
 
-    if (rowNim && attendeeMap[rowNim]) {
+    if (rowNim && attendeeMap[rowNim] !== undefined) {
+      const cleanTime = attendeeMap[rowNim];
+      const cellText = cleanTime ? ("HADIR (" + cleanTime + ")") : "HADIR";
       presensiSheet.getRange(r + 1, targetCol)
-        .setValue("HADIR (" + attendeeMap[rowNim] + ")")
+        .setNumberFormat("@")
+        .setValue(cellText)
         .setFontColor("#15803d")
-        .setFontWeight("bold");
+        .setFontWeight("bold")
+        .setHorizontalAlignment("center");
     } else if (rowNim) {
-      const curVal = presensiSheet.getRange(r + 1, targetCol).getValue();
-      if (!curVal || curVal === "") {
-        presensiSheet.getRange(r + 1, targetCol)
+      const curCell = presensiSheet.getRange(r + 1, targetCol);
+      const curVal = curCell.getValue();
+      const curStr = String(curVal || "").trim();
+
+      // Perbaiki data lama jika memuat format 1899 yang salah
+      if (curStr.includes("HADIR") && (curStr.includes("1899") || curStr.includes("GMT"))) {
+        const extractedTime = formatPresensiTime(curStr);
+        const fixedText = extractedTime ? ("HADIR (" + extractedTime + ")") : "HADIR";
+        curCell
+          .setNumberFormat("@")
+          .setValue(fixedText)
+          .setFontColor("#15803d")
+          .setFontWeight("bold")
+          .setHorizontalAlignment("center");
+      } else if (!curVal || curVal === "") {
+        curCell
           .setValue("TIDAK HADIR")
-          .setFontColor("#94a3b8");
+          .setFontColor("#94a3b8")
+          .setHorizontalAlignment("center");
       }
     }
   }
@@ -874,8 +968,9 @@ function getDashboardStats(pin) {
         } else {
           nim = String(row[3]).trim().replace(/\D/g, "");
         }
+        const cleanWaktu = formatPresensiTime(row[9]);
         hadirMap[nim] = {
-          waktu: row[9] || "-",
+          waktu: cleanWaktu || "-",
           device: row[10] || "-"
         };
       }
@@ -1013,22 +1108,68 @@ function menuCheckActiveAgenda() {
   }
 }
 
+/**
+ * Memindai sheet PRESENSI dan membersihkan string waktu kehadiran yang memuat format '1899'
+ * Mengonversi seluruh nilai menjadi format standar 'HADIR (HH:mm:ss)' tanpa merusak data lama.
+ */
+function repairExistingPresensiTimes(ss) {
+  try {
+    const presensiSheet = ss.getSheetByName(SHEET_PRESENSI);
+    if (!presensiSheet || presensiSheet.getLastRow() <= 2 || presensiSheet.getLastColumn() < 8) return;
+
+    const lastRow = presensiSheet.getLastRow();
+    const lastCol = presensiSheet.getLastColumn();
+    const range = presensiSheet.getRange(3, 8, lastRow - 2, lastCol - 7);
+    const values = range.getValues();
+    let modified = false;
+
+    for (let r = 0; r < values.length; r++) {
+      for (let c = 0; c < values[r].length; c++) {
+        const val = values[r][c];
+        if (val instanceof Date) {
+          const formatted = formatPresensiTime(val);
+          values[r][c] = formatted ? ("HADIR (" + formatted + ")") : "HADIR";
+          modified = true;
+        } else if (typeof val === "string" && (val.includes("1899") || val.includes("GMT"))) {
+          const formatted = formatPresensiTime(val);
+          values[r][c] = formatted ? ("HADIR (" + formatted + ")") : val;
+          modified = true;
+        }
+      }
+    }
+
+    if (modified) {
+      range.setNumberFormat("@");
+      range.setValues(values);
+    }
+  } catch (err) {
+    console.error("repairExistingPresensiTimes error: " + err.message);
+  }
+}
+
 function menuManualSync() {
   const ui = SpreadsheetApp.getUi();
+  const ss = getSpreadsheet();
+
+  // 1. Bersihkan sel presensi yang terdampak format 1899
+  repairExistingPresensiTimes(ss);
+
+  // 2. Jalankan sinkronisasi untuk agenda aktif atau seluruh agenda di sheet AGENDA
   const res = getActiveAgenda();
   if (res.success && res.agenda) {
     runFullRecapForAgenda(res.agenda.id);
-    ui.alert("Sukses", "Sinkronisasi ke sheet PRESENSI berhasil untuk agenda: " + res.agenda.title, ui.ButtonSet.OK);
+    ui.alert("Sukses", "Sinkronisasi ke sheet PRESENSI berhasil untuk agenda: " + res.agenda.title + "\nSeluruh waktu kehadiran telah diformat ke format standar HH:mm:ss.", ui.ButtonSet.OK);
   } else {
-    ui.alert("Perhatian", "Tidak ada agenda aktif. Menjalankan sinkronisasi untuk semua agenda di raw_presensi...", ui.ButtonSet.OK);
-    // Sinkronkan agenda terakhir yang ada di AGENDA
-    const ss = getSpreadsheet();
     const agendaSheet = ss.getSheetByName(SHEET_AGENDA);
     if (agendaSheet && agendaSheet.getLastRow() > 1) {
-      const lastRow = agendaSheet.getLastRow();
-      const lastAgendaId = agendaSheet.getRange(lastRow, 1).getValue();
-      runFullRecapForAgenda(lastAgendaId);
-      ui.alert("Sukses", "Sinkronisasi rekap selesai untuk agenda ID: " + lastAgendaId, ui.ButtonSet.OK);
+      const aData = agendaSheet.getDataRange().getValues();
+      for (let i = 1; i < aData.length; i++) {
+        const agId = String(aData[i][0] || "").trim();
+        if (agId) runFullRecapForAgenda(agId);
+      }
+      ui.alert("Sukses", "Sinkronisasi rekap selesai untuk seluruh riwayat agenda. Seluruh waktu telah diformat rapi (HH:mm:ss).", ui.ButtonSet.OK);
+    } else {
+      ui.alert("Perhatian", "Belum ada agenda yang tersimpan di sheet AGENDA.", ui.ButtonSet.OK);
     }
   }
 }

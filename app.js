@@ -29,6 +29,50 @@ function getGasApiUrl() {
   return PERMANENT_GAS_URL;
 }
 
+/**
+ * Helper client-side untuk memformat string waktu presensi menjadi "HH:mm:ss"
+ * Membersihkan format bug Google Sheets (Sat Dec 30 1899 ... / ISO date string).
+ */
+function formatPresensiTime(val) {
+  if (!val && val !== 0) return '';
+  if (val instanceof Date) {
+    if (isNaN(val.getTime())) return '';
+    const pad = n => String(n).padStart(2, '0');
+    return pad(val.getHours()) + ':' + pad(val.getMinutes()) + ':' + pad(val.getSeconds());
+  }
+
+  const str = String(val).trim();
+  if (!str || str === '-') return '-';
+
+  // Format murni HH:mm:ss atau HH:mm
+  const pureMatch = str.match(/^([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/);
+  if (pureMatch) {
+    const hh = pureMatch[1].padStart(2, '0');
+    const mm = pureMatch[2];
+    const ss = pureMatch[3] ? pureMatch[3] : '00';
+    return hh + ':' + mm + ':' + ss;
+  }
+
+  // Pola terbenam dalam string (misal: "HADIR (Sat Dec 30 1899 18:07:32 GMT...)" atau "18:07:32 WIB")
+  const embeddedMatch = str.match(/\b([01]?\d|2[0-3]):([0-5]\d):([0-5]\d)\b/);
+  if (embeddedMatch) {
+    const hh = embeddedMatch[1].padStart(2, '0');
+    const mm = embeddedMatch[2];
+    const ss = embeddedMatch[3];
+    return hh + ':' + mm + ':' + ss;
+  }
+
+  if (str.includes('1899') || str.includes('T') || str.includes('GMT')) {
+    const parsed = new Date(str);
+    if (!isNaN(parsed.getTime())) {
+      const pad = n => String(n).padStart(2, '0');
+      return pad(parsed.getHours()) + ':' + pad(parsed.getMinutes()) + ':' + pad(parsed.getSeconds());
+    }
+  }
+
+  return str;
+}
+
 // Initial Local Storage Data for Simulation (if empty)
 function initLocalStorageDatabase() {
   if (!localStorage.getItem('kip_active_agenda')) {
@@ -1113,6 +1157,8 @@ function renderPanitiaTable(list) {
     const namaDisplay = p.nama || '<span class="italic text-slate-400 font-normal">(Belum Terisi)</span>';
     const nimDisplay = p.nim ? `<span class="font-mono text-slate-800 font-bold">${p.nim}</span>` : '<span class="italic text-slate-400 font-mono">-</span>';
 
+    const waktuFormatted = p.waktuPresensi ? formatPresensiTime(p.waktuPresensi) : '-';
+
     tr.innerHTML = `
       <td class="p-3.5 text-center text-slate-400 font-mono">${idx + 1}</td>
       <td class="p-3.5 font-bold text-slate-900">${namaDisplay}</td>
@@ -1121,7 +1167,7 @@ function renderPanitiaTable(list) {
       <td class="p-3.5 font-semibold text-slate-700">${p.jabatan}</td>
       <td class="p-3.5 truncate max-w-xs text-slate-600">${p.delegasi || '-'}</td>
       <td class="p-3.5 text-center">${badgeStatus}</td>
-      <td class="p-3.5 text-center font-mono text-slate-600 font-semibold">${p.waktuPresensi || '-'}</td>
+      <td class="p-3.5 text-center font-mono text-slate-600 font-semibold">${waktuFormatted}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1169,7 +1215,7 @@ function exportTableToCSV() {
     const jabatan = (p.jabatan || '-').replace(/"/g, '""');
     const delegasi = (p.delegasi || '-').replace(/"/g, '""');
     const status = p.status || 'BELUM HADIR';
-    const waktu = p.waktuPresensi || '-';
+    const waktu = p.waktuPresensi ? formatPresensiTime(p.waktuPresensi) : '-';
     csv += `"${no}","${nama}","${nim}","${sie}","${jabatan}","${delegasi}","${status}","${waktu}"\n`;
   });
 
