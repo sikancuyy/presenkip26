@@ -22,7 +22,7 @@
   <!-- QR Code Library CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
-  <link rel="stylesheet" href="style.css?v=20261111_05">
+  <link rel="stylesheet" href="style.css?v=20261111_06">
 
   <script>
     tailwind.config = {
@@ -452,35 +452,46 @@
         <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
           <div class="flex items-center gap-2">
             <span class="w-1.5 h-4 bg-[#D91616] rounded-full inline-block"></span>
-            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Struktur Kepanitiaan (46 Anggota)</h4>
+            <h4 id="strukturKepanitiaanTitle" class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Struktur Kepanitiaan (43 Anggota)</h4>
           </div>
           <span class="badge-pnl-red text-[10px]">SK Resmi</span>
         </div>
 
         <div class="grid grid-cols-2 gap-2 text-xs">
+          <!-- 1. Pejabat Acara -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-red-600 uppercase block">Badan Pengurus Harian</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">BPH (Ketua, Sek, Ben)</span>
+            <span class="text-[10px] font-bold text-red-600 uppercase block">Pejabat Acara</span>
+            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Pejabat Acara (3)</span>
           </div>
+
+          <!-- 2. Sie Acara -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-blue-600 uppercase block">Divisi Operasional</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Acara & Sidang</span>
+            <span class="text-[10px] font-bold text-blue-600 uppercase block">Sie Acara</span>
+            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Acara (10)</span>
           </div>
+
+          <!-- 3. Sie Perdek -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-emerald-600 uppercase block">Divisi Logistik</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Perlengkapan</span>
+            <span class="text-[10px] font-bold text-emerald-600 uppercase block">Sie Perdek</span>
+            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Perdek (7)</span>
           </div>
+
+          <!-- 4. Sie Pubdok -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-amber-600 uppercase block">Divisi Publikasi</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Humas & Media</span>
+            <span class="text-[10px] font-bold text-amber-600 uppercase block">Sie Pubdok</span>
+            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Pubdok (7)</span>
           </div>
+
+          <!-- 5. Sie Konsumsi -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-purple-600 uppercase block">Divisi Konsumsi</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Konsumsi</span>
+            <span class="text-[10px] font-bold text-purple-600 uppercase block">Sie Konsumsi</span>
+            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Konsumsi (8)</span>
           </div>
+
+          <!-- 6. Sie Keamanan -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-slate-600 uppercase block">Divisi Keamanan</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Ketertiban / PAM</span>
+            <span class="text-[10px] font-bold text-slate-600 uppercase block">Sie Keamanan</span>
+            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Keamanan (8)</span>
           </div>
         </div>
       </div>
@@ -986,8 +997,8 @@
   </script>
 
   <!-- Scripts -->
-  <script src="config.js?v=20261111_05"></script>
-  <script src="data_panitia.js?v=20261111_05"></script>
-  <script src="app.js?v=20261111_05"></script>
+  <script src="config.js?v=20261111_06"></script>
+  <script src="data_panitia.js?v=20261111_06"></script>
+  <script src="app.js?v=20261111_06"></script>
 </body>
 </html>

@@ -110,6 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update Status Badge (GSheet Connected vs Local)
   updateConnectionBadge();
 
+  // Update Struktur Sie Kepanitiaan Display
+  updateStrukturSieCards();
+
   // Load Active Agenda Banner
   fetchActiveAgenda();
 
@@ -169,6 +172,48 @@ function updateConnectionBadge(syncInfo) {
     badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
     badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`;
   }
+}
+
+/**
+ * Pembaruan Struktur Sie Kepanitiaan (Sesuai Sheet PANITIA KIP)
+ */
+function updateStrukturSieCards(customList) {
+  const list = customList || (dashboardCache && dashboardCache.panitia) || window.MASTER_PANITIA || [];
+  if (!list || !list.length) return;
+
+  const counts = {
+    'Pejabat Acara': 0,
+    'Acara': 0,
+    'Perdek': 0,
+    'Pubdok': 0,
+    'Konsumsi': 0,
+    'Keamanan': 0
+  };
+
+  list.forEach(p => {
+    if (counts[p.sie] !== undefined) counts[p.sie]++;
+  });
+
+  const titleElem = document.getElementById('strukturKepanitiaanTitle');
+  if (titleElem) titleElem.textContent = `Struktur Kepanitiaan (${list.length} Anggota)`;
+
+  const elPejabat = document.getElementById('sieCountPejabat');
+  if (elPejabat) elPejabat.textContent = `Pejabat Acara (${counts['Pejabat Acara']})`;
+
+  const elAcara = document.getElementById('sieCountAcara');
+  if (elAcara) elAcara.textContent = `Sie Acara (${counts['Acara']})`;
+
+  const elPerdek = document.getElementById('sieCountPerdek');
+  if (elPerdek) elPerdek.textContent = `Sie Perdek (${counts['Perdek']})`;
+
+  const elPubdok = document.getElementById('sieCountPubdok');
+  if (elPubdok) elPubdok.textContent = `Sie Pubdok (${counts['Pubdok']})`;
+
+  const elKonsumsi = document.getElementById('sieCountKonsumsi');
+  if (elKonsumsi) elKonsumsi.textContent = `Sie Konsumsi (${counts['Konsumsi']})`;
+
+  const elKeamanan = document.getElementById('sieCountKeamanan');
+  if (elKeamanan) elKeamanan.textContent = `Sie Keamanan (${counts['Keamanan']})`;
 }
 
 /**
