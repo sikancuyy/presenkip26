@@ -1383,7 +1383,7 @@ function renderPanitiaTable(list) {
   if (!list || list.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" class="p-6 text-center text-slate-400">
+        <td colspan="9" class="p-6 text-center text-slate-400">
           Tidak ada data panitia yang cocok dengan filter pencarian.
         </td>
       </tr>`;
@@ -1410,14 +1410,23 @@ function renderPanitiaTable(list) {
     const namaDisplay = p.nama || '<span class="italic text-slate-400 font-normal">(Belum Terisi)</span>';
     const nimDisplay = p.nim ? `<span class="font-mono text-slate-800 font-bold">${p.nim}</span>` : '<span class="italic text-slate-400 font-mono">-</span>';
 
+    const rawHp = String(p.no_hp || p.noHp || '').trim();
+    const cleanHp = rawHp.replace(/\D/g, '');
+    let noHpDisplay = '<span class="italic text-slate-400 font-mono">-</span>';
+    if (cleanHp) {
+      const waNum = cleanHp.startsWith('62') ? cleanHp : ('62' + cleanHp.replace(/^0/, ''));
+      noHpDisplay = `<a href="https://wa.me/${waNum}" target="_blank" rel="noopener noreferrer" class="font-mono text-emerald-600 hover:text-emerald-700 hover:underline font-semibold" title="Hubungi via WhatsApp">${rawHp}</a>`;
+    }
+
     const waktuFormatted = p.waktuPresensi ? formatPresensiTime(p.waktuPresensi) : '-';
 
     tr.innerHTML = `
-      <td class="p-3.5 text-center text-slate-400 font-mono">${idx + 1}</td>
+      <td class="p-3.5 text-center text-slate-400 font-mono">${p.no || (idx + 1)}</td>
       <td class="p-3.5 font-bold text-slate-900">${namaDisplay}</td>
       <td class="p-3.5">${nimDisplay}</td>
-      <td class="p-3.5"><span class="badge-pnl-gold px-2.5 py-0.5 text-[11px]">${p.sie}</span></td>
-      <td class="p-3.5 font-semibold text-slate-700">${p.jabatan}</td>
+      <td class="p-3.5 font-semibold text-slate-700">${p.jabatan || '-'}</td>
+      <td class="p-3.5"><span class="badge-pnl-gold px-2.5 py-0.5 text-[11px] font-bold">${p.sie || '-'}</span></td>
+      <td class="p-3.5 whitespace-nowrap">${noHpDisplay}</td>
       <td class="p-3.5 truncate max-w-xs text-slate-600">${p.delegasi || '-'}</td>
       <td class="p-3.5 text-center">${badgeStatus}</td>
       <td class="p-3.5 text-center font-mono text-slate-600 font-semibold">${waktuFormatted}</td>
@@ -1440,11 +1449,12 @@ function exportTableToCSV() {
     listToExport = dashboardCache.panitia;
   } else if (window.MASTER_PANITIA && window.MASTER_PANITIA.length > 0) {
     listToExport = window.MASTER_PANITIA.filter(m => m.nama).map((m, i) => ({
-      no: i + 1,
+      no: m.no || (i + 1),
       nama: m.nama,
       nim: String(m.nim || '').replace(/\D/g, ''),
-      sie: m.sie || '-',
       jabatan: m.jabatan || '-',
+      sie: m.sie || '-',
+      no_hp: m.no_hp || m.noHp || '-',
       delegasi: m.delegasi || '-',
       status: 'BELUM HADIR',
       waktuPresensi: '-'
@@ -1458,18 +1468,19 @@ function exportTableToCSV() {
 
   const title = (window.activeAgendaState ? window.activeAgendaState.title : 'Rekap Kehadiran Panitia KIP 2026');
   let csv = '\uFEFF'; // UTF-8 BOM for Excel compatibility
-  csv += `"No","Nama Lengkap","NIM","Sie","Jabatan","Delegasi","Status Kehadiran","Waktu Presensi"\n`;
+  csv += `"No","Nama","NIM","Jabatan","Sie","No. HP","Delegasi","Status Kehadiran","Waktu Presensi"\n`;
 
   listToExport.forEach((p, i) => {
     const no = p.no || (i + 1);
     const nama = (p.nama || '').replace(/"/g, '""');
     const nim = p.nim ? `'${p.nim}` : '-';
-    const sie = (p.sie || '-').replace(/"/g, '""');
     const jabatan = (p.jabatan || '-').replace(/"/g, '""');
+    const sie = (p.sie || '-').replace(/"/g, '""');
+    const hp = (p.no_hp || p.noHp || '-').replace(/"/g, '""');
     const delegasi = (p.delegasi || '-').replace(/"/g, '""');
     const status = p.status || 'BELUM HADIR';
     const waktu = p.waktuPresensi ? formatPresensiTime(p.waktuPresensi) : '-';
-    csv += `"${no}","${nama}","${nim}","${sie}","${jabatan}","${delegasi}","${status}","${waktu}"\n`;
+    csv += `"${no}","${nama}","${nim}","${jabatan}","${sie}","${hp}","${delegasi}","${status}","${waktu}"\n`;
   });
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
