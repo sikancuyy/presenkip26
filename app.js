@@ -791,7 +791,7 @@ function renderPanitiaBiodata(panitia) {
           <div class="flex-1 min-w-0">
             <h4 class="font-extrabold text-sm text-amber-950">Biodata Terverifikasi (Belum Ada Sesi Aktif)</h4>
             <p class="text-xs text-amber-800 mt-1 leading-relaxed">
-              Halo <strong>${panitia.nama}</strong>, biodata Anda terdaftar resmi pada SK Panitia KIP 2026. Tombol kehadiran akan aktif secara otomatis saat pimpinan sidang membuka agenda rapat resmi.
+              Halo <strong>${panitia.nama}</strong>, biodata Anda terdaftar resmi pada SK Panitia KIP 2026.
             </p>
           </div>
         </div>
