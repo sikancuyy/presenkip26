@@ -4,6 +4,7 @@ Aplikasi presensi digital terpadu berbasis **Google Apps Script (GAS)**, **Googl
 
 - **Repository GitHub:** [https://github.com/sikancuyy/presenkip26](https://github.com/sikancuyy/presenkip26)
 - **Target Subdomain:** `presenkip26.sikancuyy.my.id`
+- **Auto-Deployment:** Git Push & Post-Commit otomatis sinkron ke VPS (`103.147.33.10:20157`)
 
 ---
 
