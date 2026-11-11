@@ -113,22 +113,21 @@ class SyncEngine {
             Storage::setActiveAgenda(null);
         }
 
-        // 2. Simpan Master Panitia dari GSheet
+        // 2. Simpan Master Panitia dari GSheet (Single Source of Truth)
         if (!empty($dashRes['panitia']) && is_array($dashRes['panitia'])) {
-            // Bersihkan data jika ada field kehadiran spesifik agenda agar master tetap bersih
             $cleanedPanitia = [];
             foreach ($dashRes['panitia'] as $p) {
                 $cleanedPanitia[] = [
                     'no' => (string)($p['no'] ?? ''),
-                    'nama' => (string)($p['nama'] ?? ''),
-                    'nim' => (string)($p['nim'] ?? ''),
-                    'jabatan' => (string)($p['jabatan'] ?? ''),
-                    'sie' => (string)($p['sie'] ?? ''),
-                    'no_hp' => (string)($p['no_hp'] ?? ''),
-                    'delegasi' => (string)($p['delegasi'] ?? '')
+                    'nama' => trim((string)($p['nama'] ?? '')),
+                    'nim' => preg_replace('/\D/', '', (string)($p['nim'] ?? '')),
+                    'jabatan' => trim((string)($p['jabatan'] ?? '')),
+                    'sie' => trim((string)($p['sie'] ?? '')),
+                    'no_hp' => trim((string)($p['noHp'] ?? $p['no_hp'] ?? '')),
+                    'delegasi' => trim((string)($p['delegasi'] ?? ''))
                 ];
             }
-            if (count($cleanedPanitia) >= 46) {
+            if (count($cleanedPanitia) > 0) {
                 Storage::savePanitia($cleanedPanitia);
             }
         }
