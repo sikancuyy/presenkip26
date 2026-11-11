@@ -314,6 +314,82 @@ body {
   background-color: #FFFFFF;
 }
 
+select.input-field {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  line-height: 1.4 !important;
+  height: 38px !important;
+}
+
+/* Filter Controls in Admin Toolbar (Dropdown & Search) */
+select.filter-select,
+.filter-select {
+  height: 38px !important;
+  min-height: 38px !important;
+  line-height: 1.4 !important;
+  padding: 6px 34px 6px 14px !important;
+  border-radius: 9999px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background-color: #FFFFFF !important;
+  color: #334155 !important;
+  font-size: 0.75rem !important; /* 12px text-xs */
+  font-weight: 600 !important;
+  box-sizing: border-box !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 14px 14px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+select.filter-select:focus,
+.filter-select:focus {
+  outline: none !important;
+  border-color: var(--primary-red) !important;
+  box-shadow: 0 0 0 3px var(--primary-red-ring) !important;
+  background-color: #FFFFFF !important;
+}
+
+.filter-search-input {
+  height: 38px !important;
+  min-height: 38px !important;
+  line-height: 1.4 !important;
+  padding: 6px 16px !important;
+  border-radius: 9999px !important;
+  border: 1.5px solid var(--border-color) !important;
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  font-size: 0.75rem !important; /* 12px text-xs */
+  font-weight: 600 !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.filter-search-input:focus {
+  outline: none !important;
+  border-color: var(--primary-red) !important;
+  box-shadow: 0 0 0 3px var(--primary-red-ring) !important;
+  background-color: #FFFFFF !important;
+}
+
+.filter-toolbar-btn {
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 14px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+}
+
 /* Pill Input for Search NIM (as in Image 1 Mockup) */
 .input-pill {
   border-radius: var(--radius-pill);
