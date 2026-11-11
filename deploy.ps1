@@ -1,4 +1,4 @@
-﻿# Presensi KIP 2026 - Quick Deploy Script
+# Presensi KIP 2026 - Quick Deploy Script
 param (
     [string]$msg = "update: auto-deploy changes"
 )
@@ -14,3 +14,4 @@ if ($status) {
 }
 
 Write-Host "✅ Selesai! Kode telah terdeploy otomatis ke GitHub dan VPS." -ForegroundColor Green
+
