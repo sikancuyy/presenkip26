@@ -1112,12 +1112,12 @@ function writeAdminLog(aktivitas, detail, pelaksana) {
 function onOpen() {
   try {
     const ui = SpreadsheetApp.getUi();
-    ui.createMenu("🎯 Panitia KIP 2026")
-      .addItem("📋 Cek Status Agenda Aktif", "menuCheckActiveAgenda")
-      .addItem("🔄 Sinkronisasi Ulang Rekap PRESENSI", "menuManualSync")
+    ui.createMenu("Panitia KIP 2026")
+      .addItem("Cek Status Agenda Aktif", "menuCheckActiveAgenda")
+      .addItem("Sinkronisasi Ulang Rekap PRESENSI", "menuManualSync")
       .addSeparator()
-      .addItem("⚙️ Inisialisasi / Buat Sheet Pendukung", "menuInitSystem")
-      .addItem("🔑 Ubah PIN Admin", "menuChangePin")
+      .addItem("Inisialisasi / Buat Sheet Pendukung", "menuInitSystem")
+      .addItem("Ubah PIN Admin", "menuChangePin")
       .addToUi();
   } catch (e) {
     // Abaikan jika dipanggil dari context standalone web app

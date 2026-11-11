@@ -410,19 +410,31 @@
 
         <!-- 3 Highlight Pillars -->
         <div class="grid grid-cols-3 gap-2 pt-1 text-center">
-          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span class="text-base block">⚖️</span>
-            <span class="text-[11px] font-bold text-slate-800 block mt-1">Independen</span>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center">
+            <span class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center mb-1 flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+              </svg>
+            </span>
+            <span class="text-[11px] font-bold text-slate-800 block">Independen</span>
             <span class="text-[10px] text-slate-500 block leading-tight">Bebas Intervensi</span>
           </div>
-          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span class="text-base block">🛡️</span>
-            <span class="text-[11px] font-bold text-slate-800 block mt-1">Transparan</span>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center">
+            <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-1 flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </span>
+            <span class="text-[11px] font-bold text-slate-800 block">Transparan</span>
             <span class="text-[10px] text-slate-500 block leading-tight">Terbuka & Akuntabel</span>
           </div>
-          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-            <span class="text-base block">🤝</span>
-            <span class="text-[11px] font-bold text-slate-800 block mt-1">Integritas</span>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center">
+            <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-1 flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+            </span>
+            <span class="text-[11px] font-bold text-slate-800 block">Integritas</span>
             <span class="text-[10px] text-slate-500 block leading-tight">Amanah & Jujur</span>
           </div>
         </div>
@@ -479,11 +491,13 @@
 
       <!-- Navigation Shortcut -->
       <div class="flex items-center gap-2 pt-1">
-        <button onclick="switchMobileTab('beranda')" type="button" class="btn-primary-red flex-1 text-xs">
-          ← Kembali ke Presensi
+        <button onclick="switchMobileTab('beranda')" type="button" class="btn-primary-red flex-1 text-xs inline-flex items-center justify-center gap-1.5 py-2.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Kembali ke Presensi</span>
         </button>
-        <a href="admin.html" class="btn-pnl-outline text-xs">
-          Panel Admin 🔒
+        <a href="?page=admin" class="btn-pnl-outline text-xs inline-flex items-center justify-center gap-1.5 px-3 py-2.5">
+          <span>Panel Admin</span>
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
         </a>
       </div>
 
@@ -839,34 +853,42 @@
       <div class="space-y-2 text-xs font-bold">
         <button onclick="switchMobileTab('beranda'); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
           <span class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">🏠</span>
+            <span class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </span>
             <span>Beranda Presensi</span>
           </span>
-          <span class="text-slate-400">&gt;</span>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
         <button onclick="switchMobileTab('bantuan'); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
           <span class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">❓</span>
+            <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </span>
             <span>Pusat Bantuan & Panduan</span>
           </span>
-          <span class="text-slate-400">&gt;</span>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
         <button onclick="switchMobileTab('tentang'); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
           <span class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">ℹ️</span>
+            <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </span>
             <span>Tentang KIP 2026</span>
           </span>
-          <span class="text-slate-400">&gt;</span>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        <a href="admin.html" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-left">
+        <a href="?page=admin" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-left">
           <span class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-white/20 text-white flex items-center justify-center flex-shrink-0">🔒</span>
+            <span class="w-7 h-7 rounded-lg bg-white/20 text-white flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </span>
             <span>Buka Dashboard Admin</span>
           </span>
-          <span class="text-white/60">&gt;</span>
+          <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
       </div>
     </div>
@@ -946,7 +968,7 @@
     });
   </script>
 
-  <!-- Scripts -->
+  <!-- Scripts Google Apps Script -->
   <?!= include('JavaScript'); ?>
 </body>
 </html>
