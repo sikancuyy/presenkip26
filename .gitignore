@@ -2,7 +2,11 @@
 node_modules/
 vendor/
 
-# Temporary & Environment files
+# Data caches
+data/*
+!data/panitia.json
+!data/.gitkeep
+
 .env
 *.log
 .DS_Store

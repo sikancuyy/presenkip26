@@ -15,7 +15,11 @@ let currentPanitiaData = null;
 let currentAdminPin = sessionStorage.getItem('kip_admin_pin') || null;
 let dashboardCache = null;
 let qrcodeInstance = null;
+let autoSyncIntervalTimer = null;
+let isSyncing = false;
+let latestSyncState = null;
 
+const PHP_API_BASE = 'api/index.php';
 const PERMANENT_GAS_URL = "https://script.google.com/macros/s/AKfycbwVAw5bmI1WgjQYQAyU93onjSi2TwvUfPPd5J28Dvp1zzA5w-cWWR7eumr40NcIE-MX/exec";
 
 function getGasApiUrl() {
@@ -109,6 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load Active Agenda Banner
   fetchActiveAgenda();
 
+  // Start 10-Second Bidirectional Auto-Sync Loop
+  startAutoSyncLoop();
+
   // Check URL query parameters (e.g. ?nim=2024203020008 or ?page=admin)
   handleUrlParameters();
 
@@ -135,19 +142,122 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function updateConnectionBadge() {
+/**
+ * Pembaruan Indikator Status Sistem
+ * HANYA MENAMPILKAN INDIKATOR LINGKARAN BERKEDIP (NO TEXT BADGE)
+ */
+function updateConnectionBadge(syncInfo) {
   const badge = document.getElementById('envBadge');
   if (!badge) return;
 
-  const gasUrl = getGasApiUrl();
-  if (gasUrl) {
-    badge.title = "Google Sheets Live Terhubung";
+  const info = syncInfo || latestSyncState || {};
+  const lastSyncStr = info.lastSync || 'Tersinkron';
+  const pendingCount = info.pendingCount || 0;
+
+  badge.setAttribute('aria-label', `Status Sistem: Terhubung Google Sheets (${lastSyncStr})`);
+
+  if (isSyncing) {
+    badge.title = `Sedang sinkronisasi data dengan Google Sheets...`;
+    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+    badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>`;
+  } else if (pendingCount > 0) {
+    badge.title = `Terdapat ${pendingCount} presensi dalam antrean pengiriman ke Google Sheets`;
+    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+    badge.innerHTML = `<span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>`;
+  } else {
+    badge.title = `Google Sheets Live (${lastSyncStr}) • Auto-Sync 10s Aktif`;
     badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
     badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`;
-  } else {
-    badge.title = "Data Panitia Siap";
-    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
-    badge.innerHTML = `<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>`;
+  }
+}
+
+/**
+ * Loop Sinkronisasi Dua Arah Otomatis Setiap 10 Detik
+ */
+function startAutoSyncLoop() {
+  if (isGasEnvironment) return;
+  if (autoSyncIntervalTimer) clearInterval(autoSyncIntervalTimer);
+
+  // Trigger auto-sync setiap 10 detik
+  autoSyncIntervalTimer = setInterval(async () => {
+    if (isSyncing) return;
+    try {
+      const res = await fetch(`${PHP_API_BASE}?action=autoSync`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.success) {
+        latestSyncState = data;
+        updateConnectionBadge(data);
+
+        const statusBadge = document.getElementById('syncStatusBadge');
+        if (statusBadge && data.lastSync) {
+          statusBadge.textContent = `Tersinkron: ${data.lastSync}`;
+        }
+
+        // Jika ada perubahan dari GSheet dan panel admin aktif, perbarui dashboard perlahan
+        if (data.pulled && currentAdminPin) {
+          const panel = document.getElementById('adminPanel');
+          if (panel && !panel.classList.contains('hidden')) {
+            refreshDashboard(true);
+          }
+        }
+      }
+    } catch (err) {
+      // Abaikan gangguan polling sementara
+    }
+  }, 10000);
+}
+
+/**
+ * Pemicu Sinkronisasi Manual (Tombol Sinkronisasi)
+ */
+async function triggerManualSync() {
+  if (isSyncing) return;
+  isSyncing = true;
+
+  const syncIcon = document.getElementById('syncIconSpin');
+  const headerSyncIcon = document.getElementById('syncHeaderIcon');
+  const syncLabel = document.getElementById('syncBtnLabel');
+
+  if (syncIcon) syncIcon.classList.add('animate-spin');
+  if (headerSyncIcon) headerSyncIcon.classList.add('animate-spin');
+  if (syncLabel) syncLabel.textContent = 'Menyinkronkan...';
+  updateConnectionBadge();
+
+  try {
+    const res = await fetch(`${PHP_API_BASE}?action=manualSync`, { method: 'POST' });
+    const data = await res.json();
+
+    if (data.success) {
+      latestSyncState = data;
+      showToast('success', 'Sinkronisasi Berhasil', `Data diperbarui dari Google Sheets (${data.lastSync}).`);
+      updateConnectionBadge(data);
+
+      const statusBadge = document.getElementById('syncStatusBadge');
+      if (statusBadge && data.lastSync) {
+        statusBadge.textContent = `Tersinkron: ${data.lastSync}`;
+      }
+
+      // Refresh banner agenda dan dashboard
+      fetchActiveAgenda();
+      if (currentAdminPin) {
+        const panel = document.getElementById('adminPanel');
+        if (panel && !panel.classList.contains('hidden')) {
+          refreshDashboard();
+        }
+      }
+    } else {
+      showToast('warning', 'Pemberitahuan Sinkronisasi', data.message || 'Sinkronisasi selesai dengan catatan.');
+    }
+  } catch (err) {
+    console.warn('Manual sync error:', err);
+    showToast('error', 'Gagal Sinkronisasi', 'Tidak dapat terhubung ke backend PHP.');
+  } finally {
+    isSyncing = false;
+    if (syncIcon) syncIcon.classList.remove('animate-spin');
+    if (headerSyncIcon) headerSyncIcon.classList.remove('animate-spin');
+    if (syncLabel) syncLabel.textContent = 'Sinkronisasi';
+    updateConnectionBadge();
   }
 }
 
@@ -272,21 +382,24 @@ function fetchActiveAgenda() {
     return;
   }
 
-  const gasUrl = getGasApiUrl();
-  if (gasUrl) {
-    fetch(`${gasUrl}?action=getActiveAgenda`)
-      .then(res => res.json())
-      .then(res => {
-        handleActiveAgendaResponse(res);
-      })
-      .catch(err => {
-        console.warn("GAS fetch error, fallback local:", err);
+  // 1. Coba ambil dari PHP Cache (Sangat cepat <10ms)
+  fetch(`${PHP_API_BASE}?action=getActiveAgenda`)
+    .then(res => res.json())
+    .then(res => {
+      handleActiveAgendaResponse(res);
+    })
+    .catch(err => {
+      // Fallback ke GAS langsung jika backend PHP tidak merespons
+      const gasUrl = getGasApiUrl();
+      if (gasUrl) {
+        fetch(`${gasUrl}?action=getActiveAgenda`)
+          .then(res => res.json())
+          .then(res => handleActiveAgendaResponse(res))
+          .catch(() => fallbackLocalActiveAgenda());
+      } else {
         fallbackLocalActiveAgenda();
-      });
-    return;
-  }
-
-  fallbackLocalActiveAgenda();
+      }
+    });
 }
 
 function fallbackLocalActiveAgenda() {
@@ -440,38 +553,64 @@ function searchNIM() {
     return;
   }
 
-  const gasUrl = getGasApiUrl();
-  if (gasUrl) {
-    fetch(`${gasUrl}?action=searchNIM&nim=${encodeURIComponent(cleanNim)}`)
-      .then(res => res.json())
-      .then(res => {
-        btnText.textContent = 'CARI DATA';
-        btnSpinner.classList.add('hidden');
-        btn.disabled = false;
+  // 1. Coba cari di PHP Cache
+  fetch(`${PHP_API_BASE}?action=searchNIM&nim=${encodeURIComponent(cleanNim)}`)
+    .then(res => res.json())
+    .then(res => {
+      btnText.textContent = 'CARI DATA';
+      btnSpinner.classList.add('hidden');
+      btn.disabled = false;
 
-        if (res.success && res.data) {
-          // Sinkronisasi status sudah absen dengan dashboardCache jika ada
-          if (!res.data.alreadyAttended && window.activeAgendaState && dashboardCache && dashboardCache.panitia) {
-            const cachedP = dashboardCache.panitia.find(p => String(p.nim).replace(/\D/g, '') === cleanNim);
-            if (cachedP && cachedP.status === 'HADIR') {
-              res.data.alreadyAttended = true;
-              res.data.waktuPresensi = formatPresensiTime(cachedP.waktuPresensi) || 'Terdata';
-            }
-          }
-          renderPanitiaBiodata(res.data);
-          showToast('success', 'Biodata Ditemukan', `Halo, ${res.data.nama}`);
+      if (res.success && res.data) {
+        const bio = res.data;
+        bio.alreadyAttended = !!res.alreadyAttended;
+        if (res.attendance && res.attendance.timestamp) {
+          bio.waktuPresensi = formatPresensiTime(res.attendance.timestamp);
+        } else if (bio.alreadyAttended && !bio.waktuPresensi) {
+          bio.waktuPresensi = 'Terdata';
+        }
+        renderPanitiaBiodata(bio);
+        showToast('success', 'Biodata Ditemukan', `Halo, ${bio.nama}`);
+      } else {
+        const gasUrl = getGasApiUrl();
+        if (gasUrl) {
+          fetch(`${gasUrl}?action=searchNIM&nim=${encodeURIComponent(cleanNim)}`)
+            .then(r => r.json())
+            .then(r => {
+              if (r.success && r.data) {
+                renderPanitiaBiodata(r.data);
+                showToast('success', 'Biodata Ditemukan', `Halo, ${r.data.nama}`);
+              } else {
+                fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn);
+              }
+            })
+            .catch(() => fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn));
         } else {
           fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn);
         }
-      })
-      .catch(err => {
-        console.warn("GAS fetch error, falling back to local master:", err);
+      }
+    })
+    .catch(err => {
+      const gasUrl = getGasApiUrl();
+      if (gasUrl) {
+        fetch(`${gasUrl}?action=searchNIM&nim=${encodeURIComponent(cleanNim)}`)
+          .then(res => res.json())
+          .then(res => {
+            btnText.textContent = 'CARI DATA';
+            btnSpinner.classList.add('hidden');
+            btn.disabled = false;
+            if (res.success && res.data) {
+              renderPanitiaBiodata(res.data);
+              showToast('success', 'Biodata Ditemukan', `Halo, ${res.data.nama}`);
+            } else {
+              fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn);
+            }
+          })
+          .catch(() => fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn));
+      } else {
         fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn);
-      });
-    return;
-  }
-
-  fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn);
+      }
+    });
 }
 
 function fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn) {
@@ -751,47 +890,70 @@ function submitKehadiran() {
     return;
   }
 
-  const gasUrl = getGasApiUrl();
-  if (gasUrl) {
-    // Kirim menggunakan simple text/plain untuk bypass CORS preflight di GAS
-    fetch(gasUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'submitPresensi', payload: payload })
-    })
-    .then(res => res.json())
-    .then(res => {
-      btnText.textContent = 'KONFIRMASI HADIR';
-      btnSpinner.classList.add('hidden');
-      btn.disabled = false;
+  // 1. Kirim langsung ke backend PHP (Cache & Antrean Otomatis Cepat)
+  fetch(`${PHP_API_BASE}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'submitPresensi', payload: payload })
+  })
+  .then(res => res.json())
+  .then(res => {
+    btnText.textContent = 'KONFIRMASI HADIR';
+    btnSpinner.classList.add('hidden');
+    btn.disabled = false;
 
-      if (res.success) {
-        playChime(true);
-        showReceiptModal(res.data);
-        resetPresensiForm();
+    if (res.success) {
+      playChime(true);
+      showReceiptModal(res.receipt || res.data);
+      resetPresensiForm();
+      showToast('success', 'Presensi Berhasil', res.message);
+    } else {
+      if (res.alreadyAttended || res.duplicate) {
+        showAlert('warning', res.message);
+        showToast('warning', 'Sudah Presensi', res.message);
+        if (currentPanitiaData) {
+          currentPanitiaData.alreadyAttended = true;
+          currentPanitiaData.waktuPresensi = formatPresensiTime(res.receipt ? res.receipt.timestamp : new Date());
+          renderPanitiaBiodata(currentPanitiaData);
+        }
+        if (res.receipt) {
+          showReceiptModal(res.receipt);
+        }
       } else {
-        if (res.duplicate) {
-          showAlert('warning', res.message);
-          showToast('warning', 'Sudah Presensi', res.message);
-          if (currentPanitiaData) {
-            currentPanitiaData.alreadyAttended = true;
-            currentPanitiaData.waktuPresensi = formatPresensiTime(res.waktuPresensi || new Date());
-            renderPanitiaBiodata(currentPanitiaData);
-          }
+        showAlert('error', res.message);
+        showToast('error', 'Presensi Gagal', res.message);
+      }
+    }
+  })
+  .catch(err => {
+    console.warn("PHP POST error, mencoba fallback ke GAS langsung:", err);
+    const gasUrl = getGasApiUrl();
+    if (gasUrl) {
+      fetch(gasUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'submitPresensi', payload: payload })
+      })
+      .then(res => res.json())
+      .then(res => {
+        btnText.textContent = 'KONFIRMASI HADIR';
+        btnSpinner.classList.add('hidden');
+        btn.disabled = false;
+
+        if (res.success) {
+          playChime(true);
+          showReceiptModal(res.data);
+          resetPresensiForm();
         } else {
           showAlert('error', res.message);
           showToast('error', 'Presensi Gagal', res.message);
         }
-      }
-    })
-    .catch(err => {
-      console.warn("GAS POST error, falling back to local:", err);
+      })
+      .catch(() => fallbackLocalSubmit(payload, btnText, btnSpinner, btn));
+    } else {
       fallbackLocalSubmit(payload, btnText, btnSpinner, btn);
-    });
-    return;
-  }
-
-  fallbackLocalSubmit(payload, btnText, btnSpinner, btn);
+    }
+  });
 }
 
 function fallbackLocalSubmit(payload, btnText, btnSpinner, btn) {
@@ -992,35 +1154,59 @@ function doAdminLogin() {
     return;
   }
 
-  const gasUrl = getGasApiUrl();
-  if (gasUrl) {
-    fetch(`${gasUrl}?action=adminLogin&pin=${encodeURIComponent(pin)}`)
-      .then(res => res.json())
-      .then(res => {
-        btnText.textContent = 'Masuk Dashboard';
-        btnSpinner.classList.add('hidden');
+  // 1. Coba login ke backend PHP
+  fetch(`${PHP_API_BASE}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'adminLogin', pin: pin })
+  })
+  .then(res => res.json())
+  .then(res => {
+    btnText.textContent = 'Masuk Dashboard';
+    btnSpinner.classList.add('hidden');
 
-        if (res.success) {
-          currentAdminPin = pin;
-          sessionStorage.setItem('kip_admin_pin', pin);
-          const gate = document.getElementById('adminLoginGate');
-          const panel = document.getElementById('adminPanel');
-          if (gate) gate.classList.add('hidden');
-          if (panel) panel.classList.remove('hidden');
-          showToast('success', 'Login Berhasil', 'Selamat datang di panel admin.');
-          refreshDashboard();
-        } else {
-          showToast('error', 'Login Gagal', res.message || 'PIN Admin salah.');
-          pinInput.focus();
-        }
-      })
-      .catch(err => {
-        fallbackLocalLogin(pin, btnText, btnSpinner, pinInput);
-      });
-    return;
-  }
+    if (res.success) {
+      currentAdminPin = pin;
+      sessionStorage.setItem('kip_admin_pin', pin);
+      const gate = document.getElementById('adminLoginGate');
+      const panel = document.getElementById('adminPanel');
+      if (gate) gate.classList.add('hidden');
+      if (panel) panel.classList.remove('hidden');
+      showToast('success', 'Login Berhasil', 'Selamat datang di panel admin.');
+      refreshDashboard();
+    } else {
+      showToast('error', 'Login Gagal', res.message || 'PIN Admin salah.');
+      pinInput.focus();
+    }
+  })
+  .catch(err => {
+    const gasUrl = getGasApiUrl();
+    if (gasUrl) {
+      fetch(`${gasUrl}?action=adminLogin&pin=${encodeURIComponent(pin)}`)
+        .then(res => res.json())
+        .then(res => {
+          btnText.textContent = 'Masuk Dashboard';
+          btnSpinner.classList.add('hidden');
 
-  fallbackLocalLogin(pin, btnText, btnSpinner, pinInput);
+          if (res.success) {
+            currentAdminPin = pin;
+            sessionStorage.setItem('kip_admin_pin', pin);
+            const gate = document.getElementById('adminLoginGate');
+            const panel = document.getElementById('adminPanel');
+            if (gate) gate.classList.add('hidden');
+            if (panel) panel.classList.remove('hidden');
+            showToast('success', 'Login Berhasil', 'Selamat datang di panel admin.');
+            refreshDashboard();
+          } else {
+            showToast('error', 'Login Gagal', res.message || 'PIN Admin salah.');
+            pinInput.focus();
+          }
+        })
+        .catch(() => fallbackLocalLogin(pin, btnText, btnSpinner, pinInput));
+    } else {
+      fallbackLocalLogin(pin, btnText, btnSpinner, pinInput);
+    }
+  });
 }
 
 function fallbackLocalLogin(pin, btnText, btnSpinner, pinInput) {
@@ -1057,7 +1243,7 @@ function logoutAdmin() {
   showToast('info', 'Logout', 'Anda telah keluar dari mode admin.');
 }
 
-function refreshDashboard() {
+function refreshDashboard(quiet = false) {
   if (!currentAdminPin) return;
 
   if (isGasEnvironment) {
@@ -1066,37 +1252,50 @@ function refreshDashboard() {
         if (res.success) {
           dashboardCache = res;
           renderDashboard(res);
-        } else {
+        } else if (!quiet) {
           showToast('error', 'Gagal Memuat Dashboard', res.message);
         }
       })
       .withFailureHandler((err) => {
-        showToast('error', 'Gagal Refresh', err.message);
+        if (!quiet) showToast('error', 'Gagal Refresh', err.message);
       })
       .getDashboardStats(currentAdminPin);
     return;
   }
 
-  const gasUrl = getGasApiUrl();
-  if (gasUrl) {
-    fetch(`${gasUrl}?action=getDashboard&pin=${encodeURIComponent(currentAdminPin)}`)
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) {
-          dashboardCache = res;
-          renderDashboard(res);
-        } else {
-          showToast('error', 'Gagal', res.message);
+  // 1. Coba ambil dari PHP Cache (Sangat cepat <15ms)
+  fetch(`${PHP_API_BASE}?action=getDashboard&pin=${encodeURIComponent(currentAdminPin)}`)
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        dashboardCache = res;
+        renderDashboard(res);
+        if (res.sync && res.sync.last_sync_formatted) {
+          const statusBadge = document.getElementById('syncStatusBadge');
+          if (statusBadge) statusBadge.textContent = `Tersinkron: ${res.sync.last_sync_formatted}`;
         }
-      })
-      .catch(err => {
-        console.warn("GAS fetch error, falling back to local dashboard:", err);
+      } else {
+        if (!quiet) showToast('error', 'Gagal', res.message);
+      }
+    })
+    .catch(err => {
+      const gasUrl = getGasApiUrl();
+      if (gasUrl) {
+        fetch(`${gasUrl}?action=getDashboard&pin=${encodeURIComponent(currentAdminPin)}`)
+          .then(res => res.json())
+          .then(res => {
+            if (res.success) {
+              dashboardCache = res;
+              renderDashboard(res);
+            } else if (!quiet) {
+              showToast('error', 'Gagal', res.message);
+            }
+          })
+          .catch(() => fallbackLocalDashboard());
+      } else {
         fallbackLocalDashboard();
-      });
-    return;
-  }
-
-  fallbackLocalDashboard();
+      }
+    });
 }
 
 function fallbackLocalDashboard() {
@@ -1602,35 +1801,55 @@ function submitGenerateAgenda() {
     return;
   }
 
-  const gasUrl = getGasApiUrl();
-  if (gasUrl) {
-    fetch(gasUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'createAgenda', payload: payload, pin: currentAdminPin })
-    })
-    .then(res => res.json())
-    .then(res => {
-      spinner.classList.add('hidden');
-      btn.disabled = false;
-      if (res.success) {
-        if (!window.activeAgendaState) window.activeAgendaState = {};
-        if (payload.sessionCode) window.activeAgendaState.sessionCode = payload.sessionCode;
-        closeModalGenerateAgenda();
-        showToast('success', 'Agenda Diaktifkan di GSheet', res.message);
-        fetchActiveAgenda();
-        refreshDashboard();
-      } else {
-        showToast('error', 'Gagal', res.message);
-      }
-    })
-    .catch(err => {
+  // 1. Simpan ke backend PHP
+  fetch(`${PHP_API_BASE}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'createAgenda', payload: payload, pin: currentAdminPin })
+  })
+  .then(res => res.json())
+  .then(res => {
+    spinner.classList.add('hidden');
+    btn.disabled = false;
+    if (res.success) {
+      if (!window.activeAgendaState) window.activeAgendaState = {};
+      if (payload.sessionCode) window.activeAgendaState.sessionCode = payload.sessionCode;
+      closeModalGenerateAgenda();
+      showToast('success', 'Agenda Diaktifkan', res.message);
+      fetchActiveAgenda();
+      refreshDashboard();
+    } else {
+      showToast('error', 'Gagal', res.message);
+    }
+  })
+  .catch(err => {
+    const gasUrl = getGasApiUrl();
+    if (gasUrl) {
+      fetch(gasUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'createAgenda', payload: payload, pin: currentAdminPin })
+      })
+      .then(res => res.json())
+      .then(res => {
+        spinner.classList.add('hidden');
+        btn.disabled = false;
+        if (res.success) {
+          if (!window.activeAgendaState) window.activeAgendaState = {};
+          if (payload.sessionCode) window.activeAgendaState.sessionCode = payload.sessionCode;
+          closeModalGenerateAgenda();
+          showToast('success', 'Agenda Diaktifkan di GSheet', res.message);
+          fetchActiveAgenda();
+          refreshDashboard();
+        } else {
+          showToast('error', 'Gagal', res.message);
+        }
+      })
+      .catch(() => fallbackLocalCreateAgenda(payload, spinner, btn));
+    } else {
       fallbackLocalCreateAgenda(payload, spinner, btn);
-    });
-    return;
-  }
-
-  fallbackLocalCreateAgenda(payload, spinner, btn);
+    }
+  });
 }
 
 function fallbackLocalCreateAgenda(payload, spinner, btn) {
@@ -1691,30 +1910,45 @@ function confirmCloseAgenda() {
       return;
     }
 
-    const gasUrl = getGasApiUrl();
-    if (gasUrl) {
-      fetch(gasUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'closeAgenda', agendaId: agenda.id, pin: currentAdminPin })
-      })
-      .then(res => res.json())
-      .then(res => {
-        if (res.success) {
-          showToast('success', 'Agenda Ditutup di GSheet', res.message);
-          fetchActiveAgenda();
-          refreshDashboard();
-        } else {
-          showToast('error', 'Gagal', res.message);
-        }
-      })
-      .catch(err => {
+    // 1. Tutup agenda via backend PHP
+    fetch(`${PHP_API_BASE}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'closeAgenda', agendaId: agenda.id, pin: currentAdminPin })
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        showToast('success', 'Agenda Ditutup', res.message);
+        fetchActiveAgenda();
+        refreshDashboard();
+      } else {
+        showToast('error', 'Gagal', res.message);
+      }
+    })
+    .catch(err => {
+      const gasUrl = getGasApiUrl();
+      if (gasUrl) {
+        fetch(gasUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'closeAgenda', agendaId: agenda.id, pin: currentAdminPin })
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            showToast('success', 'Agenda Ditutup di GSheet', res.message);
+            fetchActiveAgenda();
+            refreshDashboard();
+          } else {
+            showToast('error', 'Gagal', res.message);
+          }
+        })
+        .catch(() => fallbackLocalCloseAgenda(agenda));
+      } else {
         fallbackLocalCloseAgenda(agenda);
-      });
-      return;
-    }
-
-    fallbackLocalCloseAgenda(agenda);
+      }
+    });
   }
 }
 

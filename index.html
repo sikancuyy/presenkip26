@@ -22,7 +22,7 @@
   <!-- QR Code Library CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261111_02">
 
   <script>
     tailwind.config = {
@@ -84,19 +84,41 @@
           </div>
         </div>
 
-        <!-- Right Quick Menu Button (Opens Mobile Drawer) -->
-        <button 
-          type="button" 
-          onclick="openMobileMenuDrawer()"
-          id="navAdminBtn"
-          class="w-10 h-10 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-center justify-center text-slate-700 hover:text-red-600 hover:bg-slate-50 transition-all flex-shrink-0"
-          title="Buka Menu Navigasi"
-          aria-label="Buka Menu"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
+        <!-- Right Quick Actions: Indicator Dot, Sync Button & Menu Drawer -->
+        <div class="flex items-center gap-2">
+          <!-- Status Indicator Dot Only (No Text) -->
+          <span id="envBadge" class="relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0" title="Google Sheets Live Terhubung" aria-label="Status Sistem">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+
+          <!-- Sync Button -->
+          <button 
+            type="button" 
+            onclick="triggerManualSync()"
+            class="w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-slate-50 transition-all flex-shrink-0"
+            title="Sinkronkan dengan Google Sheets"
+            aria-label="Sinkronkan Data"
+          >
+            <svg id="syncHeaderIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </button>
+
+          <!-- Right Quick Menu Button (Opens Mobile Drawer) -->
+          <button 
+            type="button" 
+            onclick="openMobileMenuDrawer()"
+            id="navAdminBtn"
+            class="w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-700 hover:text-red-600 hover:bg-slate-50 transition-all flex-shrink-0"
+            title="Buka Menu Navigasi"
+            aria-label="Buka Menu"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
 
       </div>
     </header>
@@ -881,6 +903,16 @@
           <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
+        <button onclick="triggerManualSync(); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 text-emerald-900 hover:bg-emerald-100 transition-colors text-left border border-emerald-200">
+          <span class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-emerald-200 text-emerald-800 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </span>
+            <span>Sinkronkan Data GSheet</span>
+          </span>
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
         <a href="admin.html" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-left">
           <span class="flex items-center gap-3">
             <span class="w-7 h-7 rounded-lg bg-white/20 text-white flex items-center justify-center flex-shrink-0">
@@ -969,8 +1001,8 @@
   </script>
 
   <!-- Scripts -->
-  <script src="config.js"></script>
-  <script src="data_panitia.js"></script>
-  <script src="app.js"></script>
+  <script src="config.js?v=20261111_02"></script>
+  <script src="data_panitia.js?v=20261111_02"></script>
+  <script src="app.js?v=20261111_02"></script>
 </body>
 </html>

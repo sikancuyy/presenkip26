@@ -22,7 +22,7 @@
   <!-- QR Code Library CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261111_02">
 
   <script>
     tailwind.config = {
@@ -134,10 +134,10 @@
         </button>
 
         <button 
-          onclick="refreshDashboard()" 
-          title="Refresh Data" 
-          class="sidebar-icon-btn"
-          aria-label="Refresh Data"
+          onclick="triggerManualSync()" 
+          title="Sinkronisasi Google Sheets" 
+          class="sidebar-icon-btn hover:text-emerald-600"
+          aria-label="Sinkronisasi Google Sheets"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -298,12 +298,13 @@
                 <span>Sambung GSheet</span>
               </button>
 
-              <!-- Refresh Button -->
-              <button onclick="refreshDashboard()" class="btn-pnl-outline px-4 py-2 text-xs" type="button">
-                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <!-- Tombol Sinkronisasi Manual GSheet -->
+              <button id="btnManualSync" onclick="triggerManualSync()" class="btn-pnl-outline px-4 py-2.5 text-xs font-bold flex items-center gap-2 hover:bg-slate-100 transition-all" type="button" title="Sinkronisasi seluruh data dengan Google Sheets">
+                <svg id="syncIconSpin" class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
-                <span>Refresh</span>
+                <span id="syncBtnLabel">Sinkronisasi</span>
+                <span id="syncStatusBadge" class="text-[10px] text-slate-500 font-mono font-medium hidden sm:inline"></span>
               </button>
 
               <!-- Keluar Button -->
@@ -676,8 +677,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="config.js"></script>
-  <script src="data_panitia.js"></script>
-  <script src="app.js"></script>
+  <script src="config.js?v=20261111_02"></script>
+  <script src="data_panitia.js?v=20261111_02"></script>
+  <script src="app.js?v=20261111_02"></script>
 </body>
 </html>
