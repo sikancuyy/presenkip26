@@ -17,7 +17,8 @@ window.APP_CONFIG = {
   ORGANISASI: "Komisi Independen Pemilihan (KIP) 2026 - PEMILWA PNL",
 
   // PIN Akses Default Admin Dashboard
-  DEFAULT_ADMIN_PIN: "KIP2026"
+  DEFAULT_ADMIN_PIN: "KIP2026",
+  VERSION: "2026.11.11-v4"
 };
 
 
