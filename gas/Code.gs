@@ -104,6 +104,11 @@ function doPost(e) {
       result = createAgenda(postData.payload || postData, postData.pin);
     } else if (action === "closeAgenda") {
       result = closeAgenda(postData.agendaId, postData.pin);
+    } else if (action === "cleanupDuplicates") {
+      const ss = getSpreadsheet();
+      deduplicatePresensiColumns(ss);
+      repairExistingPresensiTimes(ss);
+      result = { success: true, message: "Pembersihan duplikasi kolom PRESENSI berhasil dieksekusi." };
     }
 
     return ContentService.createTextOutput(JSON.stringify(result))
@@ -161,6 +166,11 @@ function handleApiGet(params) {
     result = createAgenda(payload, params.pin);
   } else if (action === "closeAgenda") {
     result = closeAgenda(params.agendaId, params.pin);
+  } else if (action === "cleanupDuplicates") {
+    const ss = getSpreadsheet();
+    deduplicatePresensiColumns(ss);
+    repairExistingPresensiTimes(ss);
+    result = { success: true, message: "Pembersihan duplikasi kolom PRESENSI berhasil dieksekusi." };
   } else {
     result = { success: false, message: "Action tidak valid" };
   }
@@ -614,22 +624,26 @@ function syncPresensiMatrix(ss, agenda, nim, waktu) {
 
     // Format status kehadiran pada sheet PRESENSI murni "HADIR" (jam hanya disimpan di raw_presensi)
     const cellValue = "HADIR";
+    const cleanAgendaTitle = String(agenda.title || "").trim().toLowerCase();
 
-    // Cari kolom untuk agenda ini di Row 1 & 2
+    // Cari kolom untuk agenda ini di Row 2 (mulai Kolom 8 = H)
     let targetCol = -1;
-    for (let c = 7; c < data[0].length; c++) {
-      const colTitle = String(data[1][c] || "").trim();
-      if (colTitle === agenda.title) {
-        targetCol = c + 1; // 1-based index
-        break;
+    const lastCol = presensiSheet.getLastColumn();
+    if (lastCol >= 8) {
+      const row2Titles = presensiSheet.getRange(2, 8, 1, lastCol - 7).getValues()[0];
+      for (let c = 0; c < row2Titles.length; c++) {
+        const colTitle = String(row2Titles[c] || "").trim().toLowerCase();
+        if (colTitle === cleanAgendaTitle) {
+          targetCol = 8 + c; // 1-based index
+          break;
+        }
       }
     }
 
-    // Jika kolom belum ada, buat kolom baru
+    // Jika kolom belum ada, buat 1 kolom baru secara aman tanpa duplikasi
     if (targetCol === -1) {
-      targetCol = presensiSheet.getLastColumn() + 1;
-      presensiSheet.getRange(1, targetCol).setValue(agenda.date).setFontWeight("bold").setHorizontalAlignment("center");
-      presensiSheet.getRange(2, targetCol).setValue(agenda.title).setFontWeight("bold").setHorizontalAlignment("center");
+      setupAgendaInPresensiSheet(ss, agenda.id, agenda.title, agenda.date);
+      targetCol = presensiSheet.getLastColumn();
     }
 
     // Cari baris anggota berdasarkan NIM di Kolom C (index 2)
@@ -722,37 +736,72 @@ function createAgenda(payload, pin) {
     initSystem();
     const agendaSheet = ss.getSheetByName(SHEET_AGENDA);
 
-    // 1. Tutup semua agenda aktif sebelumnya
+    const cleanTitle = String(payload.title).trim();
+    const today = new Date();
+    const tgl = payload.date || Utilities.formatDate(today, "Asia/Jakarta", "dd MMMM yyyy");
+    const waktu = payload.time || Utilities.formatDate(today, "Asia/Jakarta", "HH:mm") + " WIB";
+    const lokasi = payload.location || "Ruang Rapat Utama / Gedung PKM";
+    const sessionCode = payload.sessionCode ? String(payload.sessionCode).trim().toUpperCase() : "";
+
+    // 1. Cek Idempotensi: Apakah agenda ini SUDAH AKTIF (berdasarkan ID atau Judul)
     const agendaData = agendaSheet.getDataRange().getValues();
+    for (let i = 1; i < agendaData.length; i++) {
+      const rowId = String(agendaData[i][0] || "").trim();
+      const rowTitle = String(agendaData[i][1] || "").trim();
+      const rowStatus = String(agendaData[i][6] || "").trim().toUpperCase();
+
+      if (rowStatus === "AKTIF") {
+        const idMatches = payload.id && rowId === String(payload.id).trim();
+        const titleMatches = rowTitle.toLowerCase() === cleanTitle.toLowerCase();
+
+        if (idMatches || titleMatches) {
+          // Agenda aktif sudah ada, pastikan kolom di PRESENSI tidak duplikat
+          setupAgendaInPresensiSheet(ss, rowId, rowTitle, tgl);
+          deduplicatePresensiColumns(ss);
+
+          return {
+            success: true,
+            alreadyExists: true,
+            message: "Agenda aktif '" + rowTitle + "' sudah terdaftar.",
+            agenda: {
+              id: rowId,
+              title: rowTitle,
+              date: String(agendaData[i][2] || tgl),
+              time: String(agendaData[i][3] || waktu),
+              location: String(agendaData[i][4] || lokasi),
+              sessionCode: String(agendaData[i][5] || ""),
+              status: "AKTIF"
+            }
+          };
+        }
+      }
+    }
+
+    // 2. Tutup semua agenda aktif sebelumnya
     for (let i = 1; i < agendaData.length; i++) {
       if (String(agendaData[i][6]).trim().toUpperCase() === "AKTIF") {
         agendaSheet.getRange(i + 1, 7).setValue("SELESAI");
       }
     }
 
-    // 2. Generate ID Unik: KIP-YYYYMMDD-001
-    const today = new Date();
-    const ymd = Utilities.formatDate(today, "Asia/Jakarta", "yyyyMMdd");
-    let countToday = 1;
-
-    for (let i = 1; i < agendaData.length; i++) {
-      const idStr = String(agendaData[i][0]);
-      if (idStr.indexOf("KIP-" + ymd) === 0) {
-        countToday++;
+    // 3. Gunakan ID dari payload jika valid atau generate ID Unik baru: KIP-YYYYMMDD-001
+    let agendaId = (payload.id && String(payload.id).trim().startsWith("KIP-")) ? String(payload.id).trim() : "";
+    if (!agendaId) {
+      const ymd = Utilities.formatDate(today, "Asia/Jakarta", "yyyyMMdd");
+      let countToday = 1;
+      for (let i = 1; i < agendaData.length; i++) {
+        const idStr = String(agendaData[i][0]);
+        if (idStr.indexOf("KIP-" + ymd) === 0) {
+          countToday++;
+        }
       }
+      const seqStr = ("000" + countToday).slice(-3);
+      agendaId = "KIP-" + ymd + "-" + seqStr;
     }
-
-    const seqStr = ("000" + countToday).slice(-3);
-    const agendaId = "KIP-" + ymd + "-" + seqStr;
-
-    const tgl = payload.date || Utilities.formatDate(today, "Asia/Jakarta", "dd MMMM yyyy");
-    const waktu = payload.time || Utilities.formatDate(today, "Asia/Jakarta", "HH:mm") + " WIB";
-    const lokasi = payload.location || "Ruang Rapat Utama / Gedung PKM";
-    const sessionCode = payload.sessionCode ? String(payload.sessionCode).trim().toUpperCase() : "";
 
     agendaSheet.appendRow([
       agendaId,
-      payload.title.trim(),
+      cleanTitle,
       tgl,
       waktu,
       lokasi,
@@ -762,17 +811,18 @@ function createAgenda(payload, pin) {
       0
     ]);
 
-    // 3. Tambahkan kolom agenda ke sheet PRESENSI jika belum ada
-    setupAgendaInPresensiSheet(ss, agendaId, payload.title.trim(), tgl);
+    // 4. Tambahkan kolom agenda ke sheet PRESENSI jika belum ada
+    setupAgendaInPresensiSheet(ss, agendaId, cleanTitle, tgl);
+    deduplicatePresensiColumns(ss);
 
-    writeAdminLog("GENERATE_AGENDA", "Membuat agenda: " + payload.title + " (ID: " + agendaId + ")", "ADMIN");
+    writeAdminLog("GENERATE_AGENDA", "Membuat agenda: " + cleanTitle + " (ID: " + agendaId + ")", "ADMIN");
 
     return {
       success: true,
       message: "Agenda rapat berhasil diaktifkan!",
       agenda: {
         id: agendaId,
-        title: payload.title.trim(),
+        title: cleanTitle,
         date: tgl,
         time: waktu,
         location: lokasi,
@@ -786,13 +836,29 @@ function createAgenda(payload, pin) {
 }
 
 /**
- * Menyiapkan kolom baru pada sheet PRESENSI saat agenda baru dibuat
+ * Menyiapkan kolom baru pada sheet PRESENSI saat agenda baru dibuat (Anti-Duplikasi)
  */
 function setupAgendaInPresensiSheet(ss, agendaId, title, date) {
   const presensiSheet = ss.getSheetByName(SHEET_PRESENSI);
   if (!presensiSheet) return;
 
+  const cleanTitle = String(title || "").trim();
+  if (!cleanTitle) return;
+
   const lastCol = presensiSheet.getLastColumn();
+
+  // Cek apakah kolom dengan judul ini sudah ada di baris 2 (mulai Kolom 8 = H)
+  if (lastCol >= 8) {
+    const existingTitles = presensiSheet.getRange(2, 8, 1, lastCol - 7).getValues()[0];
+    for (let c = 0; c < existingTitles.length; c++) {
+      const colTitle = String(existingTitles[c] || "").trim().toLowerCase();
+      if (colTitle === cleanTitle.toLowerCase()) {
+        // Kolom sudah ada! Jangan buat duplikat baru
+        return;
+      }
+    }
+  }
+
   const nextCol = lastCol + 1;
 
   presensiSheet.getRange(1, nextCol)
@@ -802,7 +868,7 @@ function setupAgendaInPresensiSheet(ss, agendaId, title, date) {
     .setBackground("#f1f5f9");
 
   presensiSheet.getRange(2, nextCol)
-    .setValue(title)
+    .setValue(cleanTitle)
     .setFontWeight("bold")
     .setHorizontalAlignment("center")
     .setBackground("#e2e8f0");
@@ -876,19 +942,25 @@ function runFullRecapForAgenda(agendaId) {
     }
   }
 
-  // Cari kolom di sheet PRESENSI
+  // Cari kolom di sheet PRESENSI (mulai Kolom 8 = H)
+  const cleanAgendaTitle = String(agendaTitle || "").trim().toLowerCase();
   let targetCol = -1;
-  for (let c = 7; c < presensiData[0].length; c++) {
-    if (String(presensiData[1][c]).trim() === String(agendaTitle).trim()) {
-      targetCol = c + 1;
-      break;
+  const lastCol = presensiSheet.getLastColumn();
+  if (lastCol >= 8) {
+    const row2Titles = presensiSheet.getRange(2, 8, 1, lastCol - 7).getValues()[0];
+    for (let c = 0; c < row2Titles.length; c++) {
+      const colTitle = String(row2Titles[c] || "").trim().toLowerCase();
+      if (colTitle === cleanAgendaTitle) {
+        targetCol = 8 + c;
+        break;
+      }
     }
   }
 
   if (targetCol === -1) {
-    targetCol = presensiSheet.getLastColumn() + 1;
-    presensiSheet.getRange(1, targetCol).setValue(Utilities.formatDate(new Date(), "Asia/Jakarta", "dd/MM/yyyy"));
-    presensiSheet.getRange(2, targetCol).setValue(agendaTitle);
+    const defaultDate = Utilities.formatDate(new Date(), "Asia/Jakarta", "dd/MM/yyyy");
+    setupAgendaInPresensiSheet(ss, agendaId, agendaTitle, defaultDate);
+    targetCol = presensiSheet.getLastColumn();
   }
 
   // Set format kolom target sebagai teks murni (@) agar Google Sheets tidak mengubah string waktu menjadi Date
@@ -945,6 +1017,8 @@ function getDashboardStats(pin) {
 
   const ss = getSpreadsheet();
   initSystem();
+  deduplicatePresensiColumns(ss);
+  repairExistingPresensiTimes(ss);
 
   // 1. Ambil master seluruh panitia dari PANITIA KIP
   const panitiaSheet = ss.getSheetByName(SHEET_PANITIA);
@@ -1125,6 +1199,7 @@ function onOpen() {
     ui.createMenu("Panitia KIP 2026")
       .addItem("Cek Status Agenda Aktif", "menuCheckActiveAgenda")
       .addItem("Sinkronisasi Ulang Rekap PRESENSI", "menuManualSync")
+      .addItem("Bersihkan Kolom Duplikat PRESENSI", "menuDeduplicateColumns")
       .addSeparator()
       .addItem("Inisialisasi / Buat Sheet Pendukung", "menuInitSystem")
       .addItem("Ubah PIN Admin", "menuChangePin")
@@ -1132,6 +1207,14 @@ function onOpen() {
   } catch (e) {
     // Abaikan jika dipanggil dari context standalone web app
   }
+}
+
+function menuDeduplicateColumns() {
+  const ui = SpreadsheetApp.getUi();
+  const ss = getSpreadsheet();
+  deduplicatePresensiColumns(ss);
+  repairExistingPresensiTimes(ss);
+  ui.alert("Pembersihan Selesai", "Kolom agenda duplikat pada sheet PRESENSI berhasil dibersihkan dan digabungkan secara otomatis.", ui.ButtonSet.OK);
 }
 
 function menuCheckActiveAgenda() {
@@ -1151,6 +1234,76 @@ function menuCheckActiveAgenda() {
     );
   } else {
     ui.alert("Status Agenda", "Saat ini TIDAK ADA agenda rapat yang aktif. Silakan buka Web App untuk generate agenda baru.", ui.ButtonSet.OK);
+  }
+}
+
+/**
+ * Memindai sheet PRESENSI dan membersihkan kolom duplikat agenda yang berulang.
+ * Menggabungkan seluruh data kehadiran (HADIR) dari kolom duplikat ke kolom utama,
+ * lalu menghapus kolom-kolom duplikat yang redundan (dari kanan ke kiri).
+ */
+function deduplicatePresensiColumns(ss) {
+  try {
+    const presensiSheet = ss.getSheetByName(SHEET_PRESENSI);
+    if (!presensiSheet || presensiSheet.getLastColumn() < 8) return;
+
+    const lastCol = presensiSheet.getLastColumn();
+    const lastRow = presensiSheet.getLastRow();
+    if (lastRow <= 2) return;
+
+    // Ambil baris 2 (Judul Agenda) dari Kolom 8 (H) hingga kolom terakhir
+    const numAgendaCols = lastCol - 7;
+    const titles = presensiSheet.getRange(2, 8, 1, numAgendaCols).getValues()[0];
+
+    const seenTitles = {};
+    const colsToDelete = [];
+
+    for (let i = 0; i < titles.length; i++) {
+      const colIdx = 8 + i;
+      const rawTitle = String(titles[i] || "").trim();
+      if (!rawTitle) continue;
+
+      const normTitle = rawTitle.toLowerCase().replace(/\s+/g, ' ');
+
+      if (!seenTitles[normTitle]) {
+        seenTitles[normTitle] = colIdx;
+      } else {
+        // Kolom duplikat terdeteksi! Pindahkan data kehadiran jika ada
+        const primaryCol = seenTitles[normTitle];
+        const dupValues = presensiSheet.getRange(3, colIdx, lastRow - 2, 1).getValues();
+        const primaryRange = presensiSheet.getRange(3, primaryCol, lastRow - 2, 1);
+        const primaryValues = primaryRange.getValues();
+
+        let modified = false;
+        for (let r = 0; r < dupValues.length; r++) {
+          const dVal = String(dupValues[r][0] || "").trim();
+          const pVal = String(primaryValues[r][0] || "").trim();
+          if (dVal.startsWith("HADIR") && !pVal.startsWith("HADIR")) {
+            primaryValues[r][0] = "HADIR";
+            modified = true;
+          }
+        }
+
+        if (modified) {
+          primaryRange.setNumberFormat("@");
+          primaryRange.setValues(primaryValues);
+        }
+
+        colsToDelete.push(colIdx);
+      }
+    }
+
+    // Hapus kolom dari indeks terbesar ke terkecil agar indeks kolom tidak bergeser
+    colsToDelete.sort((a, b) => b - a);
+    for (let k = 0; k < colsToDelete.length; k++) {
+      presensiSheet.deleteColumn(colsToDelete[k]);
+    }
+
+    if (colsToDelete.length > 0) {
+      writeAdminLog("DEDUP_PRESENSI", "Berhasil menghapus " + colsToDelete.length + " kolom agenda duplikat di sheet PRESENSI", "SISTEM");
+    }
+  } catch (err) {
+    console.error("deduplicatePresensiColumns error: " + err.message);
   }
 }
 
@@ -1198,7 +1351,8 @@ function menuManualSync() {
   const ui = SpreadsheetApp.getUi();
   const ss = getSpreadsheet();
 
-  // 1. Bersihkan sel matriks presensi agar berstatus 'HADIR' murni tanpa jam
+  // 1. Bersihkan kolom duplikat dan standarisasi waktu kehadiran di sheet PRESENSI
+  deduplicatePresensiColumns(ss);
   repairExistingPresensiTimes(ss);
 
   // 2. Jalankan sinkronisasi untuk agenda aktif atau seluruh agenda di sheet AGENDA

@@ -58,20 +58,6 @@ switch ($action) {
             ]);
         }
 
-        // Jika cache kosong atau belum pernah sync, coba tarik dari GSheet
-        $syncState = Storage::getSyncState();
-        if (empty($syncState['last_sync_time'])) {
-            SyncEngine::pullFromGsheet();
-            $agenda = Storage::getActiveAgenda();
-            if ($agenda) {
-                jsonResponse([
-                    'success' => true,
-                    'agenda' => $agenda,
-                    'source' => 'gsheet'
-                ]);
-            }
-        }
-
         jsonResponse([
             'success' => false,
             'message' => 'Belum ada agenda rapat yang sedang aktif.'
@@ -90,15 +76,6 @@ switch ($action) {
 
         $cleanNim = preg_replace('/\D/', '', $nim);
         $panitia = Storage::findPanitiaByNim($cleanNim);
-
-        if (!$panitia) {
-            // Jika tidak ditemukan di cache lokal dan belum pernah sync, coba tarik dari GSheet
-            $syncState = Storage::getSyncState();
-            if (empty($syncState['last_sync_time'])) {
-                SyncEngine::pullFromGsheet();
-                $panitia = Storage::findPanitiaByNim($cleanNim);
-            }
-        }
 
         if (!$panitia) {
             jsonResponse([
@@ -213,9 +190,7 @@ switch ($action) {
             ]);
         }
 
-        // Berhasil dicatat di cache lokal, dorong antrean segera
-        SyncEngine::pushPendingQueue();
-
+        // Berhasil dicatat di PHP storage & diantrekan untuk sinkronisasi Google Sheets
         jsonResponse([
             'success' => true,
             'alreadyAttended' => false,
@@ -339,22 +314,34 @@ switch ($action) {
             jsonResponse(['success' => false, 'message' => 'Judul agenda dan kode sesi wajib diisi.']);
         }
 
-        $agendaId = 'AGD-' . date('Ymd-His');
+        // Cek jika agenda dengan judul sama sudah aktif
+        $currentActive = Storage::getActiveAgenda();
+        if ($currentActive && strcasecmp(trim($currentActive['title'] ?? ''), $title) === 0) {
+            jsonResponse([
+                'success' => true,
+                'alreadyExists' => true,
+                'message' => "Agenda '{$title}' sudah aktif.",
+                'agenda' => $currentActive
+            ]);
+        }
+
+        $todayYmd = date('Ymd');
+        $agendaId = 'KIP-' . $todayYmd . '-' . sprintf('%03d', rand(1, 999));
         $newAgenda = [
             'id' => $agendaId,
             'title' => $title,
-            'date' => $date,
-            'time' => $time,
-            'location' => $location,
+            'date' => $date ?: date('d F Y'),
+            'time' => $time ?: (date('H:i') . ' WIB'),
+            'location' => $location ?: 'Ruang Rapat Utama / Gedung PKM',
             'sessionCode' => $sessionCode,
+            'hasSessionCode' => true,
             'status' => 'AKTIF',
-            'createdAt' => date('Y-m-d H:i:s'),
+            'createdAt' => date('Y-m-d\TH:i:s.v\Z'),
             'totalHadir' => 0
         ];
 
         Storage::setActiveAgenda($newAgenda);
         Storage::enqueue('createAgenda', $newAgenda);
-        SyncEngine::pushPendingQueue();
 
         jsonResponse([
             'success' => true,
@@ -376,7 +363,6 @@ switch ($action) {
             $title = $activeAgenda['title'] ?? 'Agenda';
             Storage::setActiveAgenda(null);
             Storage::enqueue('closeAgenda', ['agendaId' => $agendaId ?: $activeAgenda['id']]);
-            SyncEngine::pushPendingQueue();
 
             jsonResponse([
                 'success' => true,

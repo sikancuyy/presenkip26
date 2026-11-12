@@ -385,5 +385,23 @@
         "sie": "Keamanan",
         "no_hp": "085136186506",
         "delegasi": "Himpunan Mahasiswa Sipil"
+    },
+    {
+        "no": "46",
+        "nama": "Misky Zahra",
+        "nim": "2025223020049",
+        "jabatan": "Anggota",
+        "sie": "Keamanan",
+        "no_hp": "089668822583",
+        "delegasi": "Himpunan Mahasiswa Sipil"
+    },
+    {
+        "no": "47",
+        "nama": "Ina Misla",
+        "nim": "2025223020034",
+        "jabatan": "Anggota",
+        "sie": "Keamanan",
+        "no_hp": "085361623620",
+        "delegasi": "Himpunan Mahasiswa Sipil"
     }
 ]

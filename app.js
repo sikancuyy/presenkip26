@@ -116,8 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load Active Agenda Banner
   fetchActiveAgenda();
 
-  // Start 10-Second Bidirectional Auto-Sync Loop
-  startAutoSyncLoop();
+  // Auto-sync polling dinonaktifkan untuk performa cepat; sinkronisasi hanya dilakukan di admin
 
   // Check URL query parameters (e.g. ?nim=2024203020008 or ?page=admin)
   handleUrlParameters();
@@ -203,40 +202,12 @@ function updateStrukturSieCards(customList) {
 }
 
 /**
- * Loop Sinkronisasi Dua Arah Otomatis Setiap 10 Detik
+ * Sinkronisasi otomatis di latar belakang dinonaktifkan untuk mencegah beban lambat.
+ * Sinkronisasi dengan Google Sheets kini eksklusif dilakukan secara manual oleh Administrator.
  */
 function startAutoSyncLoop() {
-  if (isGasEnvironment) return;
+  // Dinonaktifkan sesuai instruksi: hindari auto-sync berkala yang membuat loading lama.
   if (autoSyncIntervalTimer) clearInterval(autoSyncIntervalTimer);
-
-  // Trigger auto-sync setiap 10 detik
-  autoSyncIntervalTimer = setInterval(async () => {
-    if (isSyncing) return;
-    try {
-      const res = await fetch(`${PHP_API_BASE}?action=autoSync`);
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data && data.success) {
-        latestSyncState = data;
-        updateConnectionBadge(data);
-
-        const statusBadge = document.getElementById('syncStatusBadge');
-        if (statusBadge && data.lastSync) {
-          statusBadge.textContent = `Tersinkron: ${data.lastSync}`;
-        }
-
-        // Jika ada perubahan dari GSheet dan panel admin aktif, perbarui dashboard perlahan
-        if (data.pulled && currentAdminPin) {
-          const panel = document.getElementById('adminPanel');
-          if (panel && !panel.classList.contains('hidden')) {
-            refreshDashboard(true);
-          }
-        }
-      }
-    } catch (err) {
-      // Abaikan gangguan polling sementara
-    }
-  }, 10000);
 }
 
 /**
@@ -261,12 +232,15 @@ async function triggerManualSync() {
 
     if (data.success) {
       latestSyncState = data;
-      showToast('success', 'Sinkronisasi Berhasil', `Data diperbarui dari Google Sheets (${data.lastSync}).`);
+      const pushedCount = (data.push && data.push.pushed) ? data.push.pushed : 0;
+      const pushMsg = pushedCount > 0 ? `${pushedCount} presensi terkirim ke Google Sheets. ` : '';
+      showToast('success', 'Sinkronisasi Berhasil', `${pushMsg}Data sinkron (${data.lastSync}).`);
       updateConnectionBadge(data);
 
       const statusBadge = document.getElementById('syncStatusBadge');
       if (statusBadge && data.lastSync) {
         statusBadge.textContent = `Tersinkron: ${data.lastSync}`;
+        statusBadge.className = "text-[10px] text-slate-500 font-mono font-medium hidden sm:inline";
       }
 
       // Refresh banner agenda dan dashboard
@@ -1310,7 +1284,16 @@ function refreshDashboard(quiet = false) {
         renderDashboard(res);
         if (res.sync && res.sync.last_sync_formatted) {
           const statusBadge = document.getElementById('syncStatusBadge');
-          if (statusBadge) statusBadge.textContent = `Tersinkron: ${res.sync.last_sync_formatted}`;
+          const pendingCount = res.sync.pending_queue_count || 0;
+          if (statusBadge) {
+            if (pendingCount > 0) {
+              statusBadge.textContent = `${pendingCount} Belum Sinkron (${res.sync.last_sync_formatted})`;
+              statusBadge.className = "text-[10px] text-amber-600 font-mono font-bold hidden sm:inline";
+            } else {
+              statusBadge.textContent = `Tersinkron: ${res.sync.last_sync_formatted}`;
+              statusBadge.className = "text-[10px] text-slate-500 font-mono font-medium hidden sm:inline";
+            }
+          }
         }
       } else {
         if (!quiet) showToast('error', 'Gagal', res.message);

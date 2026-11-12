@@ -281,13 +281,36 @@ class Storage {
                 'created_at' => date('Y-m-d H:i:s')
             ];
 
-            // Anti duplikasi di antrean
+            // Anti duplikasi cerdas di antrean
             $isDuplicate = false;
             foreach ($queue as $existing) {
-                if ($existing['action'] === $action &&
-                    ($existing['payload']['key'] ?? '') === ($payload['key'] ?? '___none___')) {
-                    $isDuplicate = true;
-                    break;
+                if ($existing['action'] !== $action) {
+                    continue;
+                }
+
+                if ($action === 'submitPresensi') {
+                    $existingKey = $existing['payload']['key'] ?? (($existing['payload']['agendaId'] ?? '') . '_' . ($existing['payload']['nim'] ?? ''));
+                    $newKey = $payload['key'] ?? (($payload['agendaId'] ?? '') . '_' . ($payload['nim'] ?? ''));
+                    if (!empty($newKey) && $existingKey === $newKey) {
+                        $isDuplicate = true;
+                        break;
+                    }
+                } elseif ($action === 'createAgenda') {
+                    $existingId = $existing['payload']['id'] ?? '';
+                    $newId = $payload['id'] ?? '';
+                    $existingTitle = trim($existing['payload']['title'] ?? '');
+                    $newTitle = trim($payload['title'] ?? '');
+                    if ((!empty($newId) && $existingId === $newId) || (!empty($newTitle) && strcasecmp($existingTitle, $newTitle) === 0)) {
+                        $isDuplicate = true;
+                        break;
+                    }
+                } elseif ($action === 'closeAgenda') {
+                    $existingAgId = $existing['payload']['agendaId'] ?? '';
+                    $newAgId = $payload['agendaId'] ?? '';
+                    if (!empty($newAgId) && $existingAgId === $newAgId) {
+                        $isDuplicate = true;
+                        break;
+                    }
                 }
             }
 
@@ -301,6 +324,10 @@ class Storage {
             flock($fp, LOCK_UN);
         }
         fclose($fp);
+
+        if (!$isDuplicate) {
+            self::updateSyncState(['pending_queue_count' => count($queue)]);
+        }
     }
 
     public static function saveQueue(array $queue): bool {
@@ -323,7 +350,9 @@ class Storage {
     public static function updateSyncState(array $patch): void {
         $state = self::getSyncState();
         $updated = array_merge($state, $patch);
-        $updated['pending_queue_count'] = count(self::getQueue());
+        if (!isset($patch['pending_queue_count'])) {
+            $updated['pending_queue_count'] = count(self::getQueue());
+        }
         $updated['updated_at'] = date('Y-m-d H:i:s');
         self::write('sync_state.json', $updated);
     }

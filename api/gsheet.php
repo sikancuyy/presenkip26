@@ -30,6 +30,7 @@ class GSheetClient {
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 6);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_setopt($ch, CURLOPT_USERAGENT, 'KIP2026-PHP-Cache/2.0');
 
         if (strtoupper($method) === 'POST') {
@@ -37,8 +38,7 @@ class GSheetClient {
             $jsonBody = json_encode($body ?? $params, JSON_UNESCAPED_UNICODE);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonBody);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($jsonBody)
+                'Content-Type: application/json'
             ]);
         }
 
@@ -113,6 +113,16 @@ class GSheetClient {
         return self::request('POST', [
             'action' => 'closeAgenda',
             'agendaId' => $agendaId,
+            'pin' => $pin
+        ]);
+    }
+
+    /**
+     * Bersihkan kolom duplikat di sheet PRESENSI
+     */
+    public static function cleanupDuplicates(string $pin = DEFAULT_ADMIN_PIN): array {
+        return self::request('POST', [
+            'action' => 'cleanupDuplicates',
             'pin' => $pin
         ]);
     }

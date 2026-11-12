@@ -58,7 +58,7 @@ class SyncEngine {
                 }
             } elseif ($action === 'createAgenda') {
                 $res = GSheetClient::createAgenda($payload, DEFAULT_ADMIN_PIN);
-                if (!empty($res['success'])) {
+                if (!empty($res['success']) || !empty($res['alreadyExists'])) {
                     $success = true;
                     $pushedCount++;
                 }
@@ -142,9 +142,10 @@ class SyncEngine {
             $agendaId = (string)$activeAgenda['id'];
             $batchPresensi = [];
             foreach ($dashRes['panitia'] as $p) {
-                $sudahHadir = !empty($p['sudahHadir']);
+                $sudahHadir = !empty($p['sudahHadir']) || (($p['status'] ?? '') === 'HADIR');
                 $cleanNim = preg_replace('/\D/', '', (string)($p['nim'] ?? ''));
                 if ($sudahHadir && !empty($cleanNim)) {
+                    $jam = $p['waktuPresensi'] ?? $p['jamHadir'] ?? 'HADIR';
                     $key = $agendaId . '_' . $cleanNim;
                     $batchPresensi[$key] = [
                         'key' => $key,
@@ -154,8 +155,8 @@ class SyncEngine {
                         'jabatan' => (string)($p['jabatan'] ?? ''),
                         'sie' => (string)($p['sie'] ?? ''),
                         'delegasi' => (string)($p['delegasi'] ?? ''),
-                        'no_hp' => (string)($p['no_hp'] ?? ''),
-                        'timestamp' => !empty($p['jamHadir']) ? (string)$p['jamHadir'] : 'HADIR',
+                        'no_hp' => (string)($p['no_hp'] ?? $p['noHp'] ?? ''),
+                        'timestamp' => !empty($jam) ? (string)$jam : 'HADIR',
                         'tanggal' => (string)($activeAgenda['date'] ?? date('d F Y')),
                         'synced' => true,
                         'synced_at' => date('Y-m-d H:i:s')
@@ -181,6 +182,9 @@ class SyncEngine {
     public static function runFullSync(): array {
         Storage::updateSyncState(['status' => 'syncing']);
 
+        // 0. Bersihkan kolom duplikat di GSheet terlebih dahulu
+        GSheetClient::cleanupDuplicates();
+
         // 1. Dorong antrean keluar terlebih dahulu
         $pushResult = self::pushPendingQueue();
 
@@ -195,7 +199,8 @@ class SyncEngine {
             'last_sync_formatted' => $formatted,
             'status' => 'synced',
             'last_push' => $pushResult,
-            'last_pull' => $pullResult['pulled']
+            'last_pull' => $pullResult['pulled'],
+            'pending_queue_count' => count(Storage::getQueue())
         ]);
 
         return [
@@ -203,7 +208,8 @@ class SyncEngine {
             'message' => 'Sinkronisasi dua arah berhasil',
             'push' => $pushResult,
             'pull' => $pullResult,
-            'lastSync' => $formatted
+            'lastSync' => $formatted,
+            'pendingCount' => count(Storage::getQueue())
         ];
     }
 
