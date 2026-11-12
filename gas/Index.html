@@ -136,7 +136,7 @@
     <!-- ============================================================== -->
     <!-- CARD 1: AGENDA RAPAT (MATCHING IMAGE 1 MOCKUP)                 -->
     <!-- ============================================================== -->
-    <section id="agendaBannerCard" class="dash-card-agenda space-y-3.5">
+    <section id="agendaBannerCard" class="kip-card p-5 space-y-3.5">
       
       <!-- Top Badges Row -->
       <div class="flex items-center justify-between gap-2">
@@ -148,7 +148,7 @@
         </div>
 
         <div class="flex items-center gap-1.5">
-          <span id="bannerStatusBadge" class="badge-pnl-offline">
+          <span id="bannerStatusBadge" class="hidden badge-pnl-offline">
             <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
             <span>Offline</span>
           </span>
@@ -166,8 +166,8 @@
         </p>
       </div>
 
-      <!-- 3 Metadata Tiles: Tanggal, Waktu, Lokasi -->
-      <div class="grid grid-cols-3 gap-2 pt-1 pb-1">
+      <!-- 3 Metadata Tiles: Tanggal, Waktu, Lokasi (Disembunyikan jika tidak ada agenda aktif) -->
+      <div id="bannerAgendaMeta" class="hidden grid grid-cols-3 gap-2 pt-1 pb-1">
         
         <!-- Tanggal -->
         <div class="bg-[#F0F7FF] border border-blue-100/80 rounded-xl p-2.5 space-y-0.5">

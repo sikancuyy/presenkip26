@@ -344,8 +344,13 @@ function handleActiveAgendaResponse(res) {
     if (bTitle) bTitle.textContent = window.activeAgendaState.title;
     if (bSubtitle) bSubtitle.textContent = 'Rapat sedang berlangsung. Silakan konfirmasi presensi.';
     if (bStatus) {
+      bStatus.classList.remove('hidden');
       bStatus.className = 'badge-pnl-emerald';
       bStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 indicator-pulse"></span><span>Aktif</span>';
+    }
+    const bMeta = document.getElementById('bannerAgendaMeta');
+    if (bMeta) {
+      bMeta.classList.remove('hidden');
     }
     if (bDate) bDate.textContent = window.activeAgendaState.date;
     if (bTime) bTime.textContent = window.activeAgendaState.time;
@@ -394,8 +399,13 @@ function renderNoAgendaState() {
   if (bTitle) bTitle.textContent = 'Tidak Ada Agenda Aktif';
   if (bSubtitle) bSubtitle.textContent = 'Belum ada rapat yang dibuka saat ini.';
   if (bStatus) {
-    bStatus.className = 'badge-pnl-offline';
+    bStatus.classList.add('hidden');
+    bStatus.className = 'hidden badge-pnl-offline';
     bStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span><span>Offline</span>';
+  }
+  const bMeta = document.getElementById('bannerAgendaMeta');
+  if (bMeta) {
+    bMeta.classList.add('hidden');
   }
   if (bDate) bDate.textContent = '-';
   if (bTime) bTime.textContent = '-';
