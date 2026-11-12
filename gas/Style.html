@@ -597,7 +597,6 @@ select.filter-select:focus,
   border-radius: 24px;
   box-shadow: var(--shadow-sm);
   width: 80px;
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
@@ -606,6 +605,18 @@ select.filter-select:focus,
   position: sticky;
   top: 24px;
   flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .sidebar-dock {
+    display: flex;
+  }
+}
+
+@media (max-width: 1023px) {
+  .sidebar-dock {
+    display: none !important;
+  }
 }
 
 .sidebar-icon-btn {
