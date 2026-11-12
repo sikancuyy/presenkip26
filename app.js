@@ -751,20 +751,20 @@ function renderPanitiaBiodata(panitia) {
     }
 
     if (noticeElem) {
-      noticeElem.className = "rounded-xl p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 animate-fadeIn";
+      noticeElem.className = "rounded-xl p-4 bg-white border border-slate-200 shadow-sm text-slate-800 animate-fadeIn";
       noticeElem.innerHTML = `
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+          <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
-              <h4 class="font-extrabold text-sm text-emerald-950">SUDAH MELAKUKAN PRESENSI</h4>
-              <span class="bg-emerald-200 text-emerald-900 font-mono font-bold text-[11px] px-2 py-0.5 rounded-md">${waktuText}</span>
+              <h4 class="font-extrabold text-sm text-slate-900">SUDAH MELAKUKAN PRESENSI</h4>
+              <span class="bg-slate-100 text-slate-800 border border-slate-200 font-mono font-bold text-[11px] px-2 py-0.5 rounded-md">${waktuText}</span>
             </div>
-            <p class="text-xs text-emerald-700 mt-1 leading-relaxed">
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
               Halo <strong>${panitia.nama}</strong>, bukti kehadiran Anda untuk agenda <strong>${agendaTitle}</strong> telah tercatat pada pukul <strong>${waktuText}</strong>. Anda tidak perlu mengirim presensi ulang.
             </p>
           </div>
@@ -821,17 +821,17 @@ function renderPanitiaBiodata(panitia) {
     }
 
     if (noticeElem) {
-      noticeElem.className = "rounded-xl p-4 bg-amber-50 border border-amber-200 text-amber-900 animate-fadeIn";
+      noticeElem.className = "rounded-xl p-4 bg-white border border-slate-200 shadow-sm text-slate-800 animate-fadeIn";
       noticeElem.innerHTML = `
         <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+          <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center flex-shrink-0">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
           <div class="flex-1 min-w-0">
-            <h4 class="font-extrabold text-sm text-amber-950">Biodata Terverifikasi (Belum Ada Sesi Aktif)</h4>
-            <p class="text-xs text-amber-800 mt-1 leading-relaxed">
+            <h4 class="font-extrabold text-sm text-slate-900">Biodata Terverifikasi (Belum Ada Sesi Aktif)</h4>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
               Halo <strong>${panitia.nama}</strong>, biodata Anda terdaftar resmi pada SK Panitia KIP 2026.
             </p>
           </div>
@@ -1432,7 +1432,7 @@ function renderDashboard(data) {
       const hasCode = Boolean(codeVal !== '');
 
       const codeBadgeHtml = hasCode
-        ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 text-amber-900 text-xs font-bold border border-amber-200 shadow-xs">
+        ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white text-slate-900 text-xs font-bold border border-slate-200 shadow-xs">
              <svg class="w-3.5 h-3.5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
              </svg>
@@ -2054,12 +2054,12 @@ function copyPresensiLink() {
  */
 function showAlert(type, message) {
   const alertBox = document.getElementById('presensiAlert');
-  alertBox.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200', 'bg-amber-50', 'text-amber-700', 'border-amber-200');
+  alertBox.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'border-red-200', 'bg-amber-50', 'text-amber-700', 'border-amber-200', 'bg-white', 'border-red-300', 'border-amber-300', 'shadow-xs');
 
   if (type === 'error') {
-    alertBox.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
+    alertBox.classList.add('bg-white', 'text-red-700', 'border-red-300', 'shadow-xs');
   } else if (type === 'warning') {
-    alertBox.classList.add('bg-amber-50', 'text-amber-700', 'border-amber-200');
+    alertBox.classList.add('bg-white', 'text-amber-800', 'border-amber-300', 'shadow-xs');
   }
   alertBox.textContent = message;
 }

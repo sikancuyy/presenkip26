@@ -198,8 +198,8 @@
       if (!alertBox) return;
       alertBox.textContent = msg;
       alertBox.className = isError 
-        ? "rounded-xl p-3.5 text-xs font-semibold bg-red-50 text-red-700 border border-red-200 block animate-fadeIn"
-        : "rounded-xl p-3.5 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 block animate-fadeIn";
+        ? "rounded-xl p-3.5 text-xs font-semibold bg-white text-red-700 border border-red-300 shadow-sm block animate-fadeIn"
+        : "rounded-xl p-3.5 text-xs font-semibold bg-white text-emerald-700 border border-emerald-300 shadow-sm block animate-fadeIn";
       alertBox.classList.remove('hidden');
     }
 
