@@ -22,7 +22,17 @@
   <!-- QR Code Library CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
-  <link rel="stylesheet" href="style.css?v=20261111_07">
+  <!-- TW Elements CSS from local repository -->
+  <link rel="stylesheet" href="TW-Elements-master/css/tw-elements.min.css">
+  
+  <link rel="stylesheet" href="style.css?v=20261112_01">
+
+  <script>
+    // Administrator Auth Guard (PC Dashboard)
+    if (!sessionStorage.getItem('kip_admin_pin')) {
+      window.location.replace('login.html?role=admin&redirect=admin');
+    }
+  </script>
 
   <script>
     tailwind.config = {
@@ -680,6 +690,8 @@
   <!-- Scripts -->
   <script src="config.js?v=20261111_07"></script>
   <script src="data_panitia.js?v=20261111_07"></script>
-  <script src="app.js?v=20261111_07"></script>
+  <!-- TW Elements JS from local repository -->
+  <script src="TW-Elements-master/js/tw-elements.umd.min.js"></script>
+  <script src="app.js?v=20261112_01"></script>
 </body>
 </html>

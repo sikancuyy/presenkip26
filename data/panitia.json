@@ -252,6 +252,15 @@
         "delegasi": "Himpunan Mahasiswa Elektro"
     },
     {
+        "no": "29",
+        "nama": "Muhammad Afrizal",
+        "nim": "2025223020024",
+        "jabatan": "Anggota",
+        "sie": "Pubdok",
+        "no_hp": "082318220154",
+        "delegasi": "Himpunan Mahasiswa Sipil"
+    },
+    {
         "no": "31",
         "nama": "Muhammad Alfarizi",
         "nim": "2025903430007",
@@ -375,15 +384,6 @@
         "jabatan": "Anggota",
         "sie": "Keamanan",
         "no_hp": "085136186506",
-        "delegasi": "Himpunan Mahasiswa Sipil"
-    },
-    {
-        "no": "46",
-        "nama": "Muhammad Afrizal",
-        "nim": "2025223020024",
-        "jabatan": "Anggota",
-        "sie": "Keamanan",
-        "no_hp": "082318220154",
         "delegasi": "Himpunan Mahasiswa Sipil"
     }
 ]

@@ -135,13 +135,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
   if (timeInput) timeInput.value = `${hh}:${min}`;
 
-  // Restore Admin Session if logged in
-  const loginGate = document.getElementById('adminLoginGate');
-  const adminPanel = document.getElementById('adminPanel');
-  if (currentAdminPin && loginGate && adminPanel) {
-    loginGate.classList.add('hidden');
-    adminPanel.classList.remove('hidden');
-    refreshDashboard();
+  // Authentication & Session Guard for Index (PWA Mobile) and Admin (PC)
+  if (document.getElementById('viewAdmin')) {
+    if (!currentAdminPin) {
+      window.location.replace('login.html?role=admin&redirect=admin');
+      return;
+    } else {
+      const loginGate = document.getElementById('adminLoginGate');
+      const adminPanel = document.getElementById('adminPanel');
+      if (loginGate) loginGate.classList.add('hidden');
+      if (adminPanel) adminPanel.classList.remove('hidden');
+      refreshDashboard();
+    }
+  } else if (document.getElementById('viewPresensi')) {
+    initPanitiaSession();
   }
 });
 
@@ -1277,15 +1284,86 @@ function fallbackLocalLogin(pin, btnText, btnSpinner, pinInput) {
 }
 
 function logoutAdmin() {
-  currentAdminPin = null;
-  sessionStorage.removeItem('kip_admin_pin');
-  const panel = document.getElementById('adminPanel');
-  const gate = document.getElementById('adminLoginGate');
-  const pinInput = document.getElementById('adminPinInput');
-  if (panel) panel.classList.add('hidden');
-  if (gate) gate.classList.remove('hidden');
-  if (pinInput) pinInput.value = '';
-  showToast('info', 'Logout', 'Anda telah keluar dari mode admin.');
+  if (confirm('Keluar dari Dashboard Administrator KIP 2026?')) {
+    currentAdminPin = null;
+    sessionStorage.removeItem('kip_admin_pin');
+    window.location.href = 'login.html?role=admin';
+  }
+}
+
+function logoutPanitia() {
+  if (confirm('Keluar dari sesi Presensi Panitia KIP 2026? Anda perlu memasukkan NIM kembali untuk masuk.')) {
+    sessionStorage.removeItem('kip_panitia_user');
+    localStorage.removeItem('kip_active_nim');
+    window.location.href = 'login.html';
+  }
+}
+
+function initPanitiaSession() {
+  const panitiaJson = sessionStorage.getItem('kip_panitia_user');
+  const activeNim = localStorage.getItem('kip_active_nim');
+  const urlNim = new URLSearchParams(window.location.search).get('nim');
+
+  // Prioritas jika URL memiliki parameter ?nim=
+  if (urlNim) {
+    const input = document.getElementById('inputNim');
+    if (input) {
+      input.value = urlNim.replace(/\D/g, '');
+      setTimeout(() => searchNIM(), 300);
+    }
+    return;
+  }
+
+  // Jika belum login sama sekali dan tidak ada NIM aktif di perangkat
+  if (!panitiaJson && !activeNim) {
+    window.location.replace('login.html?redirect=index.html');
+    return;
+  }
+
+  let panitia = null;
+  if (panitiaJson) {
+    try {
+      panitia = JSON.parse(panitiaJson);
+    } catch (e) {
+      panitia = null;
+    }
+  }
+
+  const nimToUse = (panitia && panitia.nim) ? panitia.nim : activeNim;
+
+  // Tampilkan profil aktif di kartu PWA
+  const profileCard = document.getElementById('panitiaProfileCard');
+  const profileAvatar = document.getElementById('panitiaProfileAvatar');
+  const profileNama = document.getElementById('panitiaProfileNama');
+  const profileRole = document.getElementById('panitiaProfileRole');
+  const greeting = document.getElementById('heroPanitiaGreeting');
+
+  if (panitia) {
+    if (profileNama) profileNama.textContent = panitia.nama;
+    if (profileRole) profileRole.textContent = `${panitia.nim} • ${panitia.sie} (${panitia.jabatan})`;
+    if (greeting && panitia.nama) {
+      const firstName = panitia.nama.split(' ')[0];
+      greeting.textContent = firstName;
+    }
+    if (profileAvatar) {
+      const names = (panitia.nama || '').split(' ').filter(Boolean);
+      let inits = names[0] ? names[0][0] : 'K';
+      if (names.length > 1) inits += names[names.length - 1][0];
+      profileAvatar.textContent = inits.toUpperCase();
+    }
+    if (profileCard) profileCard.classList.remove('hidden');
+  }
+
+  // Isi otomatis input NIM dan cari data presensi
+  if (nimToUse) {
+    const input = document.getElementById('inputNim');
+    if (input) {
+      input.value = String(nimToUse).replace(/\D/g, '');
+      setTimeout(() => {
+        searchNIM();
+      }, 350);
+    }
+  }
 }
 
 function refreshDashboard(quiet = false) {

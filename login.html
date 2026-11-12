@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#D91616">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Login KIP 2026">
+  <title>Masuk Sistem - Presensi Digital Panitia KIP 2026 - PEMILWA PNL</title>
+
+  <!-- Favicon: PEMILWA PNL Logo -->
+  <link rel="icon" type="image/jpeg" href="assets/logo_pemilwa.jpg">
+  
+  <!-- Typography: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- TW Elements CSS from local repository -->
+  <link rel="stylesheet" href="TW-Elements-master/css/tw-elements.min.css">
+  
+  <!-- Custom Design System Styles -->
+  <link rel="stylesheet" href="style.css?v=20261112_01">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            kip: {
+              red: '#D91616',
+              'red-hover': '#B81010',
+              'red-light': '#FEE2E2',
+              navy: '#0F172A',
+              'navy-muted': '#1E293B',
+              bg: '#F4F6F9',
+              gold: '#C5A55D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#F4F6F9] text-[#0F172A] font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-red-600 selection:text-white">
+
+  <!-- ============================================================== -->
+  <!-- DECORATIVE LAYERED WAVES (HEADER & FOOTER BACKGROUND)         -->
+  <!-- ============================================================== -->
+  <div class="wave-decoration-container" aria-hidden="true">
+    <svg class="wave-top-right" viewBox="0 0 680 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M120 0C260 85 430 40 680 180V0H120Z" fill="#0F172A" fill-opacity="0.95"/>
+      <path d="M240 0C360 95 490 75 680 220V0H240Z" fill="#D91616" fill-opacity="0.95"/>
+    </svg>
+    <svg class="wave-bottom-left" viewBox="0 0 520 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M520 200H0C180 170 320 185 520 70V200Z" fill="#0F172A" fill-opacity="0.95"/>
+      <path d="M520 200H80C240 180 380 190 520 110V200Z" fill="#D91616" fill-opacity="0.95"/>
+    </svg>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none" aria-live="polite"></div>
+
+  <!-- ============================================================== -->
+  <!-- MAIN AUTH CONTAINER                                            -->
+  <!-- ============================================================== -->
+  <main class="w-full max-w-lg mx-auto px-4 py-8 sm:py-12 flex-1 flex flex-col justify-center relative z-10">
+
+    <!-- Card Wrapper -->
+    <div class="kip-card p-6 sm:p-8 space-y-6 shadow-xl border border-slate-200/80 bg-white">
+      
+      <!-- Brand Identity Header -->
+      <div class="text-center space-y-3">
+        <div class="w-16 h-16 p-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm mx-auto flex items-center justify-center">
+          <img src="assets/logo_pemilwa.jpg" alt="Logo PEMILWA PNL" class="w-13 h-13 object-contain rounded-xl">
+        </div>
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-red-50 text-red-600 border border-red-100">
+            KIP PEMILWA 2026
+          </span>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-[#0F172A] tracking-tight mt-2 leading-tight">
+            Presensi Digital Panitia
+          </h1>
+          <p class="text-xs text-slate-500 font-medium mt-1">
+            Politeknik Negeri Lhokseumawe
+          </p>
+        </div>
+      </div>
+
+      <!-- Segmented Role Switcher (TW-Elements Styled Nav Tabs) -->
+      <div class="grid grid-cols-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200" role="tablist">
+        <button 
+          type="button"
+          id="tabBtnPanitia"
+          onclick="switchAuthRole('panitia')"
+          class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-[#D91616]"
+          role="tab"
+          aria-selected="true"
+        >
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          <span>Panitia (PWA)</span>
+        </button>
+
+        <button 
+          type="button"
+          id="tabBtnAdmin"
+          onclick="switchAuthRole('admin')"
+          class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900"
+          role="tab"
+          aria-selected="false"
+        >
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <span>Admin (PC)</span>
+        </button>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 1: FORM LOGIN PANITIA (PWA MOBILE APP)                     -->
+      <!-- ============================================================== -->
+      <section id="sectionPanitia" class="space-y-4">
+        <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 text-left">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xs font-bold text-slate-800">Akses Presensi Panitia (PWA)</h2>
+              <p class="text-[11px] text-slate-500 leading-relaxed mt-0.5">
+                Masukkan NIM terdaftar Anda untuk membuka aplikasi presensi kegiatan KIP 2026 di perangkat ini.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <form id="formPanitiaLogin" onsubmit="handlePanitiaLogin(event)" class="space-y-4">
+          <div class="space-y-1.5 text-left">
+            <label for="panitiaNimInput" class="block text-xs font-bold text-slate-700">
+              Nomor Induk Mahasiswa (NIM)
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                </svg>
+              </div>
+              <input 
+                type="text" 
+                id="panitiaNimInput" 
+                inputmode="numeric" 
+                autocomplete="username"
+                maxlength="16"
+                placeholder="Contoh: 2025223020001" 
+                required
+                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-[#D91616] focus:ring-2 focus:ring-red-100 text-sm font-semibold tracking-wider font-mono text-slate-800 transition-all placeholder:text-slate-400"
+              >
+            </div>
+            <p class="text-[11px] text-slate-500">
+              Pastikan NIM Anda telah terdaftar dalam SK Panitia KIP 2026 (43 anggota resmi).
+            </p>
+          </div>
+
+          <!-- Panitia Login Submit Button -->
+          <button 
+            type="submit" 
+            id="btnSubmitPanitia"
+            class="w-full py-3.5 px-4 rounded-xl bg-[#D91616] hover:bg-[#B81010] active:scale-[0.99] text-white text-xs font-bold tracking-wider uppercase transition-all shadow-md shadow-red-600/20 flex items-center justify-center gap-2"
+          >
+            <span id="btnPanitiaText">Masuk ke Presensi PWA</span>
+            <svg id="btnPanitiaSpinner" class="w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </form>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- TAB 2: FORM LOGIN ADMINISTRATOR (PC DASHBOARD)                 -->
+      <!-- ============================================================== -->
+      <section id="sectionAdmin" class="space-y-4 hidden">
+        <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 text-left">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xs font-bold text-slate-800">Akses Dashboard Administrator (PC)</h2>
+              <p class="text-[11px] text-slate-500 leading-relaxed mt-0.5">
+                Masukkan PIN Administrator untuk membuka manajemen rekapitulasi, agenda kegiatan, dan sinkronisasi GSheet.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <form id="formAdminLogin" onsubmit="handleAdminLogin(event)" class="space-y-4">
+          <div class="space-y-1.5 text-left">
+            <label for="adminPinInput" class="block text-xs font-bold text-slate-700">
+              PIN Administrator
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                </svg>
+              </div>
+              <input 
+                type="password" 
+                id="adminPinInput" 
+                autocomplete="current-password"
+                placeholder="Masukkan PIN Admin (Default: KIP2026)" 
+                required
+                class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-[#0F172A] focus:ring-2 focus:ring-slate-200 text-sm font-semibold tracking-wider font-mono text-slate-800 transition-all placeholder:text-slate-400"
+              >
+              <button 
+                type="button" 
+                onclick="togglePinVisibility()" 
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700"
+                aria-label="Tampilkan atau sembunyikan PIN"
+              >
+                <svg id="eyeOpen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <svg id="eyeClosed" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500">
+              PIN default: <span class="font-mono font-bold text-slate-700">KIP2026</span>
+            </p>
+          </div>
+
+          <!-- Admin Login Submit Button -->
+          <button 
+            type="submit" 
+            id="btnSubmitAdmin"
+            class="w-full py-3.5 px-4 rounded-xl bg-[#0F172A] hover:bg-slate-800 active:scale-[0.99] text-white text-xs font-bold tracking-wider uppercase transition-all shadow-md shadow-slate-900/20 flex items-center justify-center gap-2"
+          >
+            <span id="btnAdminText">Masuk ke Dashboard PC</span>
+            <svg id="btnAdminSpinner" class="w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </form>
+      </section>
+
+      <!-- System Connectivity & Live Indicator -->
+      <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+        <span class="flex items-center gap-2">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="font-medium">Google Sheets Live Sync</span>
+        </span>
+        <span class="font-mono text-slate-400 text-[10px]">v2026.11</span>
+      </div>
+
+    </div>
+
+    <!-- Quick Footer Info -->
+    <div class="mt-6 text-center text-xs text-slate-400 font-medium">
+      Komisi Independen Pemilihan &bull; PEMILWA PNL 2026
+    </div>
+
+  </main>
+
+  <!-- External Master Panitia Data fallback -->
+  <script src="data_panitia.js?v=20261111_07"></script>
+  <script src="config.js?v=20261111_07"></script>
+
+  <!-- TW Elements JS from local repository -->
+  <script src="TW-Elements-master/js/tw-elements.umd.min.js"></script>
+
+  <!-- Auth Script Logic -->
+  <script>
+    const PHP_API_BASE = 'api/index.php';
+
+    // Parse role and redirect parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialRole = urlParams.get('role');
+    const redirectTarget = urlParams.get('redirect');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // If role=admin in URL, switch to admin tab
+      if (initialRole === 'admin') {
+        switchAuthRole('admin');
+      }
+
+      // Check if already authenticated
+      const savedPanitia = sessionStorage.getItem('kip_panitia_user') || localStorage.getItem('kip_active_nim');
+      const savedAdmin = sessionStorage.getItem('kip_admin_pin');
+
+      if (initialRole === 'admin' && savedAdmin) {
+        window.location.href = redirectTarget === 'admin' ? 'admin.html' : 'admin.html';
+      } else if (!initialRole && savedPanitia) {
+        // If panitia already active and no explicit role parameter, can optionally stay or redirect
+      }
+    });
+
+    function switchAuthRole(role) {
+      const tabPanitia = document.getElementById('tabBtnPanitia');
+      const tabAdmin = document.getElementById('tabBtnAdmin');
+      const secPanitia = document.getElementById('sectionPanitia');
+      const secAdmin = document.getElementById('sectionAdmin');
+
+      if (role === 'admin') {
+        tabPanitia.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900';
+        tabPanitia.setAttribute('aria-selected', 'false');
+
+        tabAdmin.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-[#0F172A] border border-slate-200/50';
+        tabAdmin.setAttribute('aria-selected', 'true');
+
+        secPanitia.classList.add('hidden');
+        secAdmin.classList.remove('hidden');
+
+        const pinInput = document.getElementById('adminPinInput');
+        if (pinInput) pinInput.focus();
+      } else {
+        tabAdmin.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900';
+        tabAdmin.setAttribute('aria-selected', 'false');
+
+        tabPanitia.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all shadow-sm bg-white text-[#D91616] border border-slate-200/50';
+        tabPanitia.setAttribute('aria-selected', 'true');
+
+        secAdmin.classList.add('hidden');
+        secPanitia.classList.remove('hidden');
+
+        const nimInput = document.getElementById('panitiaNimInput');
+        if (nimInput) nimInput.focus();
+      }
+    }
+
+    function togglePinVisibility() {
+      const pinInput = document.getElementById('adminPinInput');
+      const eyeOpen = document.getElementById('eyeOpen');
+      const eyeClosed = document.getElementById('eyeClosed');
+      if (!pinInput) return;
+
+      if (pinInput.type === 'password') {
+        pinInput.type = 'text';
+        if (eyeOpen) eyeOpen.classList.add('hidden');
+        if (eyeClosed) eyeClosed.classList.remove('hidden');
+      } else {
+        pinInput.type = 'password';
+        if (eyeOpen) eyeOpen.classList.remove('hidden');
+        if (eyeClosed) eyeClosed.classList.add('hidden');
+      }
+    }
+
+    function showToast(type, title, message) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const isSuccess = type === 'success';
+      const isError = type === 'error';
+      const borderCol = isSuccess ? 'border-emerald-500' : isError ? 'border-red-500' : 'border-blue-500';
+      const bgCol = isSuccess ? 'bg-emerald-50 text-emerald-800' : isError ? 'bg-red-50 text-red-800' : 'bg-blue-50 text-blue-800';
+
+      toast.className = `p-4 rounded-xl shadow-lg border-l-4 ${borderCol} ${bgCol} pointer-events-auto transition-all transform duration-300 translate-y-2 opacity-0 flex items-start gap-3`;
+      toast.innerHTML = `
+        <div class="flex-1">
+          <h4 class="text-xs font-bold">${title}</h4>
+          <p class="text-xs opacity-90 mt-0.5">${message}</p>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Handler Login Panitia (NIM)
+    function handlePanitiaLogin(e) {
+      e.preventDefault();
+      const input = document.getElementById('panitiaNimInput');
+      const rawNim = input ? input.value.trim() : '';
+      const cleanNim = rawNim.replace(/\D/g, '');
+
+      if (!cleanNim) {
+        showToast('error', 'NIM Kosong', 'Silakan masukkan NIM Anda.');
+        return;
+      }
+
+      const btnText = document.getElementById('btnPanitiaText');
+      const btnSpinner = document.getElementById('btnPanitiaSpinner');
+      const btn = document.getElementById('btnSubmitPanitia');
+
+      if (btnText) btnText.textContent = 'Memvalidasi...';
+      if (btnSpinner) btnSpinner.classList.remove('hidden');
+      if (btn) btn.disabled = true;
+
+      // 1. Coba verifikasi ke PHP API searchNIM
+      fetch(`${PHP_API_BASE}?action=searchNIM&nim=${encodeURIComponent(cleanNim)}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success && res.data) {
+            loginPanitiaSuccess(res.data);
+          } else {
+            fallbackLocalPanitiaCheck(cleanNim, btnText, btnSpinner, btn);
+          }
+        })
+        .catch(() => {
+          fallbackLocalPanitiaCheck(cleanNim, btnText, btnSpinner, btn);
+        });
+    }
+
+    function fallbackLocalPanitiaCheck(cleanNim, btnText, btnSpinner, btn) {
+      setTimeout(() => {
+        const masterList = window.MASTER_PANITIA || [];
+        const found = masterList.find(item => {
+          if (!item.nim) return false;
+          const itemNim = String(item.nim).replace(/\D/g, '');
+          return itemNim === cleanNim;
+        });
+
+        if (found) {
+          loginPanitiaSuccess(found);
+        } else {
+          if (btnText) btnText.textContent = 'Masuk ke Presensi PWA';
+          if (btnSpinner) btnSpinner.classList.add('hidden');
+          if (btn) btn.disabled = false;
+          showToast('error', 'NIM Tidak Ditemukan', `NIM (${cleanNim}) tidak terdaftar dalam panitia KIP 2026.`);
+        }
+      }, 200);
+    }
+
+    function loginPanitiaSuccess(panitiaData) {
+      const cleanNim = String(panitiaData.nim).replace(/\D/g, '');
+      const userData = {
+        nama: panitiaData.nama,
+        nim: cleanNim,
+        jabatan: panitiaData.jabatan || '-',
+        sie: panitiaData.sie || '-',
+        noHp: panitiaData.no_hp || panitiaData.noHp || '-',
+        delegasi: panitiaData.delegasi || '-'
+      };
+
+      sessionStorage.setItem('kip_panitia_user', JSON.stringify(userData));
+      localStorage.setItem('kip_active_nim', cleanNim);
+
+      showToast('success', 'Login Berhasil', `Selamat datang, ${userData.nama}!`);
+
+      setTimeout(() => {
+        window.location.href = redirectTarget ? decodeURIComponent(redirectTarget) : 'index.html';
+      }, 500);
+    }
+
+    // Handler Login Administrator (PIN)
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const input = document.getElementById('adminPinInput');
+      const pin = input ? input.value.trim() : '';
+
+      if (!pin) {
+        showToast('error', 'PIN Kosong', 'Silakan masukkan PIN Administrator.');
+        return;
+      }
+
+      const btnText = document.getElementById('btnAdminText');
+      const btnSpinner = document.getElementById('btnAdminSpinner');
+      const btn = document.getElementById('btnSubmitAdmin');
+
+      if (btnText) btnText.textContent = 'Memverifikasi...';
+      if (btnSpinner) btnSpinner.classList.remove('hidden');
+      if (btn) btn.disabled = true;
+
+      fetch(PHP_API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'adminLogin', pin: pin })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          loginAdminSuccess(pin);
+        } else {
+          fallbackLocalAdminCheck(pin, btnText, btnSpinner, btn);
+        }
+      })
+      .catch(() => {
+        fallbackLocalAdminCheck(pin, btnText, btnSpinner, btn);
+      });
+    }
+
+    function fallbackLocalAdminCheck(pin, btnText, btnSpinner, btn) {
+      setTimeout(() => {
+        const defaultPin = (window.APP_CONFIG && window.APP_CONFIG.DEFAULT_ADMIN_PIN) || 'KIP2026';
+        const savedPin = localStorage.getItem('kip_admin_pin') || defaultPin;
+
+        if (pin === savedPin || pin === defaultPin) {
+          loginAdminSuccess(pin);
+        } else {
+          if (btnText) btnText.textContent = 'Masuk ke Dashboard PC';
+          if (btnSpinner) btnSpinner.classList.add('hidden');
+          if (btn) btn.disabled = false;
+          showToast('error', 'PIN Salah', 'PIN Administrator tidak valid.');
+        }
+      }, 200);
+    }
+
+    function loginAdminSuccess(pin) {
+      sessionStorage.setItem('kip_admin_pin', pin);
+      showToast('success', 'Login Administrator Berhasil', 'Mengarahkan ke Dashboard PC...');
+
+      setTimeout(() => {
+        window.location.href = 'admin.html';
+      }, 500);
+    }
+  </script>
+</body>
+</html>

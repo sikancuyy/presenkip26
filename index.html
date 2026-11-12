@@ -22,7 +22,10 @@
   <!-- QR Code Library CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
-  <link rel="stylesheet" href="style.css?v=20261111_07">
+  <!-- TW Elements CSS from local repository -->
+  <link rel="stylesheet" href="TW-Elements-master/css/tw-elements.min.css">
+  
+  <link rel="stylesheet" href="style.css?v=20261112_01">
 
   <script>
     tailwind.config = {
@@ -107,6 +110,19 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
           </button>
+
+          <!-- Quick Log Out Button -->
+          <button 
+            type="button" 
+            onclick="logoutPanitia()"
+            class="w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-600 hover:text-red-600 hover:bg-red-50 transition-all flex-shrink-0"
+            title="Keluar dari Akun Panitia (Log Out)"
+            aria-label="Keluar / Log Out"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+          </button>
         </div>
 
       </div>
@@ -152,6 +168,28 @@
         </svg>
       </div>
     </section>
+
+    <!-- Panitia Active Profile Card (PWA Mobile) -->
+    <div id="panitiaProfileCard" class="hidden p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div id="panitiaProfileAvatar" class="w-10 h-10 rounded-xl bg-red-100 text-[#D91616] font-extrabold text-sm flex items-center justify-center flex-shrink-0">
+          KP
+        </div>
+        <div class="min-w-0">
+          <div id="panitiaProfileNama" class="text-xs font-bold text-slate-800 truncate">Nama Panitia</div>
+          <div id="panitiaProfileRole" class="text-[11px] text-slate-500 font-mono truncate">NIM &bull; Sie</div>
+        </div>
+      </div>
+      <button 
+        type="button" 
+        onclick="logoutPanitia()" 
+        class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-600 hover:bg-red-50 border border-red-200/80 transition-colors flex items-center gap-1.5 flex-shrink-0" 
+        title="Keluar dari akun panitia ini"
+      >
+        <span>Keluar</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      </button>
+    </div>
 
     <!-- ============================================================== -->
     <!-- CARD 1: AGENDA RAPAT (MATCHING IMAGE 1 MOCKUP)                 -->
@@ -918,6 +956,17 @@
           </span>
           <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
+
+        <!-- Keluar Akun Panitia (Log Out) -->
+        <button onclick="logoutPanitia(); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition-colors text-left border border-red-200">
+          <span class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-red-200 text-red-800 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </span>
+            <span>Keluar Akun (Log Out)</span>
+          </span>
+          <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -999,6 +1048,8 @@
   <!-- Scripts -->
   <script src="config.js?v=20261111_07"></script>
   <script src="data_panitia.js?v=20261111_07"></script>
-  <script src="app.js?v=20261111_07"></script>
+  <!-- TW Elements JS from local repository -->
+  <script src="TW-Elements-master/js/tw-elements.umd.min.js"></script>
+  <script src="app.js?v=20261112_01"></script>
 </body>
 </html>
