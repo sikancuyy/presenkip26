@@ -153,27 +153,14 @@ body {
 .dash-card-agenda {
   background: #FFFFFF;
   border-radius: var(--radius-card);
-  padding: 20px 20px 28px 20px;
+  padding: 20px;
   box-shadow: var(--shadow-sm);
   border: 1px solid rgba(226, 232, 240, 0.9);
   position: relative;
   overflow: hidden;
 }
 
-.dash-card-agenda::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 16px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 20' preserveAspectRatio='none'><path fill='%23D91616' d='M0,14 C80,4 160,18 240,8 C310,0 360,10 400,16 L400,20 L0,20 Z'/><path fill='%230F172A' d='M160,16 C230,6 310,18 400,10 L400,20 L160,20 Z'/></svg>");
-  background-size: 100% 100%;
-  background-position: bottom center;
-  background-repeat: no-repeat;
-  pointer-events: none;
-  z-index: 1;
-}
+/* Agenda Card bottom wave removed per user request */
 
 /* KPI Metric Cards (Admin Dashboard) */
 .dash-metric-card {

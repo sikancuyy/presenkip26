@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#D91616">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Login KIP 2026">
+  <title>Login Administrator - Presensi Digital Panitia KIP 2026</title>
+
+  <!-- Typography: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <?!= include('Style'); ?>
+
+  <script>
+    const existingPin = sessionStorage.getItem('kip_admin_pin') || localStorage.getItem('kip_admin_session');
+    if (existingPin) {
+      window.location.replace('?page=admin');
+    }
+
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            kip: {
+              red: '#D91616',
+              'red-hover': '#B81010',
+              'red-light': '#FEE2E2',
+              navy: '#0F172A',
+              'navy-muted': '#1E293B',
+              bg: '#F4F6F9',
+              gold: '#C5A55D',
+            }
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-[#F4F6F9] text-[#0F172A] font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-red-600 selection:text-white">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none" aria-live="polite"></div>
+
+  <!-- Header Nav Minimal -->
+  <header class="w-full max-w-md mx-auto px-4 pt-6 pb-2">
+    <div class="flex items-center justify-between">
+      <a href="?page=index" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-red-600 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Ke Beranda Presensi</span>
+      </a>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-50 text-red-600 border border-red-200">
+        Admin Portal
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Login Card -->
+  <main class="w-full max-w-md mx-auto px-4 py-6 flex-1 flex flex-col justify-center">
+    <div class="kip-card p-6 sm:p-8 space-y-6 bg-white border border-slate-200/90 shadow-xl rounded-2xl">
+      
+      <!-- Brand & Title -->
+      <div class="text-center space-y-3">
+        <div class="w-16 h-16 p-1 rounded-2xl bg-white border border-slate-200/90 shadow-sm mx-auto flex items-center justify-center">
+          <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-extrabold text-[#0F172A] tracking-tight leading-tight">
+            KOMISI INDEPENDEN<br>PEMILIHAN 2026
+          </h1>
+          <p class="text-xs text-slate-500 font-medium mt-1">
+            Portal Masuk Dashboard Administrator
+          </p>
+        </div>
+      </div>
+
+      <!-- Alert Box -->
+      <div id="loginAlert" class="hidden rounded-xl p-3.5 text-xs font-semibold border transition-all animate-fadeIn" role="alert"></div>
+
+      <!-- Login Form -->
+      <form id="adminLoginForm" onsubmit="handleAdminSubmit(event)" class="space-y-4">
+        <div>
+          <label for="adminPinInput" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            PIN Administrator
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </div>
+            <input 
+              type="password" 
+              id="adminPinInput" 
+              name="pin"
+              class="dash-input w-full pl-10 pr-10 h-12 text-sm text-slate-900 font-extrabold tracking-widest rounded-xl focus:border-red-600"
+              placeholder="Masukkan PIN (Default: KIP2026)"
+              autocomplete="current-password"
+              required
+              autofocus
+            >
+            <button 
+              type="button" 
+              onclick="togglePinVisibility()" 
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+              tabindex="-1"
+              title="Tampilkan / Sembunyikan PIN"
+              aria-label="Tampilkan / Sembunyikan PIN"
+            >
+              <svg id="eyeIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1.5">
+            Akses khusus pimpinan rapat, sekretaris, dan pengelola presensi.
+          </p>
+        </div>
+
+        <!-- Remember Me Checkbox -->
+        <div class="flex items-center justify-between text-xs pt-1">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input 
+              type="checkbox" 
+              id="rememberAdminSession" 
+              class="w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-500 cursor-pointer"
+            >
+            <span class="text-slate-600 font-medium">Ingat saya di perangkat ini</span>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          id="btnSubmitAdmin"
+          class="btn-primary-red w-full h-12 text-sm font-extrabold tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2 mt-2"
+        >
+          <svg id="btnSubmitIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+          </svg>
+          <span id="btnSubmitText">Masuk ke Dashboard</span>
+          <div id="btnSubmitSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        </button>
+      </form>
+
+      <!-- Back to Public Attendance Option -->
+      <div class="pt-2 border-t border-slate-100 text-center">
+        <a 
+          href="?page=index" 
+          class="inline-flex items-center justify-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors py-1 px-3 rounded-lg hover:bg-slate-50"
+        >
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          <span>Bukan Admin? Kembali ke Presensi Panitia</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full text-center py-4 text-xs text-slate-400">
+    Komisi Independen Pemilihan &copy; 2026 &bull; Politeknik Negeri Lhokseumawe
+  </footer>
+
+  <script>
+    function togglePinVisibility() {
+      const pinInput = document.getElementById('adminPinInput');
+      const eyeIcon = document.getElementById('eyeIcon');
+      if (!pinInput || !eyeIcon) return;
+
+      if (pinInput.type === 'password') {
+        pinInput.type = 'text';
+        eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />`;
+      } else {
+        pinInput.type = 'password';
+        eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+      }
+    }
+
+    function showLoginAlert(msg, isError = true) {
+      const alertBox = document.getElementById('loginAlert');
+      if (!alertBox) return;
+      alertBox.textContent = msg;
+      alertBox.className = isError 
+        ? "rounded-xl p-3.5 text-xs font-semibold bg-red-50 text-red-700 border border-red-200 block animate-fadeIn"
+        : "rounded-xl p-3.5 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 block animate-fadeIn";
+      alertBox.classList.remove('hidden');
+    }
+
+    function hideLoginAlert() {
+      const alertBox = document.getElementById('loginAlert');
+      if (alertBox) alertBox.classList.add('hidden');
+    }
+
+    function handleAdminSubmit(e) {
+      e.preventDefault();
+      hideLoginAlert();
+
+      const input = document.getElementById('adminPinInput');
+      const pin = input ? input.value.trim() : '';
+
+      if (!pin) {
+        showLoginAlert('Silakan masukkan PIN Administrator.');
+        return;
+      }
+
+      const btnText = document.getElementById('btnSubmitText');
+      const btnSpinner = document.getElementById('btnSubmitSpinner');
+      const btnIcon = document.getElementById('btnSubmitIcon');
+      const btn = document.getElementById('btnSubmitAdmin');
+
+      if (btnText) btnText.textContent = 'Memverifikasi PIN...';
+      if (btnSpinner) btnSpinner.classList.remove('hidden');
+      if (btnIcon) btnIcon.classList.add('hidden');
+      if (btn) btn.disabled = true;
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              onLoginSuccess(pin);
+            } else {
+              fallbackLocalAdminCheck(pin, btnText, btnSpinner, btnIcon, btn);
+            }
+          })
+          .withFailureHandler(() => {
+            fallbackLocalAdminCheck(pin, btnText, btnSpinner, btnIcon, btn);
+          })
+          .adminLogin(pin);
+      } else {
+        fallbackLocalAdminCheck(pin, btnText, btnSpinner, btnIcon, btn);
+      }
+    }
+
+    function fallbackLocalAdminCheck(pin, btnText, btnSpinner, btnIcon, btn) {
+      setTimeout(() => {
+        const defaultPin = 'KIP2026';
+        if (pin === defaultPin) {
+          onLoginSuccess(pin);
+        } else {
+          if (btnText) btnText.textContent = 'Masuk ke Dashboard';
+          if (btnSpinner) btnSpinner.classList.add('hidden');
+          if (btnIcon) btnIcon.classList.remove('hidden');
+          if (btn) btn.disabled = false;
+          showLoginAlert('PIN Administrator salah. Silakan coba lagi.');
+        }
+      }, 200);
+    }
+
+    function onLoginSuccess(pin) {
+      const remember = document.getElementById('rememberAdminSession');
+      sessionStorage.setItem('kip_admin_pin', pin);
+      if (remember && remember.checked) {
+        localStorage.setItem('kip_admin_session', pin);
+      } else {
+        localStorage.removeItem('kip_admin_session');
+      }
+
+      showLoginAlert('Login berhasil! Mengalihkan ke Dashboard...', false);
+
+      setTimeout(() => {
+        window.location.href = '?page=admin';
+      }, 400);
+    }
+  </script>
+</body>
+</html>

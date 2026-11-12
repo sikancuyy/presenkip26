@@ -156,42 +156,26 @@ function updateConnectionBadge() {
 }
 
 function updateStrukturSieCards(customList) {
-  const list = customList || (dashboardCache && dashboardCache.panitia) || window.MASTER_PANITIA || [];
-  if (!list || !list.length) return;
-
-  const counts = {
-    'Pejabat Acara': 0,
-    'Acara': 0,
-    'Perdek': 0,
-    'Pubdok': 0,
-    'Konsumsi': 0,
-    'Keamanan': 0
-  };
-
-  list.forEach(p => {
-    if (counts[p.sie] !== undefined) counts[p.sie]++;
-  });
-
   const titleElem = document.getElementById('strukturKepanitiaanTitle');
-  if (titleElem) titleElem.textContent = `Struktur Kepanitiaan (${list.length} Anggota)`;
+  if (titleElem) titleElem.textContent = 'STRUKTUR KEPANITIAAN (46 ANGGOTA)';
 
   const elPejabat = document.getElementById('sieCountPejabat');
-  if (elPejabat) elPejabat.textContent = `Pejabat Acara (${counts['Pejabat Acara']})`;
+  if (elPejabat) elPejabat.textContent = 'BPH (Ketua, Sek, Ben)';
 
   const elAcara = document.getElementById('sieCountAcara');
-  if (elAcara) elAcara.textContent = `Sie Acara (${counts['Acara']})`;
+  if (elAcara) elAcara.textContent = 'Sie Acara & Sidang';
 
   const elPerdek = document.getElementById('sieCountPerdek');
-  if (elPerdek) elPerdek.textContent = `Sie Perdek (${counts['Perdek']})`;
+  if (elPerdek) elPerdek.textContent = 'Sie Perlengkapan';
 
   const elPubdok = document.getElementById('sieCountPubdok');
-  if (elPubdok) elPubdok.textContent = `Sie Pubdok (${counts['Pubdok']})`;
+  if (elPubdok) elPubdok.textContent = 'Sie Humas & Media';
 
   const elKonsumsi = document.getElementById('sieCountKonsumsi');
-  if (elKonsumsi) elKonsumsi.textContent = `Sie Konsumsi (${counts['Konsumsi']})`;
+  if (elKonsumsi) elKonsumsi.textContent = 'Sie Konsumsi';
 
   const elKeamanan = document.getElementById('sieCountKeamanan');
-  if (elKeamanan) elKeamanan.textContent = `Sie Keamanan (${counts['Keamanan']})`;
+  if (elKeamanan) elKeamanan.textContent = 'Sie Ketertiban / PAM';
 }
 
 function copyTextToClipboard(text, successMessage) {

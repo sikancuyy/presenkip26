@@ -12,7 +12,7 @@
 // State Management
 let isGasEnvironment = (typeof google !== 'undefined' && google.script && google.script.run);
 let currentPanitiaData = null;
-let currentAdminPin = sessionStorage.getItem('kip_admin_pin') || null;
+let currentAdminPin = sessionStorage.getItem('kip_admin_pin') || localStorage.getItem('kip_admin_session') || null;
 let dashboardCache = null;
 let qrcodeInstance = null;
 let autoSyncIntervalTimer = null;
@@ -135,20 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
   if (timeInput) timeInput.value = `${hh}:${min}`;
 
-  // Authentication & Session Guard for Index (PWA Mobile) and Admin (PC)
-  if (document.getElementById('viewAdmin')) {
-    if (!currentAdminPin) {
-      window.location.replace('login.html?role=admin&redirect=admin');
-      return;
-    } else {
-      const loginGate = document.getElementById('adminLoginGate');
-      const adminPanel = document.getElementById('adminPanel');
-      if (loginGate) loginGate.classList.add('hidden');
-      if (adminPanel) adminPanel.classList.remove('hidden');
-      refreshDashboard();
-    }
-  } else if (document.getElementById('viewPresensi')) {
-    initPanitiaSession();
+  // Restore Admin Session if logged in
+  const loginGate = document.getElementById('adminLoginGate');
+  const adminPanel = document.getElementById('adminPanel');
+  if (currentAdminPin && loginGate && adminPanel) {
+    loginGate.classList.add('hidden');
+    adminPanel.classList.remove('hidden');
+    refreshDashboard();
   }
 });
 
@@ -185,42 +178,26 @@ function updateConnectionBadge(syncInfo) {
  * Pembaruan Struktur Sie Kepanitiaan (Sesuai Sheet PANITIA KIP)
  */
 function updateStrukturSieCards(customList) {
-  const list = customList || (dashboardCache && dashboardCache.panitia) || window.MASTER_PANITIA || [];
-  if (!list || !list.length) return;
-
-  const counts = {
-    'Pejabat Acara': 0,
-    'Acara': 0,
-    'Perdek': 0,
-    'Pubdok': 0,
-    'Konsumsi': 0,
-    'Keamanan': 0
-  };
-
-  list.forEach(p => {
-    if (counts[p.sie] !== undefined) counts[p.sie]++;
-  });
-
   const titleElem = document.getElementById('strukturKepanitiaanTitle');
-  if (titleElem) titleElem.textContent = `Struktur Kepanitiaan (${list.length} Anggota)`;
+  if (titleElem) titleElem.textContent = 'STRUKTUR KEPANITIAAN (46 ANGGOTA)';
 
   const elPejabat = document.getElementById('sieCountPejabat');
-  if (elPejabat) elPejabat.textContent = `Pejabat Acara (${counts['Pejabat Acara']})`;
+  if (elPejabat) elPejabat.textContent = 'BPH (Ketua, Sek, Ben)';
 
   const elAcara = document.getElementById('sieCountAcara');
-  if (elAcara) elAcara.textContent = `Sie Acara (${counts['Acara']})`;
+  if (elAcara) elAcara.textContent = 'Sie Acara & Sidang';
 
   const elPerdek = document.getElementById('sieCountPerdek');
-  if (elPerdek) elPerdek.textContent = `Sie Perdek (${counts['Perdek']})`;
+  if (elPerdek) elPerdek.textContent = 'Sie Perlengkapan';
 
   const elPubdok = document.getElementById('sieCountPubdok');
-  if (elPubdok) elPubdok.textContent = `Sie Pubdok (${counts['Pubdok']})`;
+  if (elPubdok) elPubdok.textContent = 'Sie Humas & Media';
 
   const elKonsumsi = document.getElementById('sieCountKonsumsi');
-  if (elKonsumsi) elKonsumsi.textContent = `Sie Konsumsi (${counts['Konsumsi']})`;
+  if (elKonsumsi) elKonsumsi.textContent = 'Sie Konsumsi';
 
   const elKeamanan = document.getElementById('sieCountKeamanan');
-  if (elKeamanan) elKeamanan.textContent = `Sie Keamanan (${counts['Keamanan']})`;
+  if (elKeamanan) elKeamanan.textContent = 'Sie Ketertiban / PAM';
 }
 
 /**
@@ -1287,82 +1264,8 @@ function logoutAdmin() {
   if (confirm('Keluar dari Dashboard Administrator KIP 2026?')) {
     currentAdminPin = null;
     sessionStorage.removeItem('kip_admin_pin');
-    window.location.href = 'login.html?role=admin';
-  }
-}
-
-function logoutPanitia() {
-  if (confirm('Keluar dari sesi Presensi Panitia KIP 2026? Anda perlu memasukkan NIM kembali untuk masuk.')) {
-    sessionStorage.removeItem('kip_panitia_user');
-    localStorage.removeItem('kip_active_nim');
+    localStorage.removeItem('kip_admin_session');
     window.location.href = 'login.html';
-  }
-}
-
-function initPanitiaSession() {
-  const panitiaJson = sessionStorage.getItem('kip_panitia_user');
-  const activeNim = localStorage.getItem('kip_active_nim');
-  const urlNim = new URLSearchParams(window.location.search).get('nim');
-
-  // Prioritas jika URL memiliki parameter ?nim=
-  if (urlNim) {
-    const input = document.getElementById('inputNim');
-    if (input) {
-      input.value = urlNim.replace(/\D/g, '');
-      setTimeout(() => searchNIM(), 300);
-    }
-    return;
-  }
-
-  // Jika belum login sama sekali dan tidak ada NIM aktif di perangkat
-  if (!panitiaJson && !activeNim) {
-    window.location.replace('login.html?redirect=index.html');
-    return;
-  }
-
-  let panitia = null;
-  if (panitiaJson) {
-    try {
-      panitia = JSON.parse(panitiaJson);
-    } catch (e) {
-      panitia = null;
-    }
-  }
-
-  const nimToUse = (panitia && panitia.nim) ? panitia.nim : activeNim;
-
-  // Tampilkan profil aktif di kartu PWA
-  const profileCard = document.getElementById('panitiaProfileCard');
-  const profileAvatar = document.getElementById('panitiaProfileAvatar');
-  const profileNama = document.getElementById('panitiaProfileNama');
-  const profileRole = document.getElementById('panitiaProfileRole');
-  const greeting = document.getElementById('heroPanitiaGreeting');
-
-  if (panitia) {
-    if (profileNama) profileNama.textContent = panitia.nama;
-    if (profileRole) profileRole.textContent = `${panitia.nim} • ${panitia.sie} (${panitia.jabatan})`;
-    if (greeting && panitia.nama) {
-      const firstName = panitia.nama.split(' ')[0];
-      greeting.textContent = firstName;
-    }
-    if (profileAvatar) {
-      const names = (panitia.nama || '').split(' ').filter(Boolean);
-      let inits = names[0] ? names[0][0] : 'K';
-      if (names.length > 1) inits += names[names.length - 1][0];
-      profileAvatar.textContent = inits.toUpperCase();
-    }
-    if (profileCard) profileCard.classList.remove('hidden');
-  }
-
-  // Isi otomatis input NIM dan cari data presensi
-  if (nimToUse) {
-    const input = document.getElementById('inputNim');
-    if (input) {
-      input.value = String(nimToUse).replace(/\D/g, '');
-      setTimeout(() => {
-        searchNIM();
-      }, 350);
-    }
   }
 }
 

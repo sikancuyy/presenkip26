@@ -25,7 +25,7 @@
   <!-- TW Elements CSS from local repository -->
   <link rel="stylesheet" href="TW-Elements-master/css/tw-elements.min.css">
   
-  <link rel="stylesheet" href="style.css?v=20261112_01">
+  <link rel="stylesheet" href="style.css?v=20261112_03">
 
   <script>
     tailwind.config = {
@@ -110,19 +110,6 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
           </button>
-
-          <!-- Quick Log Out Button -->
-          <button 
-            type="button" 
-            onclick="logoutPanitia()"
-            class="w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-600 hover:text-red-600 hover:bg-red-50 transition-all flex-shrink-0"
-            title="Keluar dari Akun Panitia (Log Out)"
-            aria-label="Keluar / Log Out"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-          </button>
         </div>
 
       </div>
@@ -168,28 +155,6 @@
         </svg>
       </div>
     </section>
-
-    <!-- Panitia Active Profile Card (PWA Mobile) -->
-    <div id="panitiaProfileCard" class="hidden p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <div id="panitiaProfileAvatar" class="w-10 h-10 rounded-xl bg-red-100 text-[#D91616] font-extrabold text-sm flex items-center justify-center flex-shrink-0">
-          KP
-        </div>
-        <div class="min-w-0">
-          <div id="panitiaProfileNama" class="text-xs font-bold text-slate-800 truncate">Nama Panitia</div>
-          <div id="panitiaProfileRole" class="text-[11px] text-slate-500 font-mono truncate">NIM &bull; Sie</div>
-        </div>
-      </div>
-      <button 
-        type="button" 
-        onclick="logoutPanitia()" 
-        class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-600 hover:bg-red-50 border border-red-200/80 transition-colors flex items-center gap-1.5 flex-shrink-0" 
-        title="Keluar dari akun panitia ini"
-      >
-        <span>Keluar</span>
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-      </button>
-    </div>
 
     <!-- ============================================================== -->
     <!-- CARD 1: AGENDA RAPAT (MATCHING IMAGE 1 MOCKUP)                 -->
@@ -490,46 +455,46 @@
         <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
           <div class="flex items-center gap-2">
             <span class="w-1.5 h-4 bg-[#D91616] rounded-full inline-block"></span>
-            <h4 id="strukturKepanitiaanTitle" class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Struktur Kepanitiaan (43 Anggota)</h4>
+            <h4 id="strukturKepanitiaanTitle" class="text-xs font-extrabold uppercase tracking-wider text-slate-800">STRUKTUR KEPANITIAAN (46 ANGGOTA)</h4>
           </div>
           <span class="badge-pnl-red text-[10px]">SK Resmi</span>
         </div>
 
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <!-- 1. Pejabat Acara -->
+          <!-- 1. BADAN PENGURUS HARIAN -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-red-600 uppercase block">Pejabat Acara</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Pejabat Acara (3)</span>
+            <span class="text-[10px] font-bold text-red-600 uppercase block tracking-wider">BADAN PENGURUS HARIAN</span>
+            <span id="sieCountPejabat" class="font-extrabold text-slate-800 text-xs block mt-0.5">BPH (Ketua, Sek, Ben)</span>
           </div>
 
-          <!-- 2. Sie Acara -->
+          <!-- 2. DIVISI OPERASIONAL -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-blue-600 uppercase block">Sie Acara</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Acara (10)</span>
+            <span class="text-[10px] font-bold text-blue-600 uppercase block tracking-wider">DIVISI OPERASIONAL</span>
+            <span id="sieCountAcara" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Acara & Sidang</span>
           </div>
 
-          <!-- 3. Sie Perdek -->
+          <!-- 3. DIVISI LOGISTIK -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-emerald-600 uppercase block">Sie Perdek</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Perdek (7)</span>
+            <span class="text-[10px] font-bold text-emerald-600 uppercase block tracking-wider">DIVISI LOGISTIK</span>
+            <span id="sieCountPerdek" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Perlengkapan</span>
           </div>
 
-          <!-- 4. Sie Pubdok -->
+          <!-- 4. DIVISI PUBLIKASI -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-amber-600 uppercase block">Sie Pubdok</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Pubdok (7)</span>
+            <span class="text-[10px] font-bold text-amber-600 uppercase block tracking-wider">DIVISI PUBLIKASI</span>
+            <span id="sieCountPubdok" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Humas & Media</span>
           </div>
 
-          <!-- 5. Sie Konsumsi -->
+          <!-- 5. DIVISI KONSUMSI -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-purple-600 uppercase block">Sie Konsumsi</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Konsumsi (8)</span>
+            <span class="text-[10px] font-bold text-purple-600 uppercase block tracking-wider">DIVISI KONSUMSI</span>
+            <span id="sieCountKonsumsi" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Konsumsi</span>
           </div>
 
-          <!-- 6. Sie Keamanan -->
+          <!-- 6. DIVISI KEAMANAN -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
-            <span class="text-[10px] font-bold text-slate-600 uppercase block">Sie Keamanan</span>
-            <span class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Keamanan (8)</span>
+            <span class="text-[10px] font-bold text-slate-600 uppercase block tracking-wider">DIVISI KEAMANAN</span>
+            <span id="sieCountKeamanan" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Ketertiban / PAM</span>
           </div>
         </div>
       </div>
@@ -947,26 +912,15 @@
           <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        <a href="admin.html" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-left">
+        <a href="login.html" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-left">
           <span class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-white/20 text-white flex items-center justify-center flex-shrink-0">
+            <span class="w-7 h-7 rounded-lg bg-red-600/80 text-white flex items-center justify-center flex-shrink-0">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
             </span>
-            <span>Buka Dashboard Admin</span>
+            <span>Login Administrator</span>
           </span>
           <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
-
-        <!-- Keluar Akun Panitia (Log Out) -->
-        <button onclick="logoutPanitia(); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition-colors text-left border border-red-200">
-          <span class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-red-200 text-red-800 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-            </span>
-            <span>Keluar Akun (Log Out)</span>
-          </span>
-          <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
       </div>
     </div>
   </div>
@@ -1046,10 +1000,10 @@
   </script>
 
   <!-- Scripts -->
-  <script src="config.js?v=20261111_07"></script>
-  <script src="data_panitia.js?v=20261111_07"></script>
+  <script src="config.js?v=20261112_03"></script>
+  <script src="data_panitia.js?v=20261112_03"></script>
   <!-- TW Elements JS from local repository -->
   <script src="TW-Elements-master/js/tw-elements.umd.min.js"></script>
-  <script src="app.js?v=20261112_01"></script>
+  <script src="app.js?v=20261112_03"></script>
 </body>
 </html>

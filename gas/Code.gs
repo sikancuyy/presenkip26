@@ -51,12 +51,22 @@ function doGet(e) {
     return handleApiGet(e.parameter);
   }
 
-  // Render template (Web App Index atau Admin)
-  const isPageAdmin = (e && e.parameter && e.parameter.page === "admin");
-  const pageFile = isPageAdmin ? "Admin" : "Index";
+  // Render template (Web App Index, Login atau Admin)
+  const pageParam = (e && e.parameter && e.parameter.page) ? e.parameter.page.toLowerCase() : "index";
+  let pageFile = "Index";
+  let pageTitle = "Presensi Digital Panitia KIP 2026";
+
+  if (pageParam === "admin") {
+    pageFile = "Admin";
+    pageTitle = "Dashboard Administrator - Presensi KIP 2026";
+  } else if (pageParam === "login") {
+    pageFile = "Login";
+    pageTitle = "Login Administrator - Presensi KIP 2026";
+  }
+
   const template = HtmlService.createTemplateFromFile(pageFile);
   return template.evaluate()
-    .setTitle(isPageAdmin ? "Dashboard Administrator - Presensi KIP 2026" : "Presensi Digital Panitia KIP 2026")
+    .setTitle(pageTitle)
     .addMetaTag("viewport", "width=device-width, initial-scale=1.0")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }

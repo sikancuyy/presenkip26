@@ -25,12 +25,15 @@
   <!-- TW Elements CSS from local repository -->
   <link rel="stylesheet" href="TW-Elements-master/css/tw-elements.min.css">
   
-  <link rel="stylesheet" href="style.css?v=20261112_01">
+  <link rel="stylesheet" href="style.css?v=20261112_03">
 
   <script>
     // Administrator Auth Guard (PC Dashboard)
-    if (!sessionStorage.getItem('kip_admin_pin')) {
-      window.location.replace('login.html?role=admin&redirect=admin');
+    const adminPin = sessionStorage.getItem('kip_admin_pin') || localStorage.getItem('kip_admin_session');
+    if (!adminPin) {
+      window.location.replace('login.html?redirect=admin.html');
+    } else {
+      sessionStorage.setItem('kip_admin_pin', adminPin);
     }
   </script>
 
@@ -688,10 +691,10 @@
   </div>
 
   <!-- Scripts -->
-  <script src="config.js?v=20261111_07"></script>
-  <script src="data_panitia.js?v=20261111_07"></script>
+  <script src="config.js?v=20261112_03"></script>
+  <script src="data_panitia.js?v=20261112_03"></script>
   <!-- TW Elements JS from local repository -->
   <script src="TW-Elements-master/js/tw-elements.umd.min.js"></script>
-  <script src="app.js?v=20261112_01"></script>
+  <script src="app.js?v=20261112_03"></script>
 </body>
 </html>
