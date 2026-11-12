@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,20 +12,21 @@
 
   <!-- Favicon: PEMILWA PNL Logo -->
   <link rel="icon" type="image/jpeg" href="assets/logo_pemilwa.jpg">
-  
+
   <!-- Typography: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- QR Code Library CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  
+
   <!-- TW Elements CSS from local repository -->
   <link rel="stylesheet" href="TW-Elements-master/css/tw-elements.min.css">
-  
+
   <link rel="stylesheet" href="style.css?v=20261112_03">
 
   <script>
@@ -49,10 +51,14 @@
     }
   </script>
 </head>
-<body class="bg-[#F4F6F9] text-[#0F172A] font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-red-600 selection:text-white pb-32">
+
+<body
+  class="bg-[#F4F6F9] text-[#0F172A] font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-red-600 selection:text-white pb-32">
 
   <!-- Toast Notification Container -->
-  <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 max-w-[92vw] sm:max-w-md w-auto pointer-events-none items-center" aria-live="polite"></div>
+  <div id="toastContainer"
+    class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 max-w-[92vw] sm:max-w-md w-auto pointer-events-none items-center"
+    aria-live="polite"></div>
 
   <!-- ============================================================== -->
   <!-- MOBILE-FIRST MAIN CONTAINER (MAX-W-MD)                          -->
@@ -62,52 +68,46 @@
     <!-- TOP MOBILE STATUS & BRAND HEADER (FROZEN / STICKY AT TOP, CLEAN NO RED BACKGROUND) -->
     <header id="mobileTopHeader" class="sticky-top-nav">
       <div class="flex items-center justify-between gap-3 relative z-10">
-        
+
         <!-- Organization Identity -->
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 p-1 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-center justify-center flex-shrink-0">
+          <div
+            class="w-12 h-12 p-1 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-center justify-center flex-shrink-0">
             <img src="assets/logo_pemilwa.jpg" alt="Logo PEMILWA PNL" class="w-10 h-10 object-contain rounded-xl">
           </div>
           <div>
             <h1 class="text-sm font-extrabold text-[#0F172A] tracking-tight leading-tight">
               KOMISI INDEPENDEN<br>PEMILIHAN 2026
             </h1>
-          
+
           </div>
         </div>
 
         <!-- Right Quick Actions: Indicator Dot, Sync Button & Menu Drawer -->
         <div class="flex items-center gap-2">
           <!-- Status Indicator Dot Only (No Text) -->
-          <span id="envBadge" class="relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0" title="Google Sheets Live Terhubung" aria-label="Status Sistem">
+          <span id="envBadge" class="relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0"
+            title="Google Sheets Live Terhubung" aria-label="Status Sistem">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
           </span>
 
           <!-- Sync Button -->
-          <button 
-            type="button" 
-            onclick="triggerManualSync()"
+          <button type="button" onclick="triggerManualSync()"
             class="w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-slate-50 transition-all flex-shrink-0"
-            title="Sinkronkan dengan Google Sheets"
-            aria-label="Sinkronkan Data"
-          >
+            title="Sinkronkan dengan Google Sheets" aria-label="Sinkronkan Data">
             <svg id="syncHeaderIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
 
           <!-- Right Quick Menu Button (Opens Mobile Drawer) -->
-          <button 
-            type="button" 
-            onclick="openMobileMenuDrawer()"
-            id="navAdminBtn"
+          <button type="button" onclick="openMobileMenuDrawer()" id="navAdminBtn"
             class="w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-700 hover:text-red-600 hover:bg-slate-50 transition-all flex-shrink-0"
-            title="Buka Menu Navigasi"
-            aria-label="Buka Menu"
-          >
+            title="Buka Menu Navigasi" aria-label="Buka Menu">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
         </div>
@@ -123,268 +123,277 @@
       <!-- ============================================================== -->
       <!-- HERO GREETING SECTION WITH 3D BALLOT BOX ILLUSTRATION           -->
       <!-- ============================================================== -->
-    <section class="flex items-center justify-between gap-3 pt-1 pb-1">
-      <div class="space-y-1 max-w-[250px]">
-        <span class="text-xs font-semibold text-slate-500 block">Selamat Datang,</span>
-        <h2 class="text-2xl font-extrabold text-[#0F172A] tracking-tight leading-tight">
-          Panitia KIP
-        </h2>
-       
-      </div>
+      <section class="flex items-center justify-between gap-3 pt-1 pb-1">
+        <div class="space-y-1 max-w-[250px]">
+          <span class="text-xs font-semibold text-slate-500 block">Selamat Datang,</span>
+          <h2 class="text-2xl font-extrabold text-[#0F172A] tracking-tight leading-tight">
+            Panitia KIP PNL
+            Periode 2026/2027
 
-      <!-- 3D Ballot Box / Kotak Suara KPU Illustration -->
-      <div class="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 relative flex items-center justify-center" aria-hidden="true">
-        <!-- Indonesia Map Soft Silhouette in Background -->
-        <div class="absolute inset-0 bg-red-100/40 rounded-full blur-xl"></div>
-        <svg class="w-22 h-22 sm:w-24 sm:h-24 relative drop-shadow-md" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Ballot Box Isometric Cube -->
-          <path d="M60 25L95 42L60 59L25 42L60 25Z" fill="#E2E8F0"/>
-          <path d="M60 25L95 42L95 46L60 29L25 46L25 42L60 25Z" fill="#CBD5E1"/>
-          <path d="M25 46L60 63V100L25 83V46Z" fill="#94A3B8"/>
-          <path d="M60 63L95 46V83L60 100V63Z" fill="#64748B"/>
-          <!-- Front Emblem / Sticker -->
-          <rect x="36" y="60" width="18" height="22" rx="3" fill="#FFFFFF" opacity="0.9"/>
-          <circle cx="45" cy="71" r="5" fill="#D91616"/>
-          <!-- Ballot Slot Top -->
-          <ellipse cx="60" cy="42" rx="14" ry="2.5" fill="#334155"/>
-          <!-- Indonesian Voting Paper Entering Slot -->
-          <path d="M52 24L68 18L72 38L56 44L52 24Z" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
-          <!-- Red-White Flag Band on Paper -->
-          <path d="M52 24L68 18L69 26L53 32L52 24Z" fill="#D91616"/>
-          <path d="M53 32L69 26L71 35L55 41L53 32Z" fill="#FFFFFF"/>
-        </svg>
-      </div>
-    </section>
+          </h2>
 
-    <!-- ============================================================== -->
-    <!-- CARD 1: AGENDA RAPAT (MATCHING IMAGE 1 MOCKUP)                 -->
-    <!-- ============================================================== -->
-    <section id="agendaBannerCard" class="kip-card p-5 space-y-3.5">
-      
-      <!-- Top Badges Row -->
-      <div class="flex items-center justify-between gap-2">
-        <div class="inline-flex items-center gap-1.5 bg-[#D91616] text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-xs">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </div>
+
+        <!-- 3D Ballot Box / Kotak Suara KPU Illustration -->
+        <div class="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 relative flex items-center justify-center"
+          aria-hidden="true">
+          <!-- Indonesia Map Soft Silhouette in Background -->
+          <div class="absolute inset-0 bg-red-100/40 rounded-full blur-xl"></div>
+          <svg class="w-22 h-22 sm:w-24 sm:h-24 relative drop-shadow-md" viewBox="0 0 120 120" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <!-- Ballot Box Isometric Cube -->
+            <path d="M60 25L95 42L60 59L25 42L60 25Z" fill="#E2E8F0" />
+            <path d="M60 25L95 42L95 46L60 29L25 46L25 42L60 25Z" fill="#CBD5E1" />
+            <path d="M25 46L60 63V100L25 83V46Z" fill="#94A3B8" />
+            <path d="M60 63L95 46V83L60 100V63Z" fill="#64748B" />
+            <!-- Front Emblem / Sticker -->
+            <rect x="36" y="60" width="18" height="22" rx="3" fill="#FFFFFF" opacity="0.9" />
+            <circle cx="45" cy="71" r="5" fill="#D91616" />
+            <!-- Ballot Slot Top -->
+            <ellipse cx="60" cy="42" rx="14" ry="2.5" fill="#334155" />
+            <!-- Indonesian Voting Paper Entering Slot -->
+            <path d="M52 24L68 18L72 38L56 44L52 24Z" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" />
+            <!-- Red-White Flag Band on Paper -->
+            <path d="M52 24L68 18L69 26L53 32L52 24Z" fill="#D91616" />
+            <path d="M53 32L69 26L71 35L55 41L53 32Z" fill="#FFFFFF" />
           </svg>
-          <span>Agenda Rapat</span>
         </div>
+      </section>
 
-        <div class="flex items-center gap-1.5">
-          <span id="bannerStatusBadge" class="hidden badge-pnl-offline">
-            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-            <span>Offline</span>
-          </span>
-          <span id="bannerAgendaId" class="hidden text-[11px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">-</span>
-        </div>
-      </div>
+      <!-- ============================================================== -->
+      <!-- CARD 1: AGENDA RAPAT (MATCHING IMAGE 1 MOCKUP)                 -->
+      <!-- ============================================================== -->
+      <section id="agendaBannerCard" class="kip-card p-5 space-y-3.5">
 
-      <!-- Main Title & Subtitle -->
-      <div class="space-y-0.5 pt-0.5">
-        <h3 id="bannerAgendaTitle" class="text-lg sm:text-xl font-extrabold text-[#0F172A] tracking-tight leading-snug">
-          Tidak Ada Agenda Aktif
-        </h3>
-        <p id="bannerAgendaSubtitle" class="text-xs text-slate-500">
-          Belum ada rapat yang dibuka saat ini.
-        </p>
-      </div>
-
-      <!-- 3 Metadata Tiles: Tanggal, Waktu, Lokasi (Disembunyikan jika tidak ada agenda aktif) -->
-      <div id="bannerAgendaMeta" class="hidden grid grid-cols-3 gap-2 pt-1 pb-1">
-        
-        <!-- Tanggal -->
-        <div class="bg-[#F0F7FF] border border-blue-100/80 rounded-xl p-2.5 space-y-0.5">
-          <div class="flex items-center gap-1.5 text-blue-600">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        <!-- Top Badges Row -->
+        <div class="flex items-center justify-between gap-2">
+          <div
+            class="inline-flex items-center gap-1.5 bg-[#D91616] text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-xs">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Tanggal</span>
+            <span>Agenda Rapat</span>
           </div>
-          <span id="bannerAgendaDate" class="text-xs font-bold text-slate-900 block truncate">-</span>
+
+          <div class="flex items-center gap-1.5">
+            <span id="bannerStatusBadge" class="hidden badge-pnl-offline">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+              <span>Offline</span>
+            </span>
+            <span id="bannerAgendaId"
+              class="hidden text-[11px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">-</span>
+          </div>
         </div>
 
-        <!-- Waktu -->
-        <div class="bg-[#F0FDF4] border border-emerald-100/80 rounded-xl p-2.5 space-y-0.5">
-          <div class="flex items-center gap-1.5 text-emerald-600">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Waktu</span>
-          </div>
-          <span id="bannerAgendaTime" class="text-xs font-bold text-slate-900 block truncate">-</span>
+        <!-- Main Title & Subtitle -->
+        <div class="space-y-0.5 pt-0.5">
+          <h3 id="bannerAgendaTitle"
+            class="text-lg sm:text-xl font-extrabold text-[#0F172A] tracking-tight leading-snug">
+            Tidak Ada Agenda Aktif
+          </h3>
+          <p id="bannerAgendaSubtitle" class="text-xs text-slate-500">
+            Belum ada rapat yang dibuka saat ini.
+          </p>
         </div>
 
-        <!-- Lokasi -->
-        <div class="bg-[#FFF7ED] border border-amber-100/80 rounded-xl p-2.5 space-y-0.5">
-          <div class="flex items-center gap-1.5 text-amber-600">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Lokasi</span>
-          </div>
-          <span id="bannerAgendaLocation" class="text-xs font-bold text-slate-900 block truncate">-</span>
-        </div>
+        <!-- 3 Metadata Tiles: Tanggal, Waktu, Lokasi (Disembunyikan jika tidak ada agenda aktif) -->
+        <div id="bannerAgendaMeta" class="hidden grid grid-cols-3 gap-2 pt-1 pb-1">
 
-      </div>
-
-    </section>
-
-    <!-- ============================================================== -->
-    <!-- CARD 2: FORMULIR KEHADIRAN PANITIA (INPUT NIM & CARI DATA)     -->
-    <!-- ============================================================== -->
-    <section id="formSection" class="kip-card space-y-4">
-      
-      <!-- Card Title (Garis merah telah dihapus) -->
-      <div class="space-y-1">
-        <h3 class="text-base font-extrabold text-[#0F172A] tracking-tight">
-          Formulir Kehadiran Panitia
-        </h3>
-      </div>
-
-      <!-- Input Field NIM with User Icon inside Pill -->
-      <div class="space-y-3">
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-            </svg>
-          </div>
-          <input 
-            type="text" 
-            id="inputNim" 
-            inputmode="numeric" 
-            class="input-pill w-full h-12 text-slate-900 font-bold tracking-wider text-sm focus:outline-none"
-            placeholder="Masukkan 13 digit NIM"
-            onkeypress="if(event.key === 'Enter') searchNIM()"
-            aria-label="Nomor Induk Mahasiswa (NIM)"
-          >
-        </div>
-
-        <!-- Pill Button: Cari Data -->
-        <button 
-          type="button" 
-          id="btnCariNIM" 
-          onclick="searchNIM()" 
-          class="btn-primary-red w-full h-12 text-sm font-extrabold tracking-wider"
-        >
-          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <span id="btnCariText">Cari Data</span>
-          <div id="btnCariSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" aria-hidden="true"></div>
-        </button>
-      </div>
-
-      <!-- BIODATA CARD CONTAINER (MUNCUL SETELAH NIM DITEMUKAN) -->
-      <div id="biodataContainer" class="hidden space-y-3.5 pt-1 animate-fadeIn">
-        
-        <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-3.5">
-          
-          <div class="flex items-center gap-3 border-b border-slate-200/90 pb-3">
-            <div id="avatarInitials" class="w-12 h-12 rounded-2xl bg-[#D91616] text-white font-extrabold text-base flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">
-              -
+          <!-- Tanggal -->
+          <div class="bg-[#F0F7FF] border border-blue-100/80 rounded-xl p-2.5 space-y-0.5">
+            <div class="flex items-center gap-1.5 text-blue-600">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Tanggal</span>
             </div>
-            <div class="min-w-0 flex-1">
-              <h4 id="bioNama" class="text-sm sm:text-base font-extrabold text-slate-900 truncate">-</h4>
-              <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                <span id="bioNim" class="font-mono text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded-md">-</span>
-                <span id="bioStatusBadge" class="badge-pnl-emerald text-[10px]">Terdaftar di SK Panitia</span>
+            <span id="bannerAgendaDate" class="text-xs font-bold text-slate-900 block truncate">-</span>
+          </div>
+
+          <!-- Waktu -->
+          <div class="bg-[#F0FDF4] border border-emerald-100/80 rounded-xl p-2.5 space-y-0.5">
+            <div class="flex items-center gap-1.5 text-emerald-600">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Waktu</span>
+            </div>
+            <span id="bannerAgendaTime" class="text-xs font-bold text-slate-900 block truncate">-</span>
+          </div>
+
+          <!-- Lokasi -->
+          <div class="bg-[#FFF7ED] border border-amber-100/80 rounded-xl p-2.5 space-y-0.5">
+            <div class="flex items-center gap-1.5 text-amber-600">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Lokasi</span>
+            </div>
+            <span id="bannerAgendaLocation" class="text-xs font-bold text-slate-900 block truncate">-</span>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- CARD 2: FORMULIR KEHADIRAN PANITIA (INPUT NIM & CARI DATA)     -->
+      <!-- ============================================================== -->
+      <section id="formSection" class="kip-card space-y-4">
+
+        <!-- Card Title (Garis merah telah dihapus) -->
+        <div class="space-y-1">
+          <h3 class="text-base font-extrabold text-[#0F172A] tracking-tight">
+            Formulir Kehadiran Panitia
+          </h3>
+        </div>
+
+        <!-- Input Field NIM with User Icon inside Pill -->
+        <div class="space-y-3">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <input type="text" id="inputNim" inputmode="numeric"
+              class="input-pill w-full h-12 text-slate-900 font-bold tracking-wider text-sm focus:outline-none"
+              placeholder="Masukkan 13 digit NIM" onkeypress="if(event.key === 'Enter') searchNIM()"
+              aria-label="Nomor Induk Mahasiswa (NIM)">
+          </div>
+
+          <!-- Pill Button: Cari Data -->
+          <button type="button" id="btnCariNIM" onclick="searchNIM()"
+            class="btn-primary-red w-full h-12 text-sm font-extrabold tracking-wider">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span id="btnCariText">Cari Data</span>
+            <div id="btnCariSpinner"
+              class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0"
+              aria-hidden="true"></div>
+          </button>
+        </div>
+
+        <!-- BIODATA CARD CONTAINER (MUNCUL SETELAH NIM DITEMUKAN) -->
+        <div id="biodataContainer" class="hidden space-y-3.5 pt-1 animate-fadeIn">
+
+          <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-3.5">
+
+            <div class="flex items-center gap-3 border-b border-slate-200/90 pb-3">
+              <div id="avatarInitials"
+                class="w-12 h-12 rounded-2xl bg-[#D91616] text-white font-extrabold text-base flex items-center justify-center flex-shrink-0 shadow-sm"
+                aria-hidden="true">
+                -
+              </div>
+              <div class="min-w-0 flex-1">
+                <h4 id="bioNama" class="text-sm sm:text-base font-extrabold text-slate-900 truncate">-</h4>
+                <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                  <span id="bioNim"
+                    class="font-mono text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded-md">-</span>
+                  <span id="bioStatusBadge" class="badge-pnl-emerald text-[10px]">Terdaftar di SK Panitia</span>
+                </div>
               </div>
             </div>
+
+            <!-- Key Value Grid Tiles -->
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Jabatan</span>
+                <span id="bioJabatan" class="font-bold text-slate-900 text-xs mt-0.5 block truncate">-</span>
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Sie</span>
+                <span id="bioSie" class="font-bold text-slate-900 text-xs mt-0.5 block truncate">-</span>
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs col-span-2">
+                <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Delegasi Ormawa</span>
+                <span id="bioDelegasi" class="font-bold text-slate-900 text-xs mt-0.5 truncate block">-</span>
+              </div>
+            </div>
+
           </div>
 
-          <!-- Key Value Grid Tiles -->
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
-              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Jabatan</span>
-              <span id="bioJabatan" class="font-bold text-slate-900 text-xs mt-0.5 block truncate">-</span>
-            </div>
-            <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
-              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Sie</span>
-              <span id="bioSie" class="font-bold text-slate-900 text-xs mt-0.5 block truncate">-</span>
-            </div>
-            <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs col-span-2">
-              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Delegasi Ormawa</span>
-              <span id="bioDelegasi" class="font-bold text-slate-900 text-xs mt-0.5 truncate block">-</span>
-            </div>
+          <!-- Status Presensi Notice (Sudah Absen / Sesi Tidak Aktif) -->
+          <div id="bioAttendanceNotice"
+            class="hidden rounded-2xl p-4 text-xs font-medium border transition-all animate-fadeIn"></div>
+
+          <!-- Session Code Field -->
+          <div id="sessionCodeField" class="hidden space-y-1.5">
+            <label for="inputSessionCode" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Kode Sesi Rapat (Anti-Titip Absen)
+            </label>
+            <input type="text" id="inputSessionCode"
+              class="dash-input w-full h-11 px-4 text-slate-900 font-extrabold tracking-widest text-center uppercase text-sm rounded-full"
+              aria-label="Kode Sesi Rapat">
           </div>
+
+          <!-- Button Konfirmasi Hadir (Large Pill Button) -->
+          <button type="button" id="btnHadir" onclick="submitKehadiran()"
+            class="btn-primary-red w-full h-12 text-sm font-extrabold tracking-wider">
+            <svg id="btnHadirIcon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="btnHadirText">Konfirmasi Hadir</span>
+            <div id="btnHadirSpinner"
+              class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0"
+              aria-hidden="true"></div>
+          </button>
 
         </div>
 
-        <!-- Status Presensi Notice (Sudah Absen / Sesi Tidak Aktif) -->
-        <div id="bioAttendanceNotice" class="hidden rounded-2xl p-4 text-xs font-medium border transition-all animate-fadeIn"></div>
+        <!-- Alert Notification Box -->
+        <div id="presensiAlert" class="hidden rounded-xl p-3.5 text-xs font-medium border" role="alert"></div>
 
-        <!-- Session Code Field -->
-        <div id="sessionCodeField" class="hidden space-y-1.5">
-          <label for="inputSessionCode" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Kode Sesi Rapat (Anti-Titip Absen)
-          </label>
-          <input 
-            type="text" 
-            id="inputSessionCode" 
-            class="dash-input w-full h-11 px-4 text-slate-900 font-extrabold tracking-widest text-center uppercase text-sm rounded-full"
-            aria-label="Kode Sesi Rapat"
-          >
-        </div>
+      </section>
 
-        <!-- Button Konfirmasi Hadir (Large Pill Button) -->
-        <button 
-          type="button" 
-          id="btnHadir" 
-          onclick="submitKehadiran()" 
-          class="btn-primary-red w-full h-12 text-sm font-extrabold tracking-wider"
-        >
-          <svg id="btnHadirIcon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+      <!-- ============================================================== -->
+      <!-- QUICK ACTIONS ROW: TAMPILKAN QR & SALIN TAUTAN (IMAGE 1)       -->
+      <!-- ============================================================== -->
+      <section class="grid grid-cols-2 gap-3 pt-0.5">
+
+        <!-- Tampilkan QR Button Tile -->
+        <button onclick="showQRCodeModal()" class="quick-action-tile quick-action-red" type="button">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-red-200/60 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+              </svg>
+            </div>
+            <span class="text-xs font-bold text-red-900 leading-tight">Tampilkan<br>QR</span>
+          </div>
+          <svg class="w-4 h-4 text-red-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
           </svg>
-          <span id="btnHadirText">Konfirmasi Hadir</span>
-          <div id="btnHadirSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" aria-hidden="true"></div>
         </button>
 
-      </div>
-
-      <!-- Alert Notification Box -->
-      <div id="presensiAlert" class="hidden rounded-xl p-3.5 text-xs font-medium border" role="alert"></div>
-
-    </section>
-
-    <!-- ============================================================== -->
-    <!-- QUICK ACTIONS ROW: TAMPILKAN QR & SALIN TAUTAN (IMAGE 1)       -->
-    <!-- ============================================================== -->
-    <section class="grid grid-cols-2 gap-3 pt-0.5">
-      
-      <!-- Tampilkan QR Button Tile -->
-      <button onclick="showQRCodeModal()" class="quick-action-tile quick-action-red" type="button">
-        <div class="flex items-center gap-2.5">
-          <div class="w-7 h-7 rounded-lg bg-red-200/60 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-            </svg>
+        <!-- Salin Tautan Button Tile -->
+        <button onclick="copyPresensiLink()" class="quick-action-tile quick-action-blue" type="button">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-blue-200/60 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <span class="text-xs font-bold text-blue-900 leading-tight">Salin<br>Tautan</span>
           </div>
-          <span class="text-xs font-bold text-red-900 leading-tight">Tampilkan<br>QR</span>
-        </div>
-        <svg class="w-4 h-4 text-red-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-        </svg>
-      </button>
+          <svg class="w-4 h-4 text-blue-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
 
-      <!-- Salin Tautan Button Tile -->
-      <button onclick="copyPresensiLink()" class="quick-action-tile quick-action-blue" type="button">
-        <div class="flex items-center gap-2.5">
-          <div class="w-7 h-7 rounded-lg bg-blue-200/60 flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-            </svg>
-          </div>
-          <span class="text-xs font-bold text-blue-900 leading-tight">Salin<br>Tautan</span>
-        </div>
-        <svg class="w-4 h-4 text-blue-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-        </svg>
-      </button>
-
-    </section>
+      </section>
 
     </main> <!-- /tabBeranda -->
 
@@ -392,15 +401,17 @@
     <!-- TAB 2: TENTANG KIP 2026 (DEDICATED FULL TAB VIEW)              -->
     <!-- ============================================================== -->
     <section id="tabTentang" class="tab-pane hidden space-y-4" role="tabpanel" aria-labelledby="tabBtnTentang">
-      
+
       <!-- Profil Organisasi Card -->
       <div class="kip-card p-5 sm:p-6 space-y-4">
         <div class="flex items-center gap-3.5 border-b border-slate-100 pb-4">
-          <div class="w-14 h-14 p-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0">
+          <div
+            class="w-14 h-14 p-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0">
             <img src="assets/logo_pemilwa.jpg" alt="Logo PEMILWA PNL" class="w-11 h-11 object-contain rounded-xl">
           </div>
           <div>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold">
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold">
               PEMILWA PNL 2026
             </span>
             <h3 class="text-base font-extrabold text-[#0F172A] mt-1 leading-tight">
@@ -411,7 +422,9 @@
         </div>
 
         <p class="text-xs text-slate-600 leading-relaxed">
-          Komisi Independen Pemilihan (KIP) PEMILWA Politeknik Negeri Lhokseumawe 2026 merupakan lembaga penyelenggara pemilihan raya mahasiswa yang berasaskan demokrasi, transparansi, independensi, dan integritas moral civitas akademika.
+          Komisi Independen Pemilihan (KIP) PEMILWA Politeknik Negeri Lhokseumawe 2026 merupakan lembaga penyelenggara
+          pemilihan raya mahasiswa yang berasaskan demokrasi, transparansi, independensi, dan integritas moral civitas
+          akademika.
         </p>
 
         <!-- 3 Highlight Pillars -->
@@ -419,25 +432,30 @@
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center">
             <span class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center mb-1 flex-shrink-0">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
               </svg>
             </span>
             <span class="text-[11px] font-bold text-slate-800 block">Independen</span>
             <span class="text-[10px] text-slate-500 block leading-tight">Bebas Intervensi</span>
           </div>
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center">
-            <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-1 flex-shrink-0">
+            <span
+              class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-1 flex-shrink-0">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </span>
             <span class="text-[11px] font-bold text-slate-800 block">Transparan</span>
             <span class="text-[10px] text-slate-500 block leading-tight">Terbuka & Akuntabel</span>
           </div>
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center">
-            <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-1 flex-shrink-0">
+            <span
+              class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-1 flex-shrink-0">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </span>
             <span class="text-[11px] font-bold text-slate-800 block">Integritas</span>
@@ -451,7 +469,8 @@
         <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
           <div class="flex items-center gap-2">
             <span class="w-1.5 h-4 bg-[#D91616] rounded-full inline-block"></span>
-            <h4 id="strukturKepanitiaanTitle" class="text-xs font-extrabold uppercase tracking-wider text-slate-800">STRUKTUR KEPANITIAAN (46 ANGGOTA)</h4>
+            <h4 id="strukturKepanitiaanTitle" class="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+              STRUKTUR KEPANITIAAN (46 ANGGOTA)</h4>
           </div>
           <span class="badge-pnl-red text-[10px]">SK Resmi</span>
         </div>
@@ -460,13 +479,15 @@
           <!-- 1. BADAN PENGURUS HARIAN -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
             <span class="text-[10px] font-bold text-red-600 uppercase block tracking-wider">BADAN PENGURUS HARIAN</span>
-            <span id="sieCountPejabat" class="font-extrabold text-slate-800 text-xs block mt-0.5">BPH (Ketua, Sek, Ben)</span>
+            <span id="sieCountPejabat" class="font-extrabold text-slate-800 text-xs block mt-0.5">BPH (Ketua, Sek,
+              Ben)</span>
           </div>
 
           <!-- 2. DIVISI OPERASIONAL -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
             <span class="text-[10px] font-bold text-blue-600 uppercase block tracking-wider">DIVISI OPERASIONAL</span>
-            <span id="sieCountAcara" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Acara & Sidang</span>
+            <span id="sieCountAcara" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Acara &
+              Sidang</span>
           </div>
 
           <!-- 3. DIVISI LOGISTIK -->
@@ -478,7 +499,8 @@
           <!-- 4. DIVISI PUBLIKASI -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
             <span class="text-[10px] font-bold text-amber-600 uppercase block tracking-wider">DIVISI PUBLIKASI</span>
-            <span id="sieCountPubdok" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Humas & Media</span>
+            <span id="sieCountPubdok" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Humas &
+              Media</span>
           </div>
 
           <!-- 5. DIVISI KONSUMSI -->
@@ -490,7 +512,8 @@
           <!-- 6. DIVISI KEAMANAN -->
           <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
             <span class="text-[10px] font-bold text-slate-600 uppercase block tracking-wider">DIVISI KEAMANAN</span>
-            <span id="sieCountKeamanan" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Ketertiban / PAM</span>
+            <span id="sieCountKeamanan" class="font-extrabold text-slate-800 text-xs block mt-0.5">Sie Ketertiban /
+              PAM</span>
           </div>
         </div>
       </div>
@@ -499,22 +522,32 @@
       <div class="kip-card p-5 space-y-2.5">
         <div class="flex items-center gap-2">
           <span class="w-1.5 h-4 bg-emerald-500 rounded-full inline-block"></span>
-          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Sistem Presensi Digital Real-Time</h4>
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Sistem Presensi Digital Real-Time
+          </h4>
         </div>
         <p class="text-xs text-slate-600 leading-relaxed">
-          Sistem ini dikembangkan khusus untuk panitia KIP PEMILWA PNL 2026 dengan teknologi Google Sheets API dan Google Apps Script (GAS) untuk menjamin rekapitulasi kehadiran instan, akurat, dan dapat diaudit secara terbuka.
+          Sistem ini dikembangkan khusus untuk panitia KIP PEMILWA PNL 2026 dengan teknologi Google Sheets API dan
+          Google Apps Script (GAS) untuk menjamin rekapitulasi kehadiran instan, akurat, dan dapat diaudit secara
+          terbuka.
         </p>
       </div>
 
       <!-- Navigation Shortcut -->
       <div class="flex items-center gap-2 pt-1">
-        <button onclick="switchMobileTab('beranda')" type="button" class="btn-primary-red flex-1 text-xs inline-flex items-center justify-center gap-1.5 py-2.5">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <button onclick="switchMobileTab('beranda')" type="button"
+          class="btn-primary-red flex-1 text-xs inline-flex items-center justify-center gap-1.5 py-2.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
           <span>Kembali ke Presensi</span>
         </button>
-        <a href="admin.html" class="btn-pnl-outline text-xs inline-flex items-center justify-center gap-1.5 px-3 py-2.5">
+        <a href="admin.html"
+          class="btn-pnl-outline text-xs inline-flex items-center justify-center gap-1.5 px-3 py-2.5">
           <span>Panel Admin</span>
-          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
         </a>
       </div>
 
@@ -524,12 +557,16 @@
     <!-- TAB 3: PUSAT BANTUAN (DEDICATED FULL TAB VIEW)                 -->
     <!-- ============================================================== -->
     <section id="tabBantuan" class="tab-pane hidden space-y-4" role="tabpanel" aria-labelledby="tabBtnBantuan">
-      
+
       <!-- Bantuan Hero Banner -->
       <div class="kip-card p-5 space-y-3 bg-gradient-to-br from-white to-red-50/50 border-red-100">
         <div class="flex items-center justify-between">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span>Pusat Bantuan & Panduan</span>
           </span>
           <span class="text-[11px] font-semibold text-slate-400">KIP 2026</span>
@@ -552,37 +589,49 @@
         <div class="space-y-3 text-xs">
           <!-- Step 1 -->
           <div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</div>
+            <div
+              class="w-6 h-6 rounded-full bg-red-100 text-red-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+              1</div>
             <div>
               <strong class="text-slate-800 block">Masukkan NIM</strong>
-              <p class="text-slate-500 text-[11.5px] mt-0.5">Ketik 13 digit Nomor Induk Mahasiswa Anda pada tab Beranda, lalu klik <span class="text-red-600 font-bold">Cari Data</span>.</p>
+              <p class="text-slate-500 text-[11.5px] mt-0.5">Ketik 13 digit Nomor Induk Mahasiswa Anda pada tab Beranda,
+                lalu klik <span class="text-red-600 font-bold">Cari Data</span>.</p>
             </div>
           </div>
 
           <!-- Step 2 -->
           <div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</div>
+            <div
+              class="w-6 h-6 rounded-full bg-red-100 text-red-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+              2</div>
             <div>
               <strong class="text-slate-800 block">Verifikasi Biodata Kepanitiaan</strong>
-              <p class="text-slate-500 text-[11.5px] mt-0.5">Pastikan nama lengkap, Sie, jabatan, dan delegasi ormawa yang tampil sudah sesuai dengan SK Panitia Anda.</p>
+              <p class="text-slate-500 text-[11.5px] mt-0.5">Pastikan nama lengkap, Sie, jabatan, dan delegasi ormawa
+                yang tampil sudah sesuai dengan SK Panitia Anda.</p>
             </div>
           </div>
 
           <!-- Step 3 -->
           <div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</div>
+            <div
+              class="w-6 h-6 rounded-full bg-red-100 text-red-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+              3</div>
             <div>
               <strong class="text-slate-800 block">Input Kode Sesi (Bila Ada)</strong>
-              <p class="text-slate-500 text-[11.5px] mt-0.5">Jika rapat menerapkan kode sesi anti-titip absen, masukkan kode resmi yang dibagikan oleh pimpinan rapat.</p>
+              <p class="text-slate-500 text-[11.5px] mt-0.5">Jika rapat menerapkan kode sesi anti-titip absen, masukkan
+                kode resmi yang dibagikan oleh pimpinan rapat.</p>
             </div>
           </div>
 
           <!-- Step 4 -->
           <div class="flex items-start gap-3">
-            <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">4</div>
+            <div
+              class="w-6 h-6 rounded-full bg-red-100 text-red-700 font-extrabold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+              4</div>
             <div>
               <strong class="text-slate-800 block">Konfirmasi Hadir & Simpan Bukti</strong>
-              <p class="text-slate-500 text-[11.5px] mt-0.5">Klik tombol <span class="text-red-600 font-bold">Konfirmasi Hadir</span>. Tiket digital kehadiran akan muncul sebagai bukti sah kehadiran Anda.</p>
+              <p class="text-slate-500 text-[11.5px] mt-0.5">Klik tombol <span class="text-red-600 font-bold">Konfirmasi
+                  Hadir</span>. Tiket digital kehadiran akan muncul sebagai bukti sah kehadiran Anda.</p>
             </div>
           </div>
         </div>
@@ -593,48 +642,70 @@
         <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
           <div class="flex items-center gap-2">
             <span class="w-1.5 h-4 bg-[#D91616] rounded-full inline-block"></span>
-            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Pertanyaan Sering Diajukan (FAQ)</h4>
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Pertanyaan Sering Diajukan (FAQ)
+            </h4>
           </div>
           <span class="text-[11px] font-semibold text-slate-400">Solusi Cepat</span>
         </div>
 
         <div class="space-y-2 text-xs">
-          <details class="group rounded-xl border border-slate-200/90 bg-slate-50/60 p-3 transition-colors open:bg-white open:border-red-200" open>
-            <summary class="flex cursor-pointer items-center justify-between font-bold text-slate-800 select-none list-none">
+          <details
+            class="group rounded-xl border border-slate-200/90 bg-slate-50/60 p-3 transition-colors open:bg-white open:border-red-200"
+            open>
+            <summary
+              class="flex cursor-pointer items-center justify-between font-bold text-slate-800 select-none list-none">
               <span class="flex items-center gap-2 pr-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-red-600 flex-shrink-0"></span>
                 <span>Bagaimana jika NIM saya tidak ditemukan?</span>
               </span>
-              <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 group-open:rotate-180 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 group-open:rotate-180 flex-shrink-0"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </summary>
             <div class="mt-2 pt-2 border-t border-slate-100 text-slate-600 leading-relaxed text-[11.5px]">
-              Pastikan Anda memasukkan 13 digit angka NIM tanpa spasi atau tanda baca. Jika tetap tidak ditemukan, kemungkinan NIM Anda belum didaftarkan di master SK Panitia KIP 2026. Segera hubungi Sekretaris Panitia di bawah.
+              Pastikan Anda memasukkan 13 digit angka NIM tanpa spasi atau tanda baca. Jika tetap tidak ditemukan,
+              kemungkinan NIM Anda belum didaftarkan di master SK Panitia KIP 2026. Segera hubungi Sekretaris Panitia di
+              bawah.
             </div>
           </details>
 
-          <details class="group rounded-xl border border-slate-200/90 bg-slate-50/60 p-3 transition-colors open:bg-white open:border-red-200">
-            <summary class="flex cursor-pointer items-center justify-between font-bold text-slate-800 select-none list-none">
+          <details
+            class="group rounded-xl border border-slate-200/90 bg-slate-50/60 p-3 transition-colors open:bg-white open:border-red-200">
+            <summary
+              class="flex cursor-pointer items-center justify-between font-bold text-slate-800 select-none list-none">
               <span class="flex items-center gap-2 pr-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0"></span>
                 <span>Mengapa status agenda rapat "Offline"?</span>
               </span>
-              <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 group-open:rotate-180 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 group-open:rotate-180 flex-shrink-0"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </summary>
             <div class="mt-2 pt-2 border-t border-slate-100 text-slate-600 leading-relaxed text-[11.5px]">
-              Status "Offline" menandakan belum ada rapat yang dibuka oleh Administrator. Formulir presensi hanya menerima konfirmasi saat rapat telah dibuka resmi dan berstatus <strong class="text-emerald-600">Aktif</strong>.
+              Status "Offline" menandakan belum ada rapat yang dibuka oleh Administrator. Formulir presensi hanya
+              menerima konfirmasi saat rapat telah dibuka resmi dan berstatus <strong
+                class="text-emerald-600">Aktif</strong>.
             </div>
           </details>
 
-          <details class="group rounded-xl border border-slate-200/90 bg-slate-50/60 p-3 transition-colors open:bg-white open:border-red-200">
-            <summary class="flex cursor-pointer items-center justify-between font-bold text-slate-800 select-none list-none">
+          <details
+            class="group rounded-xl border border-slate-200/90 bg-slate-50/60 p-3 transition-colors open:bg-white open:border-red-200">
+            <summary
+              class="flex cursor-pointer items-center justify-between font-bold text-slate-800 select-none list-none">
               <span class="flex items-center gap-2 pr-2">
                 <span class="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></span>
                 <span>Apakah bisa presensi dua kali untuk rapat yang sama?</span>
               </span>
-              <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 group-open:rotate-180 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 group-open:rotate-180 flex-shrink-0"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </summary>
             <div class="mt-2 pt-2 border-t border-slate-100 text-slate-600 leading-relaxed text-[11.5px]">
-              Tidak bisa. Sistem secara otomatis menolak duplikasi presensi untuk memastikan 1 anggota hanya tercatat satu kali pada agenda yang sedang berlangsung.
+              Tidak bisa. Sistem secara otomatis menolak duplikasi presensi untuk memastikan 1 anggota hanya tercatat
+              satu kali pada agenda yang sedang berlangsung.
             </div>
           </details>
         </div>
@@ -644,10 +715,12 @@
       <div class="kip-card p-5 space-y-3">
         <div class="flex items-center gap-2">
           <span class="w-1.5 h-4 bg-[#D91616] rounded-full inline-block"></span>
-          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Kontak Narahubung & Sekretariat</h4>
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Kontak Narahubung & Sekretariat
+          </h4>
         </div>
         <p class="text-xs text-slate-600 leading-relaxed">
-          Jika mengalami kendala presensi, kesalahan nama/sie, atau membutuhkan bantuan darurat, silakan hubungi tim kesekretariatan:
+          Jika mengalami kendala presensi, kesalahan nama/sie, atau membutuhkan bantuan darurat, silakan hubungi tim
+          kesekretariatan:
         </p>
 
         <div class="space-y-2 pt-1 text-xs">
@@ -656,7 +729,8 @@
               <strong class="text-slate-800 block">Sekretariat KIP PEMILWA PNL</strong>
               <span class="text-slate-500 text-[11px] block mt-0.5">Gedung PKM Lantai 2 Kampus PNL</span>
             </div>
-            <span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full text-[10px] font-bold">Aktif</span>
+            <span
+              class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full text-[10px] font-bold">Aktif</span>
           </div>
         </div>
 
@@ -674,25 +748,31 @@
   <!-- ============================================================== -->
   <nav class="bottom-nav" aria-label="Navigasi Aplikasi">
     <!-- Tab 1: Beranda -->
-    <button type="button" id="tabBtnBeranda" onclick="switchMobileTab('beranda')" class="nav-item active" aria-label="Tab Beranda">
+    <button type="button" id="tabBtnBeranda" onclick="switchMobileTab('beranda')" class="nav-item active"
+      aria-label="Tab Beranda">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
       <span>Beranda</span>
     </button>
 
     <!-- Tab 2: Tentang -->
-    <button type="button" id="tabBtnTentang" onclick="switchMobileTab('tentang')" class="nav-item" aria-label="Tab Tentang">
+    <button type="button" id="tabBtnTentang" onclick="switchMobileTab('tentang')" class="nav-item"
+      aria-label="Tab Tentang">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>Tentang</span>
     </button>
 
     <!-- Tab 3: Bantuan -->
-    <button type="button" id="tabBtnBantuan" onclick="switchMobileTab('bantuan')" class="nav-item" aria-label="Tab Bantuan">
+    <button type="button" id="tabBtnBantuan" onclick="switchMobileTab('bantuan')" class="nav-item"
+      aria-label="Tab Bantuan">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>Bantuan</span>
     </button>
@@ -701,32 +781,38 @@
   <!-- ============================================================== -->
   <!-- MODAL: GOOGLE SHEETS API CONFIGURATION                         -->
   <!-- ============================================================== -->
-  <div id="modalGsheetConfig" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalGsheetTitle">
+  <div id="modalGsheetConfig"
+    class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4" role="dialog"
+    aria-modal="true" aria-labelledby="modalGsheetTitle">
     <div class="kip-card max-w-lg w-full p-6 space-y-4 animate-fadeIn">
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <h3 id="modalGsheetTitle" class="text-base font-extrabold text-[#0F172A]">Koneksi Google Sheets (Web App URL)</h3>
-        <button onclick="closeModalGsheetConfig()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <h3 id="modalGsheetTitle" class="text-base font-extrabold text-[#0F172A]">Koneksi Google Sheets (Web App URL)
+        </h3>
+        <button onclick="closeModalGsheetConfig()"
+          class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800"
+          aria-label="Tutup dialog">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
 
       <p class="text-xs text-slate-600 leading-relaxed">
-        Masukkan URL Web App hasil deploy Google Apps Script agar aplikasi terhubung secara live ke Google Sheets Panitia KIP.
+        Masukkan URL Web App hasil deploy Google Apps Script agar aplikasi terhubung secara live ke Google Sheets
+        Panitia KIP.
       </p>
 
       <div class="space-y-3 text-xs">
         <div>
           <label for="gasUrlInput" class="block font-bold text-slate-700 mb-1">Google Apps Script Web App URL</label>
-          <input 
-            type="url" 
-            id="gasUrlInput" 
-            placeholder="https://script.google.com/macros/s/AKfycbx.../exec" 
-            class="input-field w-full text-xs font-mono"
-          >
-          <p class="text-[11px] text-slate-500 mt-1">Dapatkan URL dari menu: <strong>Deploy > New deployment > Web app (Who has access: Anyone)</strong>.</p>
+          <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/AKfycbx.../exec"
+            class="input-field w-full text-xs font-mono">
+          <p class="text-[11px] text-slate-500 mt-1">Dapatkan URL dari menu: <strong>Deploy > New deployment > Web app
+              (Who has access: Anyone)</strong>.</p>
         </div>
 
-        <div id="gsheetConnectionStatus" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
+        <div id="gsheetConnectionStatus"
+          class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
           Status saat ini: <span id="gsheetStatusLabel" class="font-bold text-slate-800">Mode Lokal (Simulasi)</span>
         </div>
       </div>
@@ -736,7 +822,8 @@
           <button onclick="testGsheetConnection()" type="button" class="btn-pnl-outline text-xs">
             Uji Koneksi
           </button>
-          <button onclick="resetGsheetConfigDefault()" type="button" class="btn-pnl-outline text-xs text-slate-600" title="Reset ke Default">
+          <button onclick="resetGsheetConfigDefault()" type="button" class="btn-pnl-outline text-xs text-slate-600"
+            title="Reset ke Default">
             Reset
           </button>
         </div>
@@ -755,12 +842,18 @@
   <!-- ============================================================== -->
   <!-- MODAL: QR CODE PRESENSI                                         -->
   <!-- ============================================================== -->
-  <div id="modalQRCode" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalQRTitle">
+  <div id="modalQRCode"
+    class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4" role="dialog"
+    aria-modal="true" aria-labelledby="modalQRTitle">
     <div class="kip-card max-w-sm w-full p-6 text-center space-y-4 animate-fadeIn">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2">
         <h3 id="modalQRTitle" class="text-base font-extrabold text-[#0F172A]">Scan QR Code Presensi</h3>
-        <button onclick="closeQRCodeModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <button onclick="closeQRCodeModal()"
+          class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800"
+          aria-label="Tutup dialog">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
 
@@ -783,10 +876,14 @@
   <!-- ============================================================== -->
   <!-- MODAL: BUKTI TIKET PRESENSI BERHASIL                           -->
   <!-- ============================================================== -->
-  <div id="modalReceipt" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalReceiptTitle">
+  <div id="modalReceipt"
+    class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4" role="dialog"
+    aria-modal="true" aria-labelledby="modalReceiptTitle">
     <div class="kip-card max-w-sm w-full p-6 text-center space-y-4 animate-fadeIn">
-      
-      <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center shadow-xs" aria-hidden="true">
+
+      <div
+        class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center shadow-xs"
+        aria-hidden="true">
         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
         </svg>
@@ -831,9 +928,12 @@
   <!-- ============================================================== -->
   <!-- MODAL: TENTANG KIP 2026                                         -->
   <!-- ============================================================== -->
-  <div id="modalTentang" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+  <div id="modalTentang"
+    class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4" role="dialog"
+    aria-modal="true">
     <div class="kip-card max-w-sm w-full p-6 text-center space-y-4 animate-fadeIn">
-      <div class="w-14 h-14 p-1 rounded-2xl bg-white border border-slate-200 shadow-sm mx-auto flex items-center justify-center">
+      <div
+        class="w-14 h-14 p-1 rounded-2xl bg-white border border-slate-200 shadow-sm mx-auto flex items-center justify-center">
         <img src="assets/logo_pemilwa.jpg" alt="Logo" class="w-11 h-11 object-contain rounded-xl">
       </div>
       <div>
@@ -841,7 +941,8 @@
         <p class="text-xs text-red-600 font-bold mt-0.5">PEMILWA Politeknik Negeri Lhokseumawe 2026</p>
       </div>
       <p class="text-xs text-slate-600 leading-relaxed text-left">
-        Sistem Presensi Digital Panitia Terpadu berbasis Google Sheets untuk transparansi kehadiran seluruh 46 panitia resmi KIP 2026.
+        Sistem Presensi Digital Panitia Terpadu berbasis Google Sheets untuk transparansi kehadiran seluruh 46 panitia
+        resmi KIP 2026.
       </p>
       <button onclick="closeModalTentang()" type="button" class="btn-pnl-outline w-full text-xs">
         Tutup
@@ -852,8 +953,11 @@
   <!-- ============================================================== -->
   <!-- MODAL DRAWER: MENU CEPAT MOBILE                                -->
   <!-- ============================================================== -->
-  <div id="modalMobileDrawer" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="modalDrawerTitle">
-    <div class="bg-white w-full max-w-sm rounded-t-[28px] sm:rounded-2xl p-6 space-y-4 shadow-xl border border-slate-200 animate-fadeIn">
+  <div id="modalMobileDrawer"
+    class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs hidden items-end sm:items-center justify-center p-0 sm:p-4"
+    role="dialog" aria-modal="true" aria-labelledby="modalDrawerTitle">
+    <div
+      class="bg-white w-full max-w-sm rounded-t-[28px] sm:rounded-2xl p-6 space-y-4 shadow-xl border border-slate-200 animate-fadeIn">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <div class="flex items-center gap-2.5">
           <img src="assets/logo_pemilwa.jpg" alt="Logo" class="w-8 h-8 rounded-lg object-contain">
@@ -862,60 +966,96 @@
             <span class="text-[10px] text-slate-400 font-medium">KIP PEMILWA PNL 2026</span>
           </div>
         </div>
-        <button onclick="closeMobileMenuDrawer()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800" aria-label="Tutup menu">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <button onclick="closeMobileMenuDrawer()"
+          class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800"
+          aria-label="Tutup menu">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
 
       <div class="space-y-2 text-xs font-bold">
-        <button onclick="switchMobileTab('beranda'); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
+        <button onclick="switchMobileTab('beranda'); closeMobileMenuDrawer();"
+          class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
           <span class="flex items-center gap-3">
             <span class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
             </span>
             <span>Beranda Presensi</span>
           </span>
-          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </button>
 
-        <button onclick="switchMobileTab('bantuan'); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
+        <button onclick="switchMobileTab('bantuan'); closeMobileMenuDrawer();"
+          class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
           <span class="flex items-center gap-3">
             <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </span>
             <span>Pusat Bantuan & Panduan</span>
           </span>
-          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </button>
 
-        <button onclick="switchMobileTab('tentang'); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
+        <button onclick="switchMobileTab('tentang'); closeMobileMenuDrawer();"
+          class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600 transition-colors text-slate-800 text-left">
           <span class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span
+              class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </span>
             <span>Tentang KIP 2026</span>
           </span>
-          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </button>
 
-        <button onclick="triggerManualSync(); closeMobileMenuDrawer();" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 text-emerald-900 hover:bg-emerald-100 transition-colors text-left border border-emerald-200">
+        <button onclick="triggerManualSync(); closeMobileMenuDrawer();"
+          class="w-full flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 text-emerald-900 hover:bg-emerald-100 transition-colors text-left border border-emerald-200">
           <span class="flex items-center gap-3">
-            <span class="w-7 h-7 rounded-lg bg-emerald-200 text-emerald-800 flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span
+              class="w-7 h-7 rounded-lg bg-emerald-200 text-emerald-800 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
             </span>
             <span>Sinkronkan Data GSheet</span>
           </span>
-          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </button>
 
-        <a href="login.html" class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-left">
+        <a href="login.html"
+          class="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-left">
           <span class="flex items-center gap-3">
             <span class="w-7 h-7 rounded-lg bg-red-600/80 text-white flex items-center justify-center flex-shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </span>
             <span>Login Administrator</span>
           </span>
-          <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </a>
       </div>
     </div>
@@ -1002,4 +1142,5 @@
   <script src="TW-Elements-master/js/tw-elements.umd.min.js"></script>
   <script src="app.js?v=20261112_03"></script>
 </body>
+
 </html>

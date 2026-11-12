@@ -81,7 +81,7 @@
   <!-- ============================================================== -->
   <!-- APPLICATION OUTER CONTAINER (DESKTOP WITH SIDEBAR)             -->
   <!-- ============================================================== -->
-  <div class="max-w-[1440px] mx-auto w-full p-3 sm:p-5 lg:p-6 flex flex-col lg:flex-row gap-5 flex-1 relative z-10 pb-24 lg:pb-6">
+  <div class="max-w-[1440px] mx-auto w-full px-4 py-3 sm:p-5 lg:p-6 flex flex-col lg:flex-row gap-5 flex-1 relative z-10 pb-24 lg:pb-6">
 
     <!-- ============================================================== -->
     <!-- SIDEBAR DOCK (MATCHING IMAGE 2 MOCKUP)                          -->
@@ -191,53 +191,105 @@
     <!-- ============================================================== -->
     <div class="flex-1 flex flex-col gap-5 min-w-0">
 
-      <!-- TOP HEADER BAR (MATCHING IMAGE 2 MOCKUP - STICKY FROZEN) -->
-      <header class="kip-card px-5 sm:px-7 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-3 sm:top-5 z-30 bg-white/95 backdrop-blur-md">
+      <!-- ============================================================== -->
+      <!-- MOBILE TOP HEADER (MATCHING INDEX.HTML TOP BAR)                -->
+      <!-- ============================================================== -->
+      <header id="mobileTopHeader" class="sticky-top-nav lg:hidden">
+        <div class="flex items-center justify-between gap-3 relative z-10">
+          
+          <!-- Organization Identity -->
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 p-1 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-center justify-center flex-shrink-0">
+              <img src="assets/logo_pemilwa.jpg" alt="Logo PEMILWA PNL" class="w-10 h-10 object-contain rounded-xl">
+            </div>
+            <div>
+              <h1 class="text-sm font-extrabold text-[#0F172A] tracking-tight leading-tight">
+                KOMISI INDEPENDEN<br>PEMILIHAN 2026
+              </h1>
+            </div>
+          </div>
+
+          <!-- Right Quick Actions: Indicator Dot, Sync Button, QR Button -->
+          <div class="flex items-center gap-2">
+            <!-- Status Indicator Dot Only (No Text) -->
+            <span id="envBadgeMobile" class="relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0" title="Google Sheets Live Terhubung" aria-label="Status Sistem">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+
+            <!-- Sync Button -->
+            <button 
+              type="button" 
+              onclick="triggerManualSync()"
+              class="w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-slate-50 transition-all flex-shrink-0"
+              title="Sinkronkan dengan Google Sheets"
+              aria-label="Sinkronkan Data"
+            >
+              <svg id="syncHeaderIconMobile" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+            </button>
+
+            <!-- QR Code Button -->
+            <button 
+              type="button" 
+              onclick="showQRCodeModal()"
+              class="w-9 h-9 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-700 hover:text-red-600 hover:bg-slate-50 transition-all flex-shrink-0"
+              title="Tampilkan QR Code"
+              aria-label="QR Code"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+      </header>
+
+      <!-- ============================================================== -->
+      <!-- DESKTOP TOP HEADER BAR (LARGE SCREEN ONLY)                     -->
+      <!-- ============================================================== -->
+      <header class="hidden lg:flex kip-card px-7 py-4 items-center justify-between sticky top-5 z-30 bg-white/95 backdrop-blur-md">
         
         <!-- Organization Identity -->
-        <div class="flex items-center gap-3.5">
-          <div class="lg:hidden w-11 h-11 p-1 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0">
-            <img src="assets/logo_pemilwa.jpg" alt="Logo PEMILWA PNL" class="w-9 h-9 object-contain rounded-xl">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold text-[#0F172A] tracking-tight leading-tight">
+              KOMISI INDEPENDEN PEMILIHAN 2026
+            </h1>
+            <span id="envBadge" class="relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0" title="Google Sheets Live Terhubung" aria-label="Status Sistem">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
           </div>
-          <div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <h1 class="text-base sm:text-lg font-extrabold text-[#0F172A] tracking-tight leading-tight">
-                KOMISI INDEPENDEN PEMILIHAN 2026
-              </h1>
-              <span id="envBadge" class="relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0" title="Google Sheets Live Terhubung" aria-label="Status Sistem">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-            </div>
-            <p class="text-xs text-slate-500 mt-0.5 font-medium">Dashboard Administrator & Rekapitulasi Presensi</p>
-          </div>
+          <p class="text-xs text-slate-500 mt-0.5 font-medium">Dashboard Administrator & Rekapitulasi Presensi</p>
         </div>
 
-        <!-- Segmented Mode Switcher (Presensi / Admin Panel) -->
-        <div class="flex items-center gap-3 self-end sm:self-center">
-          <nav class="pnl-nav-container" aria-label="Navigasi Utama">
-            <a 
-              href="index.html" 
-              id="navPresensiBtn" 
-              class="pnl-nav-item-idle flex items-center gap-1.5 text-xs sm:text-sm"
-            >
-              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
-              <span>Presensi</span>
-            </a>
-            <a 
-              href="admin.html" 
-              id="navAdminBtn" 
-              class="pnl-nav-item-active flex items-center gap-1.5 text-xs sm:text-sm"
-            >
-              <svg class="w-4 h-4 text-[#D91616]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-              </svg>
-              <span>Admin Panel</span>
-            </a>
-          </nav>
+        <!-- Quick Actions -->
+        <div class="flex items-center gap-3">
+          <button 
+            type="button" 
+            onclick="triggerManualSync()"
+            class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 transition-all"
+            title="Sinkronkan Google Sheets"
+          >
+            <svg id="syncHeaderIcon" class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>Sinkronkan Data</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="logoutAdmin()"
+            class="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs flex items-center gap-2 transition-all"
+            title="Keluar"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span>Keluar</span>
+          </button>
         </div>
 
       </header>
@@ -556,41 +608,31 @@
   </div>
 
   <!-- ============================================================== -->
-  <!-- MOBILE BOTTOM FLOATING NAVIGATION (PHONE & TABLET ONLY)        -->
+  <!-- MOBILE BOTTOM FLOATING NAVIGATION (IDENTIK DENGAN INDEX)       -->
   <!-- ============================================================== -->
-  <nav class="lg:hidden fixed bottom-3 left-4 right-4 z-40 max-w-md mx-auto bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xl rounded-2xl px-3 py-2 flex items-center justify-around" aria-label="Navigasi Mobile Admin">
-    <a href="admin.html" class="flex flex-col items-center gap-1 text-[10px] font-bold text-red-600" title="Dashboard">
-      <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      </span>
+  <nav class="bottom-nav lg:hidden" aria-label="Navigasi Mobile Admin">
+    <a href="admin.html" class="nav-item active" title="Dashboard">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span>Admin</span>
     </a>
 
-    <a href="index.html" class="flex flex-col items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-red-600" title="Presensi">
-      <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      </span>
+    <a href="index.html" class="nav-item" title="Presensi">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       <span>Presensi</span>
     </a>
 
-    <button onclick="showQRCodeModal()" type="button" class="flex flex-col items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-red-600" title="QR Code">
-      <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-      </span>
+    <button onclick="showQRCodeModal()" type="button" class="nav-item" title="QR Code">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
       <span>QR Code</span>
     </button>
 
-    <button onclick="triggerManualSync()" type="button" class="flex flex-col items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-emerald-600" title="Sinkronisasi">
-      <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-      </span>
+    <button onclick="triggerManualSync()" type="button" class="nav-item" title="Sinkronisasi">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
       <span>Sync</span>
     </button>
 
-    <button onclick="logoutAdmin()" type="button" class="flex flex-col items-center gap-1 text-[10px] font-bold text-red-500 hover:text-red-700" title="Keluar">
-      <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-      </span>
+    <button onclick="logoutAdmin()" type="button" class="nav-item" title="Keluar">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       <span>Keluar</span>
     </button>
   </nav>

@@ -140,19 +140,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function updateConnectionBadge() {
-  const badge = document.getElementById('envBadge');
-  if (!badge) return;
+  const badges = document.querySelectorAll('#envBadge, #envBadgeMobile');
+  if (!badges || !badges.length) return;
 
   const gasUrl = getGasApiUrl();
-  if (gasUrl) {
-    badge.title = "Google Sheets Live Terhubung";
-    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
-    badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`;
-  } else {
-    badge.title = "Data Panitia Siap";
-    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
-    badge.innerHTML = `<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>`;
-  }
+  badges.forEach(badge => {
+    if (gasUrl) {
+      badge.title = "Google Sheets Live Terhubung";
+      badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+      badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`;
+    } else {
+      badge.title = "Data Panitia Siap";
+      badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+      badge.innerHTML = `<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>`;
+    }
+  });
 }
 
 function updateStrukturSieCards(customList) {
@@ -1092,6 +1094,11 @@ function logoutAdmin() {
   if (gate) gate.classList.remove('hidden');
   if (pinInput) pinInput.value = '';
   showToast('info', 'Logout', 'Anda telah keluar dari mode admin.');
+}
+
+function triggerManualSync() {
+  refreshDashboard();
+  showToast('success', 'Sinkronisasi', 'Data berhasil diperbarui dari Google Sheets.');
 }
 
 function refreshDashboard() {

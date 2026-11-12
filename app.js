@@ -150,28 +150,30 @@ document.addEventListener('DOMContentLoaded', () => {
  * HANYA MENAMPILKAN INDIKATOR LINGKARAN BERKEDIP (NO TEXT BADGE)
  */
 function updateConnectionBadge(syncInfo) {
-  const badge = document.getElementById('envBadge');
-  if (!badge) return;
+  const badges = document.querySelectorAll('#envBadge, #envBadgeMobile');
+  if (!badges || !badges.length) return;
 
   const info = syncInfo || latestSyncState || {};
   const lastSyncStr = info.lastSync || 'Tersinkron';
   const pendingCount = info.pendingCount || 0;
 
-  badge.setAttribute('aria-label', `Status Sistem: Terhubung Google Sheets (${lastSyncStr})`);
+  badges.forEach(badge => {
+    badge.setAttribute('aria-label', `Status Sistem: Terhubung Google Sheets (${lastSyncStr})`);
 
-  if (isSyncing) {
-    badge.title = `Sedang sinkronisasi data dengan Google Sheets...`;
-    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
-    badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>`;
-  } else if (pendingCount > 0) {
-    badge.title = `Terdapat ${pendingCount} presensi dalam antrean pengiriman ke Google Sheets`;
-    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
-    badge.innerHTML = `<span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>`;
-  } else {
-    badge.title = `Google Sheets Live (${lastSyncStr}) • Auto-Sync 10s Aktif`;
-    badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
-    badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`;
-  }
+    if (isSyncing) {
+      badge.title = `Sedang sinkronisasi data dengan Google Sheets...`;
+      badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+      badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>`;
+    } else if (pendingCount > 0) {
+      badge.title = `Terdapat ${pendingCount} presensi dalam antrean pengiriman ke Google Sheets`;
+      badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+      badge.innerHTML = `<span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>`;
+    } else {
+      badge.title = `Google Sheets Live (${lastSyncStr}) • Auto-Sync 10s Aktif`;
+      badge.className = "relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0";
+      badge.innerHTML = `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`;
+    }
+  });
 }
 
 /**
@@ -245,11 +247,11 @@ async function triggerManualSync() {
   isSyncing = true;
 
   const syncIcon = document.getElementById('syncIconSpin');
-  const headerSyncIcon = document.getElementById('syncHeaderIcon');
+  const headerSyncIcons = document.querySelectorAll('#syncHeaderIcon, #syncHeaderIconMobile');
   const syncLabel = document.getElementById('syncBtnLabel');
 
   if (syncIcon) syncIcon.classList.add('animate-spin');
-  if (headerSyncIcon) headerSyncIcon.classList.add('animate-spin');
+  headerSyncIcons.forEach(icon => icon.classList.add('animate-spin'));
   if (syncLabel) syncLabel.textContent = 'Menyinkronkan...';
   updateConnectionBadge();
 
@@ -284,7 +286,7 @@ async function triggerManualSync() {
   } finally {
     isSyncing = false;
     if (syncIcon) syncIcon.classList.remove('animate-spin');
-    if (headerSyncIcon) headerSyncIcon.classList.remove('animate-spin');
+    headerSyncIcons.forEach(icon => icon.classList.remove('animate-spin'));
     if (syncLabel) syncLabel.textContent = 'Sinkronisasi';
     updateConnectionBadge();
   }
