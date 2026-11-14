@@ -81,19 +81,28 @@
           </div>
         </div>
 
-        <!-- Right Quick Menu Button (Opens Mobile Drawer) -->
-        <button 
-          type="button" 
-          onclick="openMobileMenuDrawer()"
-          id="navAdminBtn"
-          class="w-10 h-10 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-center justify-center text-slate-700 hover:text-red-600 hover:bg-slate-50 transition-all flex-shrink-0"
-          title="Buka Menu Navigasi"
-          aria-label="Buka Menu"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
+        <!-- Right Quick Actions: Indicator Dot & Disguised Admin Link -->
+        <div class="flex items-center gap-2">
+          <!-- Status Indicator Dot Only (No Text) -->
+          <span id="envBadge" class="relative flex h-2.5 w-2.5 items-center justify-center flex-shrink-0"
+            title="Sistem Siap" aria-label="Status Sistem">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+
+          <!-- Disguised Admin Button (Samarkan) -->
+          <a 
+            href="?page=admin" 
+            id="navAdminBtn"
+            class="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-slate-600 hover:bg-slate-100/60 rounded-lg transition-all flex-shrink-0"
+            title="Admin"
+            aria-label="Admin"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </a>
+        </div>
 
       </div>
     </header>
