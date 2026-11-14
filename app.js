@@ -1565,6 +1565,9 @@ function updateSieChart(panitiaList) {
 }
 
 function resetFilters() {
+  if (document.activeElement && typeof document.activeElement.blur === 'function') {
+    document.activeElement.blur();
+  }
   const filterSieElem = document.getElementById('filterSie');
   const filterStatusElem = document.getElementById('filterStatus');
   const searchInputElem = document.getElementById('searchPanitiaInput');
