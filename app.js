@@ -763,8 +763,8 @@ function renderPanitiaBiodata(panitia) {
   // Kondisi 2: BELUM ABSEN & AGENDA SEDANG AKTIF
   else if (window.activeAgendaState && window.activeAgendaState.status === 'AKTIF') {
     if (bioStatusBadge) {
-      bioStatusBadge.className = "badge-pnl-emerald px-2.5 py-0.5 text-[11px]";
-      bioStatusBadge.textContent = "Terdaftar di SK Panitia";
+      bioStatusBadge.className = "hidden";
+      bioStatusBadge.textContent = "";
     }
 
     if (noticeElem) {
@@ -797,8 +797,8 @@ function renderPanitiaBiodata(panitia) {
     const opsiContainer = document.getElementById('opsiIzinSakitContainer');
     if (opsiContainer) opsiContainer.classList.add('hidden');
     if (bioStatusBadge) {
-      bioStatusBadge.className = "badge-pnl-gold px-2.5 py-0.5 text-[11px] font-bold";
-      bioStatusBadge.textContent = "Terdaftar di SK Panitia";
+      bioStatusBadge.className = "hidden";
+      bioStatusBadge.textContent = "";
     }
 
     if (noticeElem) {
@@ -813,7 +813,7 @@ function renderPanitiaBiodata(panitia) {
           <div class="flex-1 min-w-0">
             <h4 class="font-extrabold text-sm text-slate-900">Biodata Terverifikasi (Belum Ada Sesi Aktif)</h4>
             <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-              Halo <strong>${panitia.nama}</strong>, biodata Anda terdaftar resmi pada SK Panitia KIP 2026.
+              Halo <strong>${panitia.nama}</strong>, biodata Anda telah terverifikasi. Tombol kehadiran akan aktif secara otomatis saat pimpinan sidang membuka agenda rapat resmi.
             </p>
           </div>
         </div>
