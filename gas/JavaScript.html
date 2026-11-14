@@ -633,6 +633,8 @@ function renderPanitiaBiodata(panitia) {
     }
 
     if (sessionField) sessionField.classList.add('hidden');
+    const opsiContainer = document.getElementById('opsiIzinSakitContainer');
+    if (opsiContainer) opsiContainer.classList.add('hidden');
 
     if (btnHadir) {
       btnHadir.disabled = true;
@@ -663,6 +665,9 @@ function renderPanitiaBiodata(panitia) {
       }
     }
 
+    const opsiContainer = document.getElementById('opsiIzinSakitContainer');
+    if (opsiContainer) opsiContainer.classList.remove('hidden');
+
     if (btnHadir) {
       btnHadir.disabled = false;
       btnHadir.className = "btn-pnl-red w-full min-h-[50px] py-3 px-6 text-sm sm:text-base font-extrabold tracking-wider flex items-center justify-center gap-2.5 transition-all shadow-sm active:scale-[0.99]";
@@ -674,6 +679,8 @@ function renderPanitiaBiodata(panitia) {
   } 
   // Kondisi 3: TIDAK ADA SESI / AGENDA AKTIF (OFFLINE)
   else {
+    const opsiContainer = document.getElementById('opsiIzinSakitContainer');
+    if (opsiContainer) opsiContainer.classList.add('hidden');
     if (bioStatusBadge) {
       bioStatusBadge.className = "badge-pnl-gold px-2.5 py-0.5 text-[11px] font-bold";
       bioStatusBadge.textContent = "Terdaftar di SK Panitia";
@@ -733,6 +740,16 @@ function submitKehadiran() {
   if (window.activeAgendaState.hasSessionCode) {
     const codeInput = document.getElementById('inputSessionCode');
     sessionCode = codeInput ? codeInput.value.trim() : '';
+
+    if (sessionCode.toUpperCase() === 'SAKIT') {
+      openAbsenModal('SAKIT');
+      return;
+    }
+    if (sessionCode.toUpperCase() === 'IZIN') {
+      openAbsenModal('IZIN');
+      return;
+    }
+
     if (!sessionCode) {
       showToast('warning', 'Kode Sesi Diperlukan', 'Masukkan kode sesi rapat yang diberikan panitia di ruangan.');
       if (codeInput) codeInput.focus();
@@ -1410,13 +1427,25 @@ function renderPanitiaTable(list) {
     tr.className = "hover:bg-slate-50/80 transition-colors";
 
     const isHadir = (p.status === 'HADIR');
-    const badgeStatus = isHadir 
-      ? `<span class="badge-pnl-emerald inline-flex items-center gap-1.5 px-3 py-1 text-[11px]">
+    const isSakit = (p.status === 'SAKIT');
+    const isIzin = (p.status === 'IZIN');
+
+    let badgeStatus = `<span class="badge-pnl-slate inline-flex items-center gap-1 px-3 py-1 text-[11px]">BELUM</span>`;
+    if (isHadir) {
+      badgeStatus = `<span class="badge-pnl-emerald inline-flex items-center gap-1.5 px-3 py-1 text-[11px]">
            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HADIR
-         </span>`
-      : `<span class="badge-pnl-slate inline-flex items-center gap-1 px-3 py-1 text-[11px]">
-           BELUM
          </span>`;
+    } else if (isSakit) {
+      const tooltip = p.alasan ? `title="Sakit: ${p.alasan}"` : 'title="Sakit"';
+      badgeStatus = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold" ${tooltip}>
+           <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> SAKIT
+         </span>`;
+    } else if (isIzin) {
+      const tooltip = p.alasan ? `title="Izin: ${p.alasan}"` : 'title="Izin"';
+      badgeStatus = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-bold" ${tooltip}>
+           <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> IZIN
+         </span>`;
+    }
 
     const namaDisplay = p.nama || '<span class="italic text-slate-400 font-normal">(Belum Terisi)</span>';
     const nimDisplay = p.nim ? `<span class="font-mono text-slate-800 font-bold">${p.nim}</span>` : '<span class="italic text-slate-400 font-mono">-</span>';
@@ -1432,8 +1461,8 @@ function renderPanitiaTable(list) {
     const waktuFormatted = p.waktuPresensi ? formatPresensiTime(p.waktuPresensi) : '-';
 
     const safeNama = (p.nama || '').replace(/'/g, "\\'");
-    const aksiDisplay = isHadir 
-      ? `<button type="button" onclick="confirmResetSinglePanitia('${p.nim}', '${safeNama}')" class="px-2 py-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-all inline-flex items-center gap-1" title="Reset status hadir anggota ini ke Belum Hadir">
+    const aksiDisplay = (isHadir || isSakit || isIzin)
+      ? `<button type="button" onclick="confirmResetSinglePanitia('${p.nim}', '${safeNama}')" class="px-2 py-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-all inline-flex items-center gap-1" title="Reset status anggota ini ke Belum Hadir">
            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
            <span>Reset</span>
          </button>`
@@ -1612,17 +1641,198 @@ function testGsheetConnection() {
 }
 
 /**
+ * Kode Sesi Otomatis (Anti-Titip Absen)
+ */
+function generateRandomSessionCode() {
+  const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let result = '';
+  for (let i = 0; i < 4; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function regenerateAgendaCode() {
+  const input = document.getElementById('agendaInputCode');
+  if (input) {
+    input.value = generateRandomSessionCode();
+    input.focus();
+  }
+}
+
+/**
  * Modal Generate Agenda
  */
 function openModalGenerateAgenda() {
-  document.getElementById('modalGenerateAgenda').classList.remove('hidden');
-  document.getElementById('modalGenerateAgenda').classList.add('flex');
+  const modal = document.getElementById('modalGenerateAgenda');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+
+  // Isi kode sesi otomatis (bisa diubah)
+  const inputCode = document.getElementById('agendaInputCode');
+  if (inputCode && !inputCode.value) {
+    inputCode.value = generateRandomSessionCode();
+  }
   document.getElementById('agendaInputTitle').focus();
 }
 
 function closeModalGenerateAgenda() {
   document.getElementById('modalGenerateAgenda').classList.add('hidden');
   document.getElementById('modalGenerateAgenda').classList.remove('flex');
+}
+
+/**
+ * Pengelolaan Laporan Sakit & Izin via WhatsApp
+ */
+let currentAbsenType = 'SAKIT';
+
+function openAbsenModal(type) {
+  if (!currentPanitiaData) {
+    showToast('warning', 'Data Belum Dipilih', 'Silakan masukkan NIM dan cari data panitia terlebih dahulu.');
+    return;
+  }
+
+  currentAbsenType = (type === 'IZIN') ? 'IZIN' : 'SAKIT';
+
+  const modal = document.getElementById('modalKeteranganAbsen');
+  const title = document.getElementById('modalAbsenTitle');
+  const sub = document.getElementById('modalAbsenSubtitle');
+  const icon = document.getElementById('modalAbsenIconBox');
+  const label = document.getElementById('labelAbsenAlasan');
+  const input = document.getElementById('inputAbsenAlasan');
+  const namaElem = document.getElementById('modalAbsenNama');
+  const jabElem = document.getElementById('modalAbsenJabatanSie');
+
+  if (namaElem) namaElem.textContent = currentPanitiaData.nama || '-';
+  if (jabElem) jabElem.textContent = `${currentPanitiaData.jabatan || '-'} - Sie ${currentPanitiaData.sie || '-'}`;
+
+  if (currentAbsenType === 'SAKIT') {
+    if (title) title.textContent = 'Keterangan Sakit';
+    if (sub) sub.textContent = 'Konfirmasi ketidakhadiran rapat karena sakit';
+    if (icon) {
+      icon.className = 'w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg flex-shrink-0';
+      icon.textContent = '🤒';
+    }
+    if (label) label.textContent = 'Sakit apa / Gejala yang dialami:';
+    if (input) {
+      input.placeholder = 'Contoh: Mengalami demam tinggi dan flu berat sejak kemarin...';
+      input.value = '';
+    }
+  } else {
+    if (title) title.textContent = 'Keterangan Izin';
+    if (sub) sub.textContent = 'Konfirmasi permohonan izin berhalangan hadir';
+    if (icon) {
+      icon.className = 'w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg flex-shrink-0';
+      icon.textContent = '📝';
+    }
+    if (label) label.textContent = 'Alasan berhalangan hadir:';
+    if (input) {
+      input.placeholder = 'Contoh: Ada jadwal praktikum pengganti mendesak di kampus...';
+      input.value = '';
+    }
+  }
+
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    if (input) setTimeout(() => input.focus(), 150);
+  }
+}
+
+function closeAbsenModal() {
+  const modal = document.getElementById('modalKeteranganAbsen');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+function submitIzinSakit() {
+  if (!currentPanitiaData) return;
+  const input = document.getElementById('inputAbsenAlasan');
+  const alasan = input ? input.value.trim() : '';
+
+  if (!alasan) {
+    showToast('warning', 'Keterangan Wajib', currentAbsenType === 'SAKIT' ? 'Silakan tuliskan sakit apa yang Anda alami.' : 'Silakan tuliskan alasan izin Anda.');
+    if (input) input.focus();
+    return;
+  }
+
+  const btn = document.getElementById('btnConfirmAbsen');
+  if (btn) btn.disabled = true;
+
+  const agenda = window.activeAgendaState;
+  const agendaId = agenda ? agenda.id : '';
+  const nama = currentPanitiaData.nama || '-';
+  const jabatan = currentPanitiaData.jabatan || '-';
+  const sie = currentPanitiaData.sie || '-';
+  const jenisTeks = currentAbsenType === 'SAKIT' ? 'sakit' : 'izin';
+
+  // Format pesan WhatsApp persis sesuai template:
+  // "Assalamu’alaikum Wr.Wb"
+  // Perkenalkan, Saya (nama), Selaku (jabatan), Sie (sie).
+  // Tidak dapat berhadir di karenakan (sakit/izin) dengan alasan:
+  // ""
+  // Wassalamu’alaikum Wr.Wb
+  // Teks dalam kurung ditebalkan dengan *
+  const sapaan = 'Assalamu’alaikum Wr.Wb';
+  const baris1 = `Perkenalkan, Saya *${nama}*, Selaku *${jabatan}*, Sie *${sie}*.`;
+  const baris2 = `Tidak dapat berhadir di karenakan *${jenisTeks}* dengan alasan:\n"${alasan}"`;
+  const penutup = 'Wassalamu’alaikum Wr.Wb';
+  const pesanWA = `${sapaan}\n\n${baris1}\n\n${baris2}\n\n${penutup}`;
+
+  // Nomor WhatsApp Sekretaris Pelaksana: 0822 6703 4994 -> 6282267034994
+  const waTarget = '6282267034994';
+  const waUrl = `https://wa.me/${waTarget}?text=${encodeURIComponent(pesanWA)}`;
+
+  const payload = {
+    nim: currentPanitiaData.nim,
+    agendaId: agendaId,
+    status: currentAbsenType,
+    alasan: alasan,
+    sessionCode: 'IZIN_SAKIT',
+    deviceInfo: `WA Sekretaris (${currentAbsenType}): ${alasan}`
+  };
+
+  const finishCallback = () => {
+    if (btn) btn.disabled = false;
+    closeAbsenModal();
+    showToast('success', 'Keterangan Dicatat', `Status ${currentAbsenType} berhasil dicatat. Mengalihkan ke WhatsApp Sekretaris Pelaksana...`);
+
+    const noticeElem = document.getElementById('bioAttendanceNotice');
+    if (noticeElem) {
+      noticeElem.className = 'rounded-2xl p-4 text-xs font-medium border transition-all animate-fadeIn bg-amber-50 border-amber-200 text-amber-900 block';
+      noticeElem.innerHTML = `<strong>Keterangan ${currentAbsenType} Terkirim:</strong> "${alasan}". Laporan telah dialihkan ke WhatsApp Sekretaris Pelaksana.`;
+      noticeElem.classList.remove('hidden');
+    }
+    const sessionField = document.getElementById('sessionCodeField');
+    if (sessionField) sessionField.classList.add('hidden');
+    const btnHadir = document.getElementById('btnHadir');
+    if (btnHadir) btnHadir.classList.add('hidden');
+    const opsiContainer = document.getElementById('opsiIzinSakitContainer');
+    if (opsiContainer) opsiContainer.classList.add('hidden');
+
+    setTimeout(() => {
+      window.open(waUrl, '_blank');
+    }, 500);
+  };
+
+  if (isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler(finishCallback)
+      .withFailureHandler(() => finishCallback())
+      .submitPresensi(payload);
+    return;
+  }
+
+  fetch(`${PHP_API_BASE}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'submitPresensi', payload: payload })
+  })
+    .then(r => r.json())
+    .then(finishCallback)
+    .catch(() => finishCallback());
 }
 
 function submitGenerateAgenda() {
@@ -1925,6 +2135,11 @@ function confirmResetSinglePanitia(nim, nama) {
 window.resetFilters = resetFilters;
 window.confirmResetAgendaPresensi = confirmResetAgendaPresensi;
 window.confirmResetSinglePanitia = confirmResetSinglePanitia;
+window.regenerateAgendaCode = regenerateAgendaCode;
+window.generateRandomSessionCode = generateRandomSessionCode;
+window.openAbsenModal = openAbsenModal;
+window.closeAbsenModal = closeAbsenModal;
+window.submitIzinSakit = submitIzinSakit;
 
 /**
  * QR Code Presensi Modal

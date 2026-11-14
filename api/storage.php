@@ -187,6 +187,8 @@ class Storage {
                     'sie' => $record['sie'] ?? '',
                     'delegasi' => $record['delegasi'] ?? '',
                     'no_hp' => $record['no_hp'] ?? '',
+                    'status' => $record['status'] ?? 'HADIR',
+                    'alasan' => $record['alasan'] ?? '',
                     'sessionCode' => $record['sessionCode'] ?? '',
                     'timestamp' => $record['timestamp'] ?? date('H:i:s'),
                     'tanggal' => $record['tanggal'] ?? date('d F Y'),

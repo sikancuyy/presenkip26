@@ -38,7 +38,9 @@ class SyncEngine {
                     'divisi' => $payload['sie'] ?? $payload['divisi'] ?? '',
                     'delegasi' => $payload['delegasi'] ?? '',
                     'hp' => $payload['no_hp'] ?? '',
-                    'deviceInfo' => 'PHP Cache Auto-Sync'
+                    'status' => $payload['status'] ?? 'HADIR',
+                    'alasan' => $payload['alasan'] ?? '',
+                    'deviceInfo' => !empty($payload['alasan']) ? ('Alasan: ' . $payload['alasan']) : 'PHP Cache Auto-Sync'
                 ]);
 
                 // Berhasil jika sukses atau GSheet mendeteksi sudah tercatat hadir (idempotent)

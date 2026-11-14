@@ -322,6 +322,29 @@
           <div id="btnHadirSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" aria-hidden="true"></div>
         </button>
 
+        <!-- Divider & Opsi Sakit / Izin -->
+        <div id="opsiIzinSakitContainer" class="space-y-2 pt-1">
+          <div class="flex items-center gap-2.5">
+            <div class="flex-1 h-px bg-slate-200"></div>
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Atau Berhalangan Hadir?</span>
+            <div class="flex-1 h-px bg-slate-200"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="openAbsenModal('SAKIT')"
+              class="h-10 px-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100/80 text-amber-900 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs">
+              <span>🤒</span>
+              <span>Lapor Sakit</span>
+            </button>
+
+            <button type="button" onclick="openAbsenModal('IZIN')"
+              class="h-10 px-3 rounded-xl border border-blue-300 bg-blue-50 hover:bg-blue-100/80 text-blue-900 font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs">
+              <span>📝</span>
+              <span>Lapor Izin</span>
+            </button>
+          </div>
+        </div>
+
       </div>
 
       <!-- Alert Notification Box -->
@@ -805,6 +828,72 @@
       <button onclick="closeReceiptModal()" type="button" class="btn-primary-red w-full text-xs">
         Selesai
       </button>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: KETERANGAN SAKIT / IZIN                                  -->
+  <!-- ============================================================== -->
+  <div id="modalKeteranganAbsen"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 overflow-y-auto"
+    role="dialog" aria-modal="true" aria-labelledby="modalAbsenTitle">
+    <div class="relative w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 animate-scaleUp space-y-4">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div id="modalAbsenIconBox" class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg flex-shrink-0">
+            🤒
+          </div>
+          <div>
+            <h3 id="modalAbsenTitle" class="text-base font-extrabold text-slate-900">Keterangan Sakit</h3>
+            <p id="modalAbsenSubtitle" class="text-xs text-slate-500">Konfirmasi ketidakhadiran rapat</p>
+          </div>
+        </div>
+        <button onclick="closeAbsenModal()" type="button" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800" aria-label="Tutup dialog">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Ringkasan Panitia -->
+      <div class="rounded-xl bg-slate-50 border border-slate-200/80 p-3 text-xs space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-medium">Nama:</span>
+          <span id="modalAbsenNama" class="font-extrabold text-slate-900">-</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-medium">Jabatan / Sie:</span>
+          <span id="modalAbsenJabatanSie" class="font-bold text-slate-800">-</span>
+        </div>
+        <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[11px]">
+          <span class="text-slate-500">Tujuan Laporan:</span>
+          <span class="font-bold text-emerald-700 flex items-center gap-1">Sekretaris Pelaksana (0822 6703 4994)</span>
+        </div>
+      </div>
+
+      <!-- Form Input Alasan / Keterangan -->
+      <div class="space-y-1.5">
+        <label for="inputAbsenAlasan" id="labelAbsenAlasan" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+          Sakit Apa / Gejala yang Dialami:
+        </label>
+        <textarea id="inputAbsenAlasan" rows="3"
+          class="dash-input w-full p-3 text-xs text-slate-900 rounded-xl resize-none font-medium"
+          placeholder="Contoh: Mengalami demam tinggi dan flu sejak kemarin..."></textarea>
+      </div>
+
+      <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 text-[11px] text-emerald-800 flex items-start gap-2">
+        <svg class="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Setelah mengklik Konfirmasi, Anda akan langsung dialihkan ke WhatsApp Sekretaris Pelaksana dengan pesan terformat otomatis.</span>
+      </div>
+
+      <div class="flex items-center gap-2.5 pt-2">
+        <button type="button" onclick="closeAbsenModal()" class="btn-pnl-outline flex-1 h-11 text-xs font-bold">
+          Batal
+        </button>
+        <button type="button" id="btnConfirmAbsen" onclick="submitIzinSakit()" class="btn-primary-red flex-1 h-11 text-xs font-bold flex items-center justify-center gap-2">
+          <span>Konfirmasi & Kirim WA</span>
+        </button>
+      </div>
+
     </div>
   </div>
 

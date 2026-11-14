@@ -518,7 +518,10 @@ function submitPresensi(payload) {
       }
     }
 
-    if (verifiedSessionCode !== "") {
+    const status = String(payload.status || "HADIR").trim().toUpperCase();
+
+    // Verifikasi kode sesi hanya jika status HADIR
+    if (status === "HADIR" && verifiedSessionCode !== "") {
       const inputCode = String(payload.sessionCode || "").trim();
       if (inputCode.toUpperCase() !== verifiedSessionCode.toUpperCase()) {
         return { success: false, message: "Kode sesi rapat salah! Minta kode verifikasi kepada sekretaris di ruangan." };
@@ -572,9 +575,9 @@ function submitPresensi(payload) {
       panitia.jabatan,
       panitia.sie,
       panitia.delegasi,
-      "HADIR",
+      status,
       waktuFormatted,
-      payload.deviceInfo || "Web Browser"
+      payload.alasan ? ("Keterangan: " + payload.alasan) : (payload.deviceInfo || "Web Browser")
     ]);
 
     // Format sel waktu presensi (Kolom 10) sebagai teks murni agar terhindar dari konversi otomatis Date 1899
@@ -583,21 +586,25 @@ function submitPresensi(payload) {
       rawSheet.getRange(lastRawRow, 10).setNumberFormat("@");
     }
 
-    // 6. Update Jumlah Total Hadir di Sheet AGENDA
-    if (agendaRowIdx > 0) {
+    // 6. Update Jumlah Total Hadir di Sheet AGENDA (Hanya jika status HADIR)
+    if (agendaRowIdx > 0 && status === "HADIR") {
       const curTotal = Number(agendaSheet.getRange(agendaRowIdx, 9).getValue()) || 0;
       agendaSheet.getRange(agendaRowIdx, 9).setValue(curTotal + 1);
     }
 
     // 7. Sinkronisasi Otomatis ke Matriks Sheet PRESENSI
-    syncPresensiMatrix(ss, activeAgenda, cleanNim, waktuFormatted);
+    syncPresensiMatrix(ss, activeAgenda, cleanNim, waktuFormatted, status);
 
     // 8. Tulis Riwayat ke ADMIN_LOG
-    writeAdminLog("PRESENSI_ANGGOTA", panitia.nama + " (" + cleanNim + ") hadir pada " + activeAgenda.title, "SISTEM");
+    writeAdminLog("PRESENSI_ANGGOTA", panitia.nama + " (" + cleanNim + ") status: " + status + " pada " + activeAgenda.title, "SISTEM");
+
+    const responseMsg = (status === "HADIR") 
+      ? "Kehadiran Anda berhasil diverifikasi dan dicatat!" 
+      : "Keterangan " + status + " Anda berhasil dicatat dan diteruskan ke Sekretaris Pelaksana.";
 
     return {
       success: true,
-      message: "Kehadiran Anda berhasil diverifikasi dan dicatat!",
+      message: responseMsg,
       data: {
         nama: panitia.nama,
         nim: panitia.nim,
@@ -618,7 +625,7 @@ function submitPresensi(payload) {
 /**
  * Sinkronisasi kehadiran individu ke dalam matriks sheet PRESENSI
  */
-function syncPresensiMatrix(ss, agenda, nim, waktu) {
+function syncPresensiMatrix(ss, agenda, nim, waktu, status) {
   try {
     const presensiSheet = ss.getSheetByName(SHEET_PRESENSI);
     if (!presensiSheet) return;
@@ -626,8 +633,11 @@ function syncPresensiMatrix(ss, agenda, nim, waktu) {
     const data = presensiSheet.getDataRange().getValues();
     if (data.length <= 2) return;
 
-    // Format status kehadiran pada sheet PRESENSI murni "HADIR" (jam hanya disimpan di raw_presensi)
-    const cellValue = "HADIR";
+    const cellValue = String(status || "HADIR").toUpperCase();
+    let fontColor = "#15803d";
+    if (cellValue === "SAKIT") fontColor = "#d97706";
+    else if (cellValue === "IZIN") fontColor = "#2563eb";
+
     const cleanAgendaTitle = String(agenda.title || "").trim().toLowerCase();
 
     // Cari kolom untuk agenda ini di Row 2 (mulai Kolom 8 = H)
@@ -664,7 +674,7 @@ function syncPresensiMatrix(ss, agenda, nim, waktu) {
         targetCell.setNumberFormat("@"); // Set format teks agar Google Sheets tidak mengubahnya
         targetCell
           .setValue(cellValue)
-          .setFontColor("#15803d")
+          .setFontColor(fontColor)
           .setFontWeight("bold")
           .setHorizontalAlignment("center");
         break;

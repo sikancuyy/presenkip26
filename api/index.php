@@ -135,12 +135,20 @@ switch ($action) {
         $agendaId = (string)($activeAgenda['id'] ?? '');
         $expectedSessionCode = strtoupper(trim((string)($activeAgenda['sessionCode'] ?? '')));
 
-        // Validasi Kode Sesi (Case-insensitive)
-        if ($inputSessionCode !== $expectedSessionCode) {
-            jsonResponse([
-                'success' => false,
-                'message' => "Kode sesi rapat tidak sesuai. Harap konfirmasi ke pimpinan sidang/acara."
-            ]);
+        $status = strtoupper(trim((string)($payload['status'] ?? 'HADIR')));
+        if (!in_array($status, ['HADIR', 'SAKIT', 'IZIN'])) {
+            $status = 'HADIR';
+        }
+        $alasan = trim((string)($payload['alasan'] ?? ''));
+
+        // Validasi Kode Sesi hanya jika status HADIR dan agenda mewajibkan kode
+        if ($status === 'HADIR') {
+            if (!empty($expectedSessionCode) && $inputSessionCode !== $expectedSessionCode) {
+                jsonResponse([
+                    'success' => false,
+                    'message' => "Kode sesi rapat tidak sesuai. Harap konfirmasi ke pimpinan sidang/acara."
+                ]);
+            }
         }
 
         // Validasi master panitia
@@ -164,6 +172,8 @@ switch ($action) {
             'sie' => $panitia['sie'],
             'delegasi' => $panitia['delegasi'],
             'no_hp' => $panitia['no_hp'],
+            'status' => $status,
+            'alasan' => $alasan,
             'sessionCode' => $expectedSessionCode,
             'timestamp' => $nowTime,
             'tanggal' => $nowDate
@@ -173,10 +183,11 @@ switch ($action) {
 
         if (!empty($res['already_attended'])) {
             $existing = $res['record'] ?? [];
+            $existingStatus = $existing['status'] ?? 'HADIR';
             jsonResponse([
                 'success' => false,
                 'alreadyAttended' => true,
-                'message' => "NIM {$nim} ({$panitia['nama']}) sudah tercatat hadir pada agenda ini.",
+                'message' => "NIM {$nim} ({$panitia['nama']}) sudah tercatat ({$existingStatus}) pada agenda ini.",
                 'receipt' => [
                     'nama' => $panitia['nama'],
                     'nim' => $nim,
@@ -185,7 +196,8 @@ switch ($action) {
                     'agendaTitle' => $activeAgenda['title'] ?? 'Rapat Panitia',
                     'timestamp' => $existing['timestamp'] ?? $nowTime,
                     'tanggal' => $existing['tanggal'] ?? $nowDate,
-                    'status' => 'HADIR'
+                    'status' => $existingStatus,
+                    'alasan' => $existing['alasan'] ?? ''
                 ]
             ]);
         }
@@ -193,11 +205,15 @@ switch ($action) {
         // SETIAP ADA PERUBAHAN LANGSUNG SINKRONKAN KE GSHEET
         SyncEngine::pushPendingQueue();
 
+        $pesanSukses = ($status === 'HADIR') 
+            ? "Presensi kehadiran Anda berhasil dicatat secara resmi." 
+            : "Keterangan {$status} Anda berhasil dicatat dan diteruskan ke Sekretaris Pelaksana.";
+
         // Berhasil dicatat di PHP storage & langsung disinkronkan ke Google Sheets
         jsonResponse([
             'success' => true,
             'alreadyAttended' => false,
-            'message' => "Presensi Anda berhasil dicatat secara resmi.",
+            'message' => $pesanSukses,
             'receipt' => [
                 'nama' => $panitia['nama'],
                 'nim' => $nim,
@@ -206,7 +222,8 @@ switch ($action) {
                 'agendaTitle' => $activeAgenda['title'] ?? 'Rapat Panitia',
                 'timestamp' => $nowTime,
                 'tanggal' => $nowDate,
-                'status' => 'HADIR'
+                'status' => $status,
+                'alasan' => $alasan
             ]
         ]);
         break;
@@ -249,14 +266,20 @@ switch ($action) {
             if (!empty($sie)) $sieSet[$sie] = true;
 
             $attended = false;
+            $statusItem = 'BELUM HADIR';
             $jamHadir = '';
+            $alasanItem = '';
 
             if ($agendaId) {
                 $key = $agendaId . '_' . $cleanNim;
                 if (isset($presensiMap[$key])) {
                     $attended = true;
-                    $sudahHadirCount++;
+                    $statusItem = strtoupper($presensiMap[$key]['status'] ?? 'HADIR');
+                    if ($statusItem === 'HADIR') {
+                        $sudahHadirCount++;
+                    }
                     $jamHadir = $presensiMap[$key]['timestamp'] ?? 'HADIR';
+                    $alasanItem = $presensiMap[$key]['alasan'] ?? '';
                 }
             }
 
@@ -269,7 +292,8 @@ switch ($action) {
                 'no_hp' => $p['no_hp'] ?? '',
                 'delegasi' => $p['delegasi'] ?? '',
                 'sudahHadir' => $attended,
-                'status' => $attended ? 'HADIR' : 'BELUM HADIR',
+                'status' => $statusItem,
+                'alasan' => $alasanItem,
                 'jamHadir' => $jamHadir,
                 'waktuPresensi' => $jamHadir
             ];
