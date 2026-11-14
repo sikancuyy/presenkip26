@@ -274,20 +274,38 @@
             </div>
           </div>
 
-          <!-- Key Value Grid Tiles -->
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
-              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Jabatan</span>
-              <span id="bioJabatan" class="font-bold text-slate-900 text-xs mt-0.5 block truncate">-</span>
+          <!-- TABEL 1 BARIS (MENAMPILKAN SEMUA DATA: NO, NAMA, NIM, JABATAN, SIE, NO. HP, DELEGASI) -->
+          <div class="space-y-1.5">
+            <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
+              <table class="w-full text-xs text-left whitespace-nowrap">
+                <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3 text-center">No</th>
+                    <th class="py-2.5 px-3">Nama Lengkap</th>
+                    <th class="py-2.5 px-3">NIM</th>
+                    <th class="py-2.5 px-3">Jabatan</th>
+                    <th class="py-2.5 px-3">Sie</th>
+                    <th class="py-2.5 px-3">No. HP</th>
+                    <th class="py-2.5 px-3">Delegasi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white font-medium text-slate-700">
+                  <tr class="hover:bg-slate-50/50">
+                    <td id="bioNo" class="py-3 px-3 text-center font-bold font-mono text-slate-900">-</td>
+                    <td id="bioNamaDetail" class="py-3 px-3 font-extrabold text-slate-900">-</td>
+                    <td id="bioNimDetail" class="py-3 px-3 font-mono font-bold text-slate-700">-</td>
+                    <td id="bioJabatan" class="py-3 px-3 font-bold text-slate-900">-</td>
+                    <td id="bioSie" class="py-3 px-3 font-bold text-slate-900">-</td>
+                    <td id="bioHp" class="py-3 px-3 font-mono text-slate-800">-</td>
+                    <td id="bioDelegasi" class="py-3 px-3 font-bold text-slate-900">-</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs">
-              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Sie</span>
-              <span id="bioSie" class="font-bold text-slate-900 text-xs mt-0.5 block truncate">-</span>
-            </div>
-            <div class="bg-white p-3 rounded-xl border border-slate-200/90 shadow-2xs col-span-2">
-              <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Delegasi Ormawa</span>
-              <span id="bioDelegasi" class="font-bold text-slate-900 text-xs mt-0.5 truncate block">-</span>
-            </div>
+            <p class="text-[10px] text-slate-400 font-medium px-1 flex items-center justify-between sm:hidden">
+              <span>← Geser ke kanan untuk melihat semua kolom</span>
+              <span class="font-mono text-slate-400">7 Kolom</span>
+            </p>
           </div>
 
         </div>
