@@ -37,6 +37,33 @@ window.MASTER_PANITIA = [
     },
     {
         "no": "5",
+        "nama": "Arjuna Prasetya",
+        "nim": "2024223020053",
+        "jabatan": "Anggota",
+        "sie": "Acara",
+        "no_hp": "082277757668",
+        "delegasi": "Dewan Perwakilan Mahasiswa"
+    },
+    {
+        "no": "6",
+        "nama": "Cut Fitri Nabila",
+        "nim": "2024613120017",
+        "jabatan": "Anggota",
+        "sie": "Acara",
+        "no_hp": "085178724351",
+        "delegasi": "Dewan Perwakilan Mahasiswa"
+    },
+    {
+        "no": "7",
+        "nama": "Ikhsan",
+        "nim": "2025213010029",
+        "jabatan": "Anggota",
+        "sie": "Acara",
+        "no_hp": "082297360390",
+        "delegasi": "Dewan Perwakilan Mahasiswa"
+    },
+    {
+        "no": "8",
         "nama": "Indhika Wisnu Pratama",
         "nim": "2025203050039",
         "jabatan": "Anggota",
@@ -45,40 +72,13 @@ window.MASTER_PANITIA = [
         "delegasi": "UKM Sanggar Seni"
     },
     {
-        "no": "6",
-        "nama": "Siti Chairunnisa Aliana",
-        "nim": "2024583020070",
-        "jabatan": "Anggota",
-        "sie": "Acara",
-        "no_hp": "082286591084",
-        "delegasi": "UKM Merpati Putih"
-    },
-    {
-        "no": "7",
-        "nama": "Naziihah Putri Fadhiilah",
-        "nim": "2025623030067",
-        "jabatan": "Anggota",
-        "sie": "Acara",
-        "no_hp": "085760636411",
-        "delegasi": "Badan Eksekutif Mahasiswa"
-    },
-    {
-        "no": "8",
+        "no": "9",
         "nama": "Kaisan Nurwaled",
         "nim": "2024573010044",
         "jabatan": "Anggota",
         "sie": "Acara",
         "no_hp": "082183851081",
         "delegasi": "UKM-POLICY"
-    },
-    {
-        "no": "9",
-        "nama": "Riska Ayu Nauli",
-        "nim": "2025573010129",
-        "jabatan": "Anggota",
-        "sie": "Acara",
-        "no_hp": "081396741127",
-        "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
     },
     {
         "no": "10",
@@ -91,30 +91,30 @@ window.MASTER_PANITIA = [
     },
     {
         "no": "11",
-        "nama": "Cut Fitri Nabila",
-        "nim": "2024613120017",
+        "nama": "Naziihah Putri Fadhiilah",
+        "nim": "2025623030067",
         "jabatan": "Anggota",
         "sie": "Acara",
-        "no_hp": "085178724351",
-        "delegasi": "Dewan Perwakilan Mahasiswa"
+        "no_hp": "085760636411",
+        "delegasi": "Badan Eksekutif Mahasiswa"
     },
     {
         "no": "12",
-        "nama": "Ikhsan",
-        "nim": "2025213010029",
+        "nama": "Riska Ayu Nauli",
+        "nim": "2025573010129",
         "jabatan": "Anggota",
         "sie": "Acara",
-        "no_hp": "082297360390",
-        "delegasi": "Dewan Perwakilan Mahasiswa"
+        "no_hp": "081396741127",
+        "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
     },
     {
         "no": "13",
-        "nama": "Arjuna Prasetya",
-        "nim": "2024223020053",
+        "nama": "Siti Chairunnisa Aliana",
+        "nim": "2024583020070",
         "jabatan": "Anggota",
         "sie": "Acara",
-        "no_hp": "082277757668",
-        "delegasi": "Dewan Perwakilan Mahasiswa"
+        "no_hp": "082286591084",
+        "delegasi": "UKM Merpati Putih"
     },
     {
         "no": "14",
@@ -127,33 +127,15 @@ window.MASTER_PANITIA = [
     },
     {
         "no": "15",
-        "nama": "Kemala Hayati",
-        "nim": "2024613060057",
+        "nama": "Amelya Ratu Rahmanda",
+        "nim": "2025243010111",
         "jabatan": "Anggota",
         "sie": "Konsumsi",
-        "no_hp": "0895324324191",
-        "delegasi": "Himpunan Mahasiswa Bisnis"
+        "no_hp": "081376746121",
+        "delegasi": "Himpunan Mahasiswa Kimia"
     },
     {
         "no": "16",
-        "nama": "Raihatul Fazira",
-        "nim": "2025623030054",
-        "jabatan": "Anggota",
-        "sie": "Konsumsi",
-        "no_hp": "082172360861",
-        "delegasi": "Himpunan Mahasiswa Bisnis"
-    },
-    {
-        "no": "17",
-        "nama": "Rado Lanzio",
-        "nim": "2025213120023",
-        "jabatan": "Anggota",
-        "sie": "Konsumsi",
-        "no_hp": "081370931960",
-        "delegasi": "UKM PTC"
-    },
-    {
-        "no": "18",
         "nama": "Indah Salsabil",
         "nim": "2025243010106",
         "jabatan": "Anggota",
@@ -162,7 +144,16 @@ window.MASTER_PANITIA = [
         "delegasi": "Himpunan Mahasiswa Kimia"
     },
     {
-        "no": "19",
+        "no": "17",
+        "nama": "Kemala Hayati",
+        "nim": "2024613060057",
+        "jabatan": "Anggota",
+        "sie": "Konsumsi",
+        "no_hp": "0895324324191",
+        "delegasi": "Himpunan Mahasiswa Bisnis"
+    },
+    {
+        "no": "18",
         "nama": "Muhammad Haikal",
         "nim": "2025903430058",
         "jabatan": "Anggota",
@@ -171,13 +162,22 @@ window.MASTER_PANITIA = [
         "delegasi": "Badan Eksekutif Mahasiswa"
     },
     {
-        "no": "20",
-        "nama": "Amelya Ratu Rahmanda",
-        "nim": "2025243010111",
+        "no": "19",
+        "nama": "Rado Lanzio",
+        "nim": "2025213120023",
         "jabatan": "Anggota",
         "sie": "Konsumsi",
-        "no_hp": "081376746121",
-        "delegasi": "Himpunan Mahasiswa Kimia"
+        "no_hp": "081370931960",
+        "delegasi": "UKM PTC"
+    },
+    {
+        "no": "20",
+        "nama": "Raihatul Fazira",
+        "nim": "2025623030054",
+        "jabatan": "Anggota",
+        "sie": "Konsumsi",
+        "no_hp": "082172360861",
+        "delegasi": "Himpunan Mahasiswa Bisnis"
     },
     {
         "no": "21",
@@ -199,15 +199,6 @@ window.MASTER_PANITIA = [
     },
     {
         "no": "23",
-        "nama": "Mutia Zuhra",
-        "nim": "2025623030036",
-        "jabatan": "Anggota",
-        "sie": "Pubdok",
-        "no_hp": "082364683333",
-        "delegasi": "Dewan Perwakilan Mahasiswa"
-    },
-    {
-        "no": "24",
         "nama": "Aufa Futtya",
         "nim": "2024613060001",
         "jabatan": "Anggota",
@@ -216,25 +207,7 @@ window.MASTER_PANITIA = [
         "delegasi": "Badan Eksekutif Mahasiswa"
     },
     {
-        "no": "25",
-        "nama": "Raisya Fatwa",
-        "nim": "2025613060060",
-        "jabatan": "Anggota",
-        "sie": "Pubdok",
-        "no_hp": "082364683021",
-        "delegasi": "Badan Eksekutif Mahasiswa"
-    },
-    {
-        "no": "26",
-        "nama": "Vina Vita Karmila",
-        "nim": "2025634110055",
-        "jabatan": "Anggota",
-        "sie": "Pubdok",
-        "no_hp": "83840447896",
-        "delegasi": "UKM IECLOP"
-    },
-    {
-        "no": "27",
+        "no": "24",
         "nama": "Faruq Mukammil",
         "nim": "2024203050025",
         "jabatan": "Anggota",
@@ -243,7 +216,7 @@ window.MASTER_PANITIA = [
         "delegasi": "Himpunan Mahasiswa Elektro"
     },
     {
-        "no": "28",
+        "no": "25",
         "nama": "Fata Zaki Nasution",
         "nim": "2024203050004",
         "jabatan": "Anggota",
@@ -252,7 +225,43 @@ window.MASTER_PANITIA = [
         "delegasi": "Himpunan Mahasiswa Elektro"
     },
     {
-        "no": "31",
+        "no": "26",
+        "nama": "Muhammad Afrizal",
+        "nim": "2025223020024",
+        "jabatan": "Anggota",
+        "sie": "Pubdok",
+        "no_hp": "082318220154",
+        "delegasi": "Himpunan Mahasiswa Sipil"
+    },
+    {
+        "no": "27",
+        "nama": "Mutia Zuhra",
+        "nim": "2025623030036",
+        "jabatan": "Anggota",
+        "sie": "Pubdok",
+        "no_hp": "082364683333",
+        "delegasi": "Dewan Perwakilan Mahasiswa"
+    },
+    {
+        "no": "28",
+        "nama": "Raisya Fatwa",
+        "nim": "2025613060060",
+        "jabatan": "Anggota",
+        "sie": "Pubdok",
+        "no_hp": "082364683021",
+        "delegasi": "Badan Eksekutif Mahasiswa"
+    },
+    {
+        "no": "29",
+        "nama": "Vina Vita Karmila",
+        "nim": "2025634110055",
+        "jabatan": "Anggota",
+        "sie": "Pubdok",
+        "no_hp": "83840447896",
+        "delegasi": "UKM IECLOP"
+    },
+    {
+        "no": "30",
         "nama": "Muhammad Alfarizi",
         "nim": "2025903430007",
         "jabatan": "Ketua Sie Perdek",
@@ -261,34 +270,7 @@ window.MASTER_PANITIA = [
         "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
     },
     {
-        "no": "32",
-        "nama": "Muhammad Riza Aulia",
-        "nim": "2025903430101",
-        "jabatan": "Anggota",
-        "sie": "Perdek",
-        "no_hp": "083139601519",
-        "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
-    },
-    {
-        "no": "33",
-        "nama": "Nawra Humaira",
-        "nim": "2025573010059",
-        "jabatan": "Anggota",
-        "sie": "Perdek",
-        "no_hp": "081271384087",
-        "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
-    },
-    {
-        "no": "34",
-        "nama": "Marsya Asysyifa",
-        "nim": "2025573010076",
-        "jabatan": "Anggota",
-        "sie": "Perdek",
-        "no_hp": "082171129125",
-        "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
-    },
-    {
-        "no": "35",
+        "no": "31",
         "nama": "Ayesha Putri Amira",
         "nim": "2025573010071",
         "jabatan": "Anggota",
@@ -297,7 +279,7 @@ window.MASTER_PANITIA = [
         "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
     },
     {
-        "no": "36",
+        "no": "32",
         "nama": "Jamaluddin",
         "nim": "2024214010019",
         "jabatan": "Anggota",
@@ -306,7 +288,34 @@ window.MASTER_PANITIA = [
         "delegasi": "UKM LDK-FORDIMA"
     },
     {
-        "no": "37",
+        "no": "33",
+        "nama": "Marsya Asysyifa",
+        "nim": "2025573010076",
+        "jabatan": "Anggota",
+        "sie": "Perdek",
+        "no_hp": "082171129125",
+        "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
+    },
+    {
+        "no": "34",
+        "nama": "Muhammad Riza Aulia",
+        "nim": "2025903430101",
+        "jabatan": "Anggota",
+        "sie": "Perdek",
+        "no_hp": "083139601519",
+        "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
+    },
+    {
+        "no": "35",
+        "nama": "Nawra Humaira",
+        "nim": "2025573010059",
+        "jabatan": "Anggota",
+        "sie": "Perdek",
+        "no_hp": "081271384087",
+        "delegasi": "Himpunan Mahasiswa Teknologi Informasi & Komputer"
+    },
+    {
+        "no": "36",
         "nama": "Teuku Asyhabil Al Qifari",
         "nim": "2024213010018",
         "jabatan": "Anggota",
@@ -315,7 +324,7 @@ window.MASTER_PANITIA = [
         "delegasi": "UKM LDK-FORDIMA"
     },
     {
-        "no": "39",
+        "no": "37",
         "nama": "Dava Raffi Akbar",
         "nim": "2025203050037",
         "jabatan": "Ketua Sie Keamanan",
@@ -324,34 +333,25 @@ window.MASTER_PANITIA = [
         "delegasi": "Badan Eksekutif Mahasiswa"
     },
     {
+        "no": "38",
+        "nama": "Ina Misla",
+        "nim": "2025223020034",
+        "jabatan": "Anggota",
+        "sie": "Keamanan",
+        "no_hp": "085361623620",
+        "delegasi": "Himpunan Mahasiswa Sipil"
+    },
+    {
+        "no": "39",
+        "nama": "Misky Zahra",
+        "nim": "2025223020049",
+        "jabatan": "Anggota",
+        "sie": "Keamanan",
+        "no_hp": "089668822583",
+        "delegasi": "Himpunan Mahasiswa Sipil"
+    },
+    {
         "no": "40",
-        "nama": "Sarajulis",
-        "nim": "2025623030046",
-        "jabatan": "Anggota",
-        "sie": "Keamanan",
-        "no_hp": "082279239917",
-        "delegasi": "Badan Eksekutif Mahasiswa"
-    },
-    {
-        "no": "41",
-        "nama": "Siska Amelia",
-        "nim": "2025623030024",
-        "jabatan": "Anggota",
-        "sie": "Keamanan",
-        "no_hp": "082164921897",
-        "delegasi": "UKM Sanggar Seni"
-    },
-    {
-        "no": "42",
-        "nama": "Rifki Maulana",
-        "nim": "2025214010055",
-        "jabatan": "Anggota",
-        "sie": "Keamanan",
-        "no_hp": "0821-7450-1691",
-        "delegasi": "UKM Merpati Putih"
-    },
-    {
-        "no": "43",
         "nama": "Muhammad Hafizh Ardana",
         "nim": "2025243010072",
         "jabatan": "Anggota",
@@ -360,16 +360,34 @@ window.MASTER_PANITIA = [
         "delegasi": "Himpunan Mahasiswa Kimia"
     },
     {
-        "no": "44",
-        "nama": "Zulfikri",
-        "nim": "2025214010017",
+        "no": "41",
+        "nama": "Rifki Maulana",
+        "nim": "2025214010055",
         "jabatan": "Anggota",
         "sie": "Keamanan",
-        "no_hp": "083872774946",
+        "no_hp": "0821-7450-1691",
         "delegasi": "UKM Merpati Putih"
     },
     {
-        "no": "45",
+        "no": "42",
+        "nama": "Sarajulis",
+        "nim": "2025623030046",
+        "jabatan": "Anggota",
+        "sie": "Keamanan",
+        "no_hp": "082279239917",
+        "delegasi": "Badan Eksekutif Mahasiswa"
+    },
+    {
+        "no": "43",
+        "nama": "Siska Amelia",
+        "nim": "2025623030024",
+        "jabatan": "Anggota",
+        "sie": "Keamanan",
+        "no_hp": "082164921897",
+        "delegasi": "UKM Sanggar Seni"
+    },
+    {
+        "no": "44",
         "nama": "Teuku Muhammad Dusuki",
         "nim": "2025223020080",
         "jabatan": "Anggota",
@@ -378,12 +396,12 @@ window.MASTER_PANITIA = [
         "delegasi": "Himpunan Mahasiswa Sipil"
     },
     {
-        "no": "46",
-        "nama": "Muhammad Afrizal",
-        "nim": "2025223020024",
+        "no": "45",
+        "nama": "Zulfikri",
+        "nim": "2025214010017",
         "jabatan": "Anggota",
         "sie": "Keamanan",
-        "no_hp": "082318220154",
-        "delegasi": "Himpunan Mahasiswa Sipil"
+        "no_hp": "083872774946",
+        "delegasi": "UKM Merpati Putih"
     }
 ];

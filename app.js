@@ -1136,13 +1136,54 @@ function resetPresensiForm() {
 }
 
 function showReceiptModal(data) {
-  document.getElementById('receiptNama').textContent = data.nama;
-  document.getElementById('receiptNim').textContent = data.nim;
-  document.getElementById('receiptSie').textContent = data.sie;
-  document.getElementById('receiptAgenda').textContent = data.agendaTitle;
-  document.getElementById('receiptWaktu').textContent = data.waktuPresensi;
-  document.getElementById('modalReceipt').classList.remove('hidden');
-  document.getElementById('modalReceipt').classList.add('flex');
+  if (!data) return;
+  const pData = window.currentPanitiaData || {};
+  const nama = data.nama || pData.nama || '-';
+  const nim = data.nim || pData.nim || '-';
+  const sie = data.sie || pData.sie || '-';
+  const jabatan = data.jabatan || pData.jabatan || '-';
+  const status = (data.status || 'HADIR').toUpperCase();
+  const agendaTitle = data.agendaTitle || (window.activeAgendaState ? window.activeAgendaState.title : '-') || '-';
+
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const fallbackTime = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} WIB`;
+  let waktuPresensi = data.waktuPresensi || data.waktu || data.timestamp || pData.waktuPresensi || fallbackTime;
+  if (waktuPresensi && waktuPresensi !== '-' && !String(waktuPresensi).includes('WIB')) {
+    waktuPresensi = `${waktuPresensi} WIB`;
+  }
+
+  const elNama = document.getElementById('receiptNama');
+  if (elNama) elNama.textContent = nama;
+  const elNim = document.getElementById('receiptNim');
+  if (elNim) elNim.textContent = nim;
+  const elSie = document.getElementById('receiptSie');
+  if (elSie) elSie.textContent = sie;
+  const elJabatan = document.getElementById('receiptJabatan');
+  if (elJabatan) elJabatan.textContent = jabatan;
+  const elStatus = document.getElementById('receiptStatus');
+  if (elStatus) {
+    if (status === 'SAKIT') {
+      elStatus.className = "inline-flex items-center gap-1 font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 text-[11px]";
+      elStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> SAKIT';
+    } else if (status === 'IZIN') {
+      elStatus.className = "inline-flex items-center gap-1 font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 text-[11px]";
+      elStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> IZIN';
+    } else {
+      elStatus.className = "inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 text-[11px]";
+      elStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HADIR';
+    }
+  }
+  const elAgenda = document.getElementById('receiptAgenda');
+  if (elAgenda) elAgenda.textContent = agendaTitle;
+  const elWaktu = document.getElementById('receiptWaktu');
+  if (elWaktu) elWaktu.textContent = waktuPresensi;
+
+  const modal = document.getElementById('modalReceipt');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
 }
 
 function closeReceiptModal() {
@@ -1330,6 +1371,27 @@ function logoutAdmin() {
   }
 }
 
+async function refreshDashboardData(btn) {
+  const icon = document.getElementById('tableRefreshIcon');
+  if (icon) icon.classList.add('animate-spin');
+  if (btn) btn.disabled = true;
+
+  try {
+    if (typeof triggerManualSync === 'function' && !isGasEnvironment) {
+      await triggerManualSync();
+    }
+    refreshDashboard(false);
+    showToast('success', 'Data Diperbarui', 'Data tabel presensi panitia berhasil dimuat ulang dari Google Sheets.');
+  } catch (err) {
+    refreshDashboard(false);
+  } finally {
+    setTimeout(() => {
+      if (icon) icon.classList.remove('animate-spin');
+      if (btn) btn.disabled = false;
+    }, 600);
+  }
+}
+
 function refreshDashboard(quiet = false) {
   if (!currentAdminPin) return;
 
@@ -1446,6 +1508,67 @@ function fallbackLocalDashboard() {
 }
 
 function renderDashboard(data) {
+  // Urutkan data panitia secara mutlak sesuai urutan baris master Google Sheets (1 s.d 45)
+  if (data && data.panitia && data.panitia.length) {
+    const sheetOrder = [
+      '2024613060016', // Ananda Haikal
+      '2024203020008', // Rahmat Haikal
+      '2024203020001', // Ilal Ilhamdi
+      '2025573010068', // Abdul Razak
+      '2024223020053', // Arjuna Prasetya
+      '2024613120017', // Cut Fitri Nabila
+      '2025213010029', // Ikhsan
+      '2025203050039', // Indhika Wisnu Pratama
+      '2024573010044', // Kaisan Nurwaled
+      '2025903430062', // Muhammad Zikri Alfatta
+      '2025623030067', // Naziihah Putri Fadhiilah
+      '2025573010129', // Riska Ayu Nauli
+      '2024583020070', // Siti Chairunnisa Aliana
+      '2025623030023', // Rizki Silfiyani
+      '2025243010111', // Amelya Ratu Rahmanda
+      '2025243010106', // Indah Salsabil
+      '2024613060057', // Kemala Hayati
+      '2025903430058', // Muhammad Haikal
+      '2025213120023', // Rado Lanzio
+      '2025623030054', // Raihatul Fazira
+      '2024203050016', // Zaky Algifari
+      '2024613120061', // Muhammad Zaki Al Farezi
+      '2024613060001', // Aufa Futtya
+      '2024203050025', // Faruq Mukammil
+      '2024203050004', // Fata Zaki Nasution
+      '2025223020024', // Muhammad Afrizal
+      '2025623030036', // Mutia Zuhra
+      '2025613060060', // Raisya Fatwa
+      '2025634110055', // Vina Vita Karmila
+      '2025903430007', // Muhammad Alfarizi
+      '2025573010071', // Ayesha Putri Amira
+      '2024214010019', // Jamaluddin
+      '2025573010076', // Marsya Asysyifa
+      '2025903430101', // Muhammad Riza Aulia
+      '2025573010059', // Nawra Humaira
+      '2024213010018', // Teuku Asyhabil Al Qifari
+      '2025203050037', // Dava Raffi Akbar
+      '2025223020034', // Ina Misla
+      '2025223020049', // Misky Zahra
+      '2025243010072', // Muhammad Hafizh Ardana
+      '2025214010055', // Rifki Maulana
+      '2025623030046', // Sarajulis
+      '2025623030024', // Siska Amelia
+      '2025223020080', // Teuku Muhammad Dusuki
+      '2025214010017'  // Zulfikri
+    ];
+    const orderMap = {};
+    sheetOrder.forEach((nim, idx) => { orderMap[nim] = idx + 1; });
+    data.panitia.sort((a, b) => {
+      const ordA = orderMap[String(a.nim).trim()] || Number(a.no) || 999;
+      const ordB = orderMap[String(b.nim).trim()] || Number(b.no) || 999;
+      return ordA - ordB;
+    });
+    data.panitia.forEach((p, idx) => {
+      p.no = idx + 1;
+    });
+  }
+
   // 1. Stats Counter with safe element lookups
   const totalElem = document.getElementById('statTotalPanitia');
   const hadirElem = document.getElementById('statSudahHadir') || document.getElementById('statHadir');
@@ -1942,8 +2065,8 @@ function openAbsenModal(type) {
     if (title) title.textContent = 'Keterangan Sakit';
     if (sub) sub.textContent = 'Konfirmasi ketidakhadiran rapat karena sakit';
     if (icon) {
-      icon.className = 'w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg flex-shrink-0';
-      icon.textContent = '🤒';
+      icon.className = 'w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0';
+      icon.innerHTML = '<svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
     }
     if (label) label.textContent = 'Sakit apa / Gejala yang dialami:';
     if (input) {
@@ -1954,8 +2077,8 @@ function openAbsenModal(type) {
     if (title) title.textContent = 'Keterangan Izin';
     if (sub) sub.textContent = 'Konfirmasi permohonan izin berhalangan hadir';
     if (icon) {
-      icon.className = 'w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg flex-shrink-0';
-      icon.textContent = '📝';
+      icon.className = 'w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0';
+      icon.innerHTML = '<svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
     }
     if (label) label.textContent = 'Alasan berhalangan hadir:';
     if (input) {

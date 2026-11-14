@@ -4,7 +4,7 @@
  * Google Apps Script Backend (Code.gs)
  * =========================================================================
  * Terintegrasi dengan Google Sheets:
- * - PANITIA KIP : Master biodata 46 panitia (Read-only identitas)
+ * - PANITIA KIP : Master biodata 45 panitia (Read-only identitas)
  * - AGENDA      : Master agenda & sesi rapat (ID unik, status, info)
  * - raw_presensi: Transaksi log kehadiran (Anti-duplikasi NIM + Agenda ID)
  * - PRESENSI    : Rekap matriks kehadiran otomatis per kolom agenda
