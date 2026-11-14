@@ -579,24 +579,16 @@ function renderPanitiaBiodata(panitia) {
 
   const bioNama = document.getElementById('bioNama');
   const bioNim = document.getElementById('bioNim');
-  const bioNo = document.getElementById('bioNo');
-  const bioNamaDetail = document.getElementById('bioNamaDetail');
-  const bioNimDetail = document.getElementById('bioNimDetail');
   const bioJabatan = document.getElementById('bioJabatan');
   const bioSie = document.getElementById('bioSie');
-  const bioHp = document.getElementById('bioHp');
   const bioDelegasi = document.getElementById('bioDelegasi');
   const bioStatusBadge = document.getElementById('bioStatusBadge');
   const noticeElem = document.getElementById('bioAttendanceNotice');
 
-  if (bioNo) bioNo.textContent = panitia.no || '-';
   if (bioNama) bioNama.textContent = panitia.nama || '-';
-  if (bioNamaDetail) bioNamaDetail.textContent = panitia.nama || '-';
   if (bioNim) bioNim.textContent = panitia.nim || '-';
-  if (bioNimDetail) bioNimDetail.textContent = panitia.nim || '-';
   if (bioJabatan) bioJabatan.textContent = panitia.jabatan || '-';
   if (bioSie) bioSie.textContent = panitia.sie || '-';
-  if (bioHp) bioHp.textContent = panitia.no_hp || panitia.noHp || '-';
   if (bioDelegasi) bioDelegasi.textContent = panitia.delegasi || '-';
 
   const sessionField = document.getElementById('sessionCodeField');

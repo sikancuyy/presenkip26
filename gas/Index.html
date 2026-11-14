@@ -274,38 +274,20 @@
             </div>
           </div>
 
-          <!-- TABEL 1 BARIS (MENAMPILKAN SEMUA DATA: NO, NAMA, NIM, JABATAN, SIE, NO. HP, DELEGASI) -->
-          <div class="space-y-1.5">
-            <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
-              <table class="w-full text-xs text-left whitespace-nowrap">
-                <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
-                  <tr>
-                    <th class="py-2.5 px-3 text-center">No</th>
-                    <th class="py-2.5 px-3">Nama Lengkap</th>
-                    <th class="py-2.5 px-3">NIM</th>
-                    <th class="py-2.5 px-3">Jabatan</th>
-                    <th class="py-2.5 px-3">Sie</th>
-                    <th class="py-2.5 px-3">No. HP</th>
-                    <th class="py-2.5 px-3">Delegasi</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 bg-white font-medium text-slate-700">
-                  <tr class="hover:bg-slate-50/50">
-                    <td id="bioNo" class="py-3 px-3 text-center font-bold font-mono text-slate-900">-</td>
-                    <td id="bioNamaDetail" class="py-3 px-3 font-extrabold text-slate-900">-</td>
-                    <td id="bioNimDetail" class="py-3 px-3 font-mono font-bold text-slate-700">-</td>
-                    <td id="bioJabatan" class="py-3 px-3 font-bold text-slate-900">-</td>
-                    <td id="bioSie" class="py-3 px-3 font-bold text-slate-900">-</td>
-                    <td id="bioHp" class="py-3 px-3 font-mono text-slate-800">-</td>
-                    <td id="bioDelegasi" class="py-3 px-3 font-bold text-slate-900">-</td>
-                  </tr>
-                </tbody>
-              </table>
+          <!-- Detail List Kartu (Jabatan, Sie, Deligasi - Satu Baris per Item) -->
+          <div class="rounded-xl border border-slate-200/90 bg-slate-50/60 divide-y divide-slate-200/70 text-xs overflow-hidden">
+            <div class="flex items-baseline justify-between gap-3 px-3.5 py-2.5">
+              <span class="text-slate-500 font-semibold text-[11px] sm:text-xs flex-shrink-0">Jabatan:</span>
+              <span id="bioJabatan" class="font-extrabold text-slate-900 text-xs text-right">-</span>
             </div>
-            <p class="text-[10px] text-slate-400 font-medium px-1 flex items-center justify-between sm:hidden">
-              <span>← Geser ke kanan untuk melihat semua kolom</span>
-              <span class="font-mono text-slate-400">7 Kolom</span>
-            </p>
+            <div class="flex items-baseline justify-between gap-3 px-3.5 py-2.5">
+              <span class="text-slate-500 font-semibold text-[11px] sm:text-xs flex-shrink-0">Sie:</span>
+              <span id="bioSie" class="font-extrabold text-slate-900 text-xs text-right">-</span>
+            </div>
+            <div class="flex items-baseline justify-between gap-3 px-3.5 py-2.5">
+              <span class="text-slate-500 font-semibold text-[11px] sm:text-xs flex-shrink-0">Deligasi:</span>
+              <span id="bioDelegasi" class="font-extrabold text-slate-900 text-xs text-right">-</span>
+            </div>
           </div>
 
         </div>
