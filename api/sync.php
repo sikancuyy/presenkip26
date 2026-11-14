@@ -68,6 +68,18 @@ class SyncEngine {
                     $success = true;
                     $pushedCount++;
                 }
+            } elseif ($action === 'resetAgendaPresensi') {
+                $res = GSheetClient::resetAgendaPresensi($payload['agendaId'] ?? '', DEFAULT_ADMIN_PIN);
+                if (!empty($res['success'])) {
+                    $success = true;
+                    $pushedCount++;
+                }
+            } elseif ($action === 'resetPanitiaPresensi') {
+                $res = GSheetClient::resetPanitiaPresensi($payload['agendaId'] ?? '', $payload['nim'] ?? '', DEFAULT_ADMIN_PIN);
+                if (!empty($res['success'])) {
+                    $success = true;
+                    $pushedCount++;
+                }
             }
 
             if (!$success) {

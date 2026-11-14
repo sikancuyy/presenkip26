@@ -118,6 +118,29 @@ class GSheetClient {
     }
 
     /**
+     * Reset seluruh presensi pada suatu agenda di GSheet
+     */
+    public static function resetAgendaPresensi(string $agendaId, string $pin = DEFAULT_ADMIN_PIN): array {
+        return self::request('POST', [
+            'action' => 'resetAgendaPresensi',
+            'agendaId' => $agendaId,
+            'pin' => $pin
+        ]);
+    }
+
+    /**
+     * Reset presensi satu panitia di GSheet
+     */
+    public static function resetPanitiaPresensi(string $agendaId, string $nim, string $pin = DEFAULT_ADMIN_PIN): array {
+        return self::request('POST', [
+            'action' => 'resetPanitiaPresensi',
+            'agendaId' => $agendaId,
+            'nim' => $nim,
+            'pin' => $pin
+        ]);
+    }
+
+    /**
      * Bersihkan kolom duplikat di sheet PRESENSI
      */
     public static function cleanupDuplicates(string $pin = DEFAULT_ADMIN_PIN): array {

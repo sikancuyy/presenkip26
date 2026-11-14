@@ -104,6 +104,10 @@ function doPost(e) {
       result = createAgenda(postData.payload || postData, postData.pin);
     } else if (action === "closeAgenda") {
       result = closeAgenda(postData.agendaId, postData.pin);
+    } else if (action === "resetAgendaPresensi") {
+      result = resetAgendaPresensi(postData.agendaId, postData.pin);
+    } else if (action === "resetPanitiaPresensi") {
+      result = resetPanitiaPresensi(postData.agendaId, postData.nim, postData.pin);
     } else if (action === "cleanupDuplicates") {
       const ss = getSpreadsheet();
       deduplicatePresensiColumns(ss);
@@ -907,6 +911,191 @@ function closeAgenda(agendaId, pin) {
   }
 
   return { success: false, message: "ID Agenda tidak ditemukan." };
+}
+
+/**
+ * Mereset Seluruh Presensi pada Agenda Tertentu di Google Sheets
+ */
+function resetAgendaPresensi(agendaId, pin) {
+  if (!verifyAdminPin(pin)) {
+    return { success: false, message: "Akses ditolak. PIN Admin tidak valid." };
+  }
+  if (!agendaId) {
+    return { success: false, message: "Agenda ID tidak boleh kosong." };
+  }
+
+  const ss = getSpreadsheet();
+  const rawSheet = ss.getSheetByName(SHEET_RAW);
+  const agendaSheet = ss.getSheetByName(SHEET_AGENDA);
+  const presensiSheet = ss.getSheetByName(SHEET_PRESENSI);
+
+  let agendaTitle = "";
+  let agendaRowIdx = -1;
+
+  // 1. Dapatkan judul agenda & reset totalHadir di sheet AGENDA
+  if (agendaSheet) {
+    const agendaData = agendaSheet.getDataRange().getValues();
+    for (let i = 1; i < agendaData.length; i++) {
+      if (String(agendaData[i][0]) === agendaId) {
+        agendaTitle = String(agendaData[i][1] || "");
+        agendaRowIdx = i + 1;
+        break;
+      }
+    }
+    if (agendaRowIdx > 0) {
+      agendaSheet.getRange(agendaRowIdx, 9).setValue(0);
+    }
+  }
+
+  // 2. Hapus transaksi presensi untuk agenda ini di sheet raw_presensi
+  if (rawSheet) {
+    const rawData = rawSheet.getDataRange().getValues();
+    for (let i = rawData.length - 1; i >= 1; i--) {
+      if (String(rawData[i][1]) === agendaId) {
+        rawSheet.deleteRow(i + 1);
+      }
+    }
+  }
+
+  // 3. Reset kolom presensi di sheet PRESENSI kembali ke "TIDAK HADIR"
+  if (presensiSheet && agendaTitle) {
+    const lastCol = presensiSheet.getLastColumn();
+    const cleanTitle = agendaTitle.trim().toLowerCase();
+    let targetCol = -1;
+
+    if (lastCol >= 8) {
+      const row2Titles = presensiSheet.getRange(2, 8, 1, lastCol - 7).getValues()[0];
+      for (let c = 0; c < row2Titles.length; c++) {
+        if (String(row2Titles[c] || "").trim().toLowerCase() === cleanTitle) {
+          targetCol = 8 + c;
+          break;
+        }
+      }
+    }
+
+    if (targetCol !== -1) {
+      const lastRow = presensiSheet.getLastRow();
+      if (lastRow >= 3) {
+        for (let r = 3; r <= lastRow; r++) {
+          presensiSheet.getRange(r, targetCol)
+            .setValue("TIDAK HADIR")
+            .setFontColor("#94a3b8")
+            .setHorizontalAlignment("center");
+        }
+      }
+    }
+  }
+
+  writeAdminLog("RESET_PRESENSI_AGENDA", "Seluruh presensi agenda " + (agendaTitle || agendaId) + " berhasil direset", "ADMIN");
+
+  return {
+    success: true,
+    message: "Seluruh presensi pada agenda '" + (agendaTitle || agendaId) + "' berhasil direset ke status awal."
+  };
+}
+
+/**
+ * Mereset Presensi Satu Orang Panitia pada Agenda Tertentu di Google Sheets
+ */
+function resetPanitiaPresensi(agendaId, nim, pin) {
+  if (!verifyAdminPin(pin)) {
+    return { success: false, message: "Akses ditolak. PIN Admin tidak valid." };
+  }
+  if (!agendaId || !nim) {
+    return { success: false, message: "Agenda ID dan NIM tidak boleh kosong." };
+  }
+
+  const cleanNim = String(nim).trim().replace(/\D/g, "");
+  const ss = getSpreadsheet();
+  const rawSheet = ss.getSheetByName(SHEET_RAW);
+  const agendaSheet = ss.getSheetByName(SHEET_AGENDA);
+  const presensiSheet = ss.getSheetByName(SHEET_PRESENSI);
+
+  let agendaTitle = "";
+  let agendaRowIdx = -1;
+
+  if (agendaSheet) {
+    const agendaData = agendaSheet.getDataRange().getValues();
+    for (let i = 1; i < agendaData.length; i++) {
+      if (String(agendaData[i][0]) === agendaId) {
+        agendaTitle = String(agendaData[i][1] || "");
+        agendaRowIdx = i + 1;
+        break;
+      }
+    }
+  }
+
+  // 1. Hapus entri di raw_presensi
+  let foundInRaw = false;
+  if (rawSheet) {
+    const rawData = rawSheet.getDataRange().getValues();
+    for (let i = rawData.length - 1; i >= 1; i--) {
+      const row = rawData[i];
+      let rNim = "";
+      if (typeof row[3] === "number") {
+        rNim = Math.floor(row[3]).toString();
+      } else {
+        rNim = String(row[3]).trim().replace(/\D/g, "");
+      }
+
+      if (String(row[1]) === agendaId && rNim === cleanNim) {
+        rawSheet.deleteRow(i + 1);
+        foundInRaw = true;
+      }
+    }
+  }
+
+  // 2. Kurangi total hadir di sheet AGENDA jika ditemukan
+  if (foundInRaw && agendaRowIdx > 0 && agendaSheet) {
+    const curVal = Number(agendaSheet.getRange(agendaRowIdx, 9).getValue()) || 0;
+    if (curVal > 0) {
+      agendaSheet.getRange(agendaRowIdx, 9).setValue(curVal - 1);
+    }
+  }
+
+  // 3. Ubah status di sheet PRESENSI ke "TIDAK HADIR"
+  if (presensiSheet && agendaTitle) {
+    const lastCol = presensiSheet.getLastColumn();
+    const cleanTitle = agendaTitle.trim().toLowerCase();
+    let targetCol = -1;
+
+    if (lastCol >= 8) {
+      const row2Titles = presensiSheet.getRange(2, 8, 1, lastCol - 7).getValues()[0];
+      for (let c = 0; c < row2Titles.length; c++) {
+        if (String(row2Titles[c] || "").trim().toLowerCase() === cleanTitle) {
+          targetCol = 8 + c;
+          break;
+        }
+      }
+    }
+
+    if (targetCol !== -1) {
+      const presData = presensiSheet.getDataRange().getValues();
+      for (let r = 2; r < presData.length; r++) {
+        let pNim = "";
+        if (typeof presData[r][2] === "number") {
+          pNim = Math.floor(presData[r][2]).toString();
+        } else {
+          pNim = String(presData[r][2]).trim().replace(/\D/g, "");
+        }
+
+        if (pNim === cleanNim) {
+          presensiSheet.getRange(r + 1, targetCol)
+            .setValue("TIDAK HADIR")
+            .setFontColor("#94a3b8")
+            .setHorizontalAlignment("center");
+          break;
+        }
+      }
+    }
+  }
+
+  writeAdminLog("RESET_PRESENSI_INDIVIDU", "Presensi NIM " + cleanNim + " pada " + (agendaTitle || agendaId) + " direset", "ADMIN");
+
+  return {
+    success: true,
+    message: "Presensi untuk NIM " + cleanNim + " berhasil direset."
+  };
 }
 
 /**

@@ -190,7 +190,10 @@ switch ($action) {
             ]);
         }
 
-        // Berhasil dicatat di PHP storage & diantrekan untuk sinkronisasi Google Sheets
+        // SETIAP ADA PERUBAHAN LANGSUNG SINKRONKAN KE GSHEET
+        SyncEngine::pushPendingQueue();
+
+        // Berhasil dicatat di PHP storage & langsung disinkronkan ke Google Sheets
         jsonResponse([
             'success' => true,
             'alreadyAttended' => false,
@@ -342,6 +345,8 @@ switch ($action) {
 
         Storage::setActiveAgenda($newAgenda);
         Storage::enqueue('createAgenda', $newAgenda);
+        // SETIAP ADA PERUBAHAN LANGSUNG SINKRONKAN KE GSHEET
+        SyncEngine::pushPendingQueue();
 
         jsonResponse([
             'success' => true,
@@ -363,6 +368,8 @@ switch ($action) {
             $title = $activeAgenda['title'] ?? 'Agenda';
             Storage::setActiveAgenda(null);
             Storage::enqueue('closeAgenda', ['agendaId' => $agendaId ?: $activeAgenda['id']]);
+            // SETIAP ADA PERUBAHAN LANGSUNG SINKRONKAN KE GSHEET
+            SyncEngine::pushPendingQueue();
 
             jsonResponse([
                 'success' => true,
@@ -371,6 +378,67 @@ switch ($action) {
         }
 
         jsonResponse(['success' => false, 'message' => 'Agenda aktif tidak ditemukan.']);
+        break;
+
+    // ==========================================
+    // 6B. RESET PRESENSI (LANGSUNG SINKRON KE GSHEET)
+    // ==========================================
+    case 'resetAgendaPresensi':
+        $pin = (string)($input['pin'] ?? '');
+        if (!verifyPin($pin)) {
+            jsonResponse(['success' => false, 'message' => 'Akses ditolak. PIN Administrator salah.']);
+        }
+
+        $agendaId = trim((string)($input['agendaId'] ?? ''));
+        if (empty($agendaId)) {
+            $active = Storage::getActiveAgenda();
+            $agendaId = $active ? (string)$active['id'] : '';
+        }
+
+        if (empty($agendaId)) {
+            jsonResponse(['success' => false, 'message' => 'Tidak ada agenda aktif yang dapat direset.']);
+        }
+
+        $count = Storage::resetAgendaPresensi($agendaId);
+        // Langsung sinkronkan ke Google Sheets
+        $gsheetRes = GSheetClient::resetAgendaPresensi($agendaId, DEFAULT_ADMIN_PIN);
+        // Push antrean yang tersisa
+        SyncEngine::pushPendingQueue();
+
+        jsonResponse([
+            'success' => true,
+            'message' => "Seluruh presensi pada agenda berhasil direset ({$count} data dipulihkan ke Belum Hadir).",
+            'gsheet' => $gsheetRes
+        ]);
+        break;
+
+    case 'resetPanitiaPresensi':
+        $pin = (string)($input['pin'] ?? '');
+        if (!verifyPin($pin)) {
+            jsonResponse(['success' => false, 'message' => 'Akses ditolak. PIN Administrator salah.']);
+        }
+
+        $agendaId = trim((string)($input['agendaId'] ?? ''));
+        $nim = trim((string)($input['nim'] ?? ''));
+        if (empty($agendaId)) {
+            $active = Storage::getActiveAgenda();
+            $agendaId = $active ? (string)$active['id'] : '';
+        }
+
+        if (empty($nim)) {
+            jsonResponse(['success' => false, 'message' => 'NIM panitia wajib disertakan.']);
+        }
+
+        $removed = Storage::resetPanitiaPresensi($agendaId, $nim);
+        // Langsung sinkronkan ke Google Sheets
+        $gsheetRes = GSheetClient::resetPanitiaPresensi($agendaId, $nim, DEFAULT_ADMIN_PIN);
+        SyncEngine::pushPendingQueue();
+
+        jsonResponse([
+            'success' => true,
+            'message' => "Presensi NIM {$nim} berhasil direset ke status Belum Hadir.",
+            'gsheet' => $gsheetRes
+        ]);
         break;
 
     // ==========================================

@@ -521,6 +521,20 @@
                   aria-label="Cari panitia berdasarkan Nama atau NIM"
                 >
 
+                <button onclick="resetFilters()" title="Reset Filter Pencarian" class="btn-pnl-outline filter-toolbar-btn text-xs text-slate-600 hover:text-slate-900" type="button">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  <span>Reset Filter</span>
+                </button>
+
+                <button onclick="confirmResetAgendaPresensi()" title="Reset Seluruh Presensi Agenda Aktif ke Google Sheets" class="btn-pnl-outline filter-toolbar-btn text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200" type="button">
+                  <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  <span>Reset Presensi</span>
+                </button>
+
                 <button onclick="exportTableToCSV()" title="Unduh CSV" class="btn-pnl-outline filter-toolbar-btn text-xs" type="button">
                   <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -551,6 +565,7 @@
                     <th class="py-3 px-4">Delegasi</th>
                     <th class="py-3 px-4 text-center">Status</th>
                     <th class="py-3 px-4 text-center">Waktu Presensi</th>
+                    <th class="py-3 px-4 text-center w-20">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="tableBodyPanitia" class="divide-y divide-slate-100 bg-white">

@@ -219,6 +219,112 @@ class Storage {
     }
 
     /**
+     * Mereset seluruh catatan presensi untuk agenda tertentu di database lokal
+     */
+    public static function resetAgendaPresensi(string $agendaId): int {
+        self::ensureDirectory();
+        $path = DATA_DIR . DIRECTORY_SEPARATOR . 'presensi.json';
+        $fp = @fopen($path, 'c+b');
+        if (!$fp) return 0;
+
+        $removedCount = 0;
+        if (flock($fp, LOCK_EX)) {
+            $content = stream_get_contents($fp);
+            $map = !empty($content) ? json_decode($content, true) : [];
+            if (!is_array($map)) $map = [];
+
+            $newMap = [];
+            foreach ($map as $key => $val) {
+                if (($val['agendaId'] ?? '') === $agendaId || strpos($key, $agendaId . '_') === 0) {
+                    $removedCount++;
+                } else {
+                    $newMap[$key] = $val;
+                }
+            }
+
+            ftruncate($fp, 0);
+            rewind($fp);
+            fwrite($fp, json_encode($newMap, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            fflush($fp);
+            flock($fp, LOCK_UN);
+        }
+        fclose($fp);
+
+        // Bersihkan juga antrean push untuk agenda ini jika ada
+        self::filterQueue(function($item) use ($agendaId) {
+            $payload = $item['payload'] ?? [];
+            return ($payload['agendaId'] ?? '') !== $agendaId;
+        });
+
+        return $removedCount;
+    }
+
+    /**
+     * Mereset presensi satu panitia pada agenda tertentu di database lokal
+     */
+    public static function resetPanitiaPresensi(string $agendaId, string $nim): bool {
+        self::ensureDirectory();
+        $cleanNim = preg_replace('/\D/', '', $nim);
+        $key = $agendaId . '_' . $cleanNim;
+
+        $path = DATA_DIR . DIRECTORY_SEPARATOR . 'presensi.json';
+        $fp = @fopen($path, 'c+b');
+        if (!$fp) return false;
+
+        $removed = false;
+        if (flock($fp, LOCK_EX)) {
+            $content = stream_get_contents($fp);
+            $map = !empty($content) ? json_decode($content, true) : [];
+            if (!is_array($map)) $map = [];
+
+            if (isset($map[$key])) {
+                unset($map[$key]);
+                $removed = true;
+                ftruncate($fp, 0);
+                rewind($fp);
+                fwrite($fp, json_encode($map, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+                fflush($fp);
+            }
+            flock($fp, LOCK_UN);
+        }
+        fclose($fp);
+
+        if ($removed) {
+            self::filterQueue(function($item) use ($key) {
+                $payload = $item['payload'] ?? [];
+                return ($payload['key'] ?? '') !== $key;
+            });
+        }
+
+        return $removed;
+    }
+
+    /**
+     * Memfilter isi antrean sync_queue dengan predikat callback
+     */
+    public static function filterQueue(callable $predicate): void {
+        self::ensureDirectory();
+        $path = DATA_DIR . DIRECTORY_SEPARATOR . 'sync_queue.json';
+        $fp = @fopen($path, 'c+b');
+        if (!$fp) return;
+
+        if (flock($fp, LOCK_EX)) {
+            $content = stream_get_contents($fp);
+            $queue = !empty($content) ? json_decode($content, true) : [];
+            if (!is_array($queue)) $queue = [];
+
+            $newQueue = array_values(array_filter($queue, $predicate));
+
+            ftruncate($fp, 0);
+            rewind($fp);
+            fwrite($fp, json_encode($newQueue, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            fflush($fp);
+            flock($fp, LOCK_UN);
+        }
+        fclose($fp);
+    }
+
+    /**
      * Memperbarui status presensi saat sinkronisasi dari GSheet
      */
     public static function updatePresensiBatch(array $entries): void {

@@ -1349,6 +1349,16 @@ function updateSieChart(panitiaList) {
   });
 }
 
+function resetFilters() {
+  const filterSieElem = document.getElementById('filterSie');
+  const filterStatusElem = document.getElementById('filterStatus');
+  const searchInputElem = document.getElementById('searchPanitiaInput');
+  if (filterSieElem) filterSieElem.value = '';
+  if (filterStatusElem) filterStatusElem.value = '';
+  if (searchInputElem) searchInputElem.value = '';
+  applyFilters();
+}
+
 function applyFilters() {
   if (!dashboardCache || !dashboardCache.panitia) return;
 
@@ -1384,7 +1394,7 @@ function renderPanitiaTable(list) {
   if (!list || list.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="9" class="p-6 text-center text-slate-400">
+        <td colspan="10" class="p-6 text-center text-slate-400">
           Tidak ada data panitia yang cocok dengan filter pencarian.
         </td>
       </tr>`;
@@ -1421,6 +1431,14 @@ function renderPanitiaTable(list) {
 
     const waktuFormatted = p.waktuPresensi ? formatPresensiTime(p.waktuPresensi) : '-';
 
+    const safeNama = (p.nama || '').replace(/'/g, "\\'");
+    const aksiDisplay = isHadir 
+      ? `<button type="button" onclick="confirmResetSinglePanitia('${p.nim}', '${safeNama}')" class="px-2 py-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-all inline-flex items-center gap-1" title="Reset status hadir anggota ini ke Belum Hadir">
+           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+           <span>Reset</span>
+         </button>`
+      : `<span class="text-slate-300 font-mono text-xs">-</span>`;
+
     tr.innerHTML = `
       <td class="p-3.5 text-center text-slate-400 font-mono">${p.no || (idx + 1)}</td>
       <td class="p-3.5 font-bold text-slate-900">${namaDisplay}</td>
@@ -1431,6 +1449,7 @@ function renderPanitiaTable(list) {
       <td class="p-3.5 truncate max-w-xs text-slate-600">${p.delegasi || '-'}</td>
       <td class="p-3.5 text-center">${badgeStatus}</td>
       <td class="p-3.5 text-center font-mono text-slate-600 font-semibold">${waktuFormatted}</td>
+      <td class="p-3.5 text-center">${aksiDisplay}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1782,6 +1801,130 @@ function fallbackLocalCloseAgenda(agenda) {
 }
 
 window.closeCurrentAgenda = confirmCloseAgenda;
+
+/**
+ * Reset Seluruh Presensi Agenda Aktif
+ */
+function confirmResetAgendaPresensi() {
+  const agenda = window.activeAgendaState || (dashboardCache ? dashboardCache.activeAgenda : null);
+  if (!agenda) {
+    showToast('info', 'Info', 'Tidak ada agenda rapat yang aktif saat ini.');
+    return;
+  }
+
+  const agendaTitle = agenda.title || 'Agenda Aktif';
+  if (!confirm(`PERINGATAN:\nYakin ingin mereset SELURUH data presensi pada agenda '${agendaTitle}'?\n\nSemua status panitia yang sudah hadir akan dikembalikan ke 'Belum Hadir' dan langsung disinkronkan ke Google Sheets.`)) {
+    return;
+  }
+
+  showToast('info', 'Memproses', 'Mereset data presensi dan menyinkronkan ke Google Sheets...');
+
+  if (isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler((res) => {
+        if (res.success) {
+          showToast('success', 'Berhasil Reset', res.message);
+          refreshDashboard();
+        } else {
+          showToast('error', 'Gagal', res.message);
+        }
+      })
+      .withFailureHandler((err) => {
+        showToast('error', 'Kesalahan', err.message);
+      })
+      .resetAgendaPresensi(agenda.id, currentAdminPin);
+    return;
+  }
+
+  const gasUrl = getGasApiUrl();
+  if (gasUrl) {
+    fetch(gasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'resetAgendaPresensi',
+        agendaId: agenda.id,
+        pin: currentAdminPin
+      })
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          showToast('success', 'Berhasil Reset', res.message);
+          refreshDashboard();
+        } else {
+          showToast('error', 'Gagal', res.message);
+        }
+      })
+      .catch(err => {
+        showToast('error', 'Kesalahan Jaringan', err.message);
+      });
+  }
+}
+
+/**
+ * Reset Presensi Satu Panitia
+ */
+function confirmResetSinglePanitia(nim, nama) {
+  const agenda = window.activeAgendaState || (dashboardCache ? dashboardCache.activeAgenda : null);
+  if (!agenda) {
+    showToast('info', 'Info', 'Tidak ada agenda rapat yang aktif saat ini.');
+    return;
+  }
+
+  if (!confirm(`Reset status presensi untuk:\nNama: ${nama}\nNIM: ${nim}\n\nStatus kehadiran akan dikembalikan ke 'Belum Hadir' dan langsung disinkronkan ke Google Sheets?`)) {
+    return;
+  }
+
+  showToast('info', 'Memproses', `Mereset presensi NIM ${nim}...`);
+
+  if (isGasEnvironment) {
+    google.script.run
+      .withSuccessHandler((res) => {
+        if (res.success) {
+          showToast('success', 'Presensi Direset', res.message);
+          refreshDashboard();
+        } else {
+          showToast('error', 'Gagal', res.message);
+        }
+      })
+      .withFailureHandler((err) => {
+        showToast('error', 'Kesalahan', err.message);
+      })
+      .resetPanitiaPresensi(agenda.id, nim, currentAdminPin);
+    return;
+  }
+
+  const gasUrl = getGasApiUrl();
+  if (gasUrl) {
+    fetch(gasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'resetPanitiaPresensi',
+        agendaId: agenda.id,
+        nim: nim,
+        pin: currentAdminPin
+      })
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          showToast('success', 'Presensi Direset', res.message);
+          refreshDashboard();
+        } else {
+          showToast('error', 'Gagal', res.message);
+        }
+      })
+      .catch(err => {
+        showToast('error', 'Kesalahan Jaringan', err.message);
+      });
+  }
+}
+
+window.resetFilters = resetFilters;
+window.confirmResetAgendaPresensi = confirmResetAgendaPresensi;
+window.confirmResetSinglePanitia = confirmResetSinglePanitia;
 
 /**
  * QR Code Presensi Modal
