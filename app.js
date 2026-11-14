@@ -192,26 +192,62 @@ function updateConnectionBadge(syncInfo) {
  * Pembaruan Struktur Sie Kepanitiaan (Sesuai Sheet PANITIA KIP)
  */
 function updateStrukturSieCards(customList) {
+  let list = customList;
+  if (!list || !list.length) {
+    if (window.MASTER_PANITIA && window.MASTER_PANITIA.length) {
+      list = window.MASTER_PANITIA;
+    } else if (dashboardCache && dashboardCache.panitia && dashboardCache.panitia.length) {
+      list = dashboardCache.panitia;
+    }
+  }
+
+  const counts = {
+    'Pejabat Acara': 3,
+    'Acara': 10,
+    'Konsumsi': 8,
+    'Pubdok': 8,
+    'Perdek': 7,
+    'Keamanan': 9
+  };
+
+  let totalMembers = 45;
+
+  if (list && list.length) {
+    const computed = {};
+    let total = 0;
+    list.forEach(p => {
+      if (p.nama && p.nama.trim()) {
+        total++;
+        const s = (p.sie || 'Lainnya').trim();
+        computed[s] = (computed[s] || 0) + 1;
+      }
+    });
+    if (total > 0) {
+      Object.assign(counts, computed);
+      totalMembers = total;
+    }
+  }
+
   const titleElem = document.getElementById('strukturKepanitiaanTitle');
-  if (titleElem) titleElem.textContent = 'STRUKTUR KEPANITIAAN (46 ANGGOTA)';
+  if (titleElem) titleElem.textContent = `STRUKTUR KEPANITIAAN (${totalMembers} ANGGOTA)`;
 
   const elPejabat = document.getElementById('sieCountPejabat');
-  if (elPejabat) elPejabat.textContent = 'BPH (Ketua, Sek, Ben)';
+  if (elPejabat) elPejabat.textContent = `${counts['Pejabat Acara'] || 3} Anggota`;
 
   const elAcara = document.getElementById('sieCountAcara');
-  if (elAcara) elAcara.textContent = 'Sie Acara & Sidang';
-
-  const elPerdek = document.getElementById('sieCountPerdek');
-  if (elPerdek) elPerdek.textContent = 'Sie Perlengkapan';
-
-  const elPubdok = document.getElementById('sieCountPubdok');
-  if (elPubdok) elPubdok.textContent = 'Sie Humas & Media';
+  if (elAcara) elAcara.textContent = `${counts['Acara'] || 10} Anggota`;
 
   const elKonsumsi = document.getElementById('sieCountKonsumsi');
-  if (elKonsumsi) elKonsumsi.textContent = 'Sie Konsumsi';
+  if (elKonsumsi) elKonsumsi.textContent = `${counts['Konsumsi'] || 8} Anggota`;
+
+  const elPubdok = document.getElementById('sieCountPubdok');
+  if (elPubdok) elPubdok.textContent = `${counts['Pubdok'] || 8} Anggota`;
+
+  const elPerdek = document.getElementById('sieCountPerdek');
+  if (elPerdek) elPerdek.textContent = `${counts['Perdek'] || 7} Anggota`;
 
   const elKeamanan = document.getElementById('sieCountKeamanan');
-  if (elKeamanan) elKeamanan.textContent = 'Sie Ketertiban / PAM';
+  if (elKeamanan) elKeamanan.textContent = `${counts['Keamanan'] || 9} Anggota`;
 }
 
 /**
