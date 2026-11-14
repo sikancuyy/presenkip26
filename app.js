@@ -395,26 +395,45 @@ function playChime(isSuccess) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
 
     if (isSuccess) {
-      // Pleasant two-tone chime (C5 -> G5)
+      // Suara chime sukses yang lantang, jernih, dan bervolume mantap
       const now = ctx.currentTime;
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
       const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.85, now); // Volume diperbesar ke 85%
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.70);
 
-      osc1.type = 'sine';
+      // Melodi utama (C5 -> E5 -> G5 -> C6)
+      const osc1 = ctx.createOscillator();
+      osc1.type = 'triangle';
       osc1.frequency.setValueAtTime(523.25, now); // C5
-      osc1.frequency.setValueAtTime(783.99, now + 0.12); // G5
+      osc1.frequency.setValueAtTime(659.25, now + 0.09); // E5
+      osc1.frequency.setValueAtTime(783.99, now + 0.18); // G5
+      osc1.frequency.setValueAtTime(1046.50, now + 0.30); // C6
 
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      // Harmoni bas penguat volume
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(261.63, now); // C4
+      osc2.frequency.setValueAtTime(329.63, now + 0.09); // E4
+      osc2.frequency.setValueAtTime(392.00, now + 0.18); // G4
+      osc2.frequency.setValueAtTime(523.25, now + 0.30); // C5
+
+      const oscGain2 = ctx.createGain();
+      oscGain2.gain.setValueAtTime(0.4, now);
+      osc2.connect(oscGain2);
+      oscGain2.connect(gain);
 
       osc1.connect(gain);
       gain.connect(ctx.destination);
 
       osc1.start(now);
-      osc1.stop(now + 0.45);
+      osc2.start(now);
+      osc1.stop(now + 0.70);
+      osc2.stop(now + 0.70);
     }
   } catch (e) {
     // Ignore audio failures if browser blocks autoplay
@@ -932,10 +951,46 @@ function submitKehadiran() {
 
   const btn = document.getElementById('btnHadir');
   const btnText = document.getElementById('btnHadirText');
+  const btnIcon = document.getElementById('btnHadirIcon');
   const btnSpinner = document.getElementById('btnHadirSpinner');
-  btnText.textContent = 'MEMPROSES...';
-  btnSpinner.classList.remove('hidden');
+  const btnFill = document.getElementById('btnHadirProgressFill');
+
   btn.disabled = true;
+  if (btnIcon) btnIcon.classList.add('hidden');
+  if (btnSpinner) btnSpinner.classList.remove('hidden');
+
+  // Load Progress Bar Animasi (0 - 100%)
+  let curPercent = 15;
+  if (btnFill) btnFill.style.width = '15%';
+  if (btnText) btnText.textContent = 'MEMPROSES... 15%';
+
+  const progressInterval = setInterval(() => {
+    if (curPercent < 88) {
+      curPercent += Math.floor(Math.random() * 8) + 4;
+      if (curPercent > 88) curPercent = 88;
+      if (btnFill) btnFill.style.width = curPercent + '%';
+      if (btnText) btnText.textContent = `MEMPROSES... ${curPercent}%`;
+    }
+  }, 100);
+
+  const resetBtnState = () => {
+    clearInterval(progressInterval);
+    btn.disabled = false;
+    if (btnIcon) btnIcon.classList.remove('hidden');
+    if (btnSpinner) btnSpinner.classList.add('hidden');
+    if (btnFill) btnFill.style.width = '0%';
+    if (btnText) btnText.textContent = 'Konfirmasi Hadir';
+  };
+
+  const finishWithSuccess = (callback) => {
+    clearInterval(progressInterval);
+    if (btnFill) btnFill.style.width = '100%';
+    if (btnText) btnText.textContent = 'BERHASIL! 100%';
+    setTimeout(() => {
+      resetBtnState();
+      if (callback) callback();
+    }, 400);
+  };
 
   const payload = {
     nim: currentPanitiaData.nim,
@@ -947,15 +1002,14 @@ function submitKehadiran() {
   if (isGasEnvironment) {
     google.script.run
       .withSuccessHandler((res) => {
-        btnText.textContent = 'KONFIRMASI HADIR';
-        btnSpinner.classList.add('hidden');
-        btn.disabled = false;
-
         if (res.success) {
-          playChime(true);
-          showReceiptModal(res.data);
-          resetPresensiForm();
+          finishWithSuccess(() => {
+            playChime(true);
+            showReceiptModal(res.data);
+            resetPresensiForm();
+          });
         } else {
+          resetBtnState();
           if (res.duplicate) {
             showAlert('warning', res.message);
             showToast('warning', 'Sudah Presensi', res.message);
@@ -971,9 +1025,7 @@ function submitKehadiran() {
         }
       })
       .withFailureHandler((err) => {
-        btnText.textContent = 'KONFIRMASI HADIR';
-        btnSpinner.classList.add('hidden');
-        btn.disabled = false;
+        resetBtnState();
         showAlert('error', 'Gagal memproses presensi: ' + err.message);
       })
       .submitPresensi(payload);
@@ -988,16 +1040,15 @@ function submitKehadiran() {
   })
   .then(res => res.json())
   .then(res => {
-    btnText.textContent = 'KONFIRMASI HADIR';
-    btnSpinner.classList.add('hidden');
-    btn.disabled = false;
-
     if (res.success) {
-      playChime(true);
-      showReceiptModal(res.receipt || res.data);
-      resetPresensiForm();
-      showToast('success', 'Presensi Berhasil', res.message);
+      finishWithSuccess(() => {
+        playChime(true);
+        showReceiptModal(res.receipt || res.data);
+        resetPresensiForm();
+        showToast('success', 'Presensi Berhasil', res.message);
+      });
     } else {
+      resetBtnState();
       if (res.alreadyAttended || res.duplicate) {
         showAlert('warning', res.message);
         showToast('warning', 'Sudah Presensi', res.message);
@@ -1026,35 +1077,43 @@ function submitKehadiran() {
       })
       .then(res => res.json())
       .then(res => {
-        btnText.textContent = 'KONFIRMASI HADIR';
-        btnSpinner.classList.add('hidden');
-        btn.disabled = false;
-
         if (res.success) {
-          playChime(true);
-          showReceiptModal(res.data);
-          resetPresensiForm();
+          finishWithSuccess(() => {
+            playChime(true);
+            showReceiptModal(res.data);
+            resetPresensiForm();
+          });
         } else {
+          resetBtnState();
           showAlert('error', res.message);
           showToast('error', 'Presensi Gagal', res.message);
         }
       })
-      .catch(() => fallbackLocalSubmit(payload, btnText, btnSpinner, btn));
+      .catch(() => fallbackLocalSubmit(payload, finishWithSuccess, resetBtnState));
     } else {
-      fallbackLocalSubmit(payload, btnText, btnSpinner, btn);
+      fallbackLocalSubmit(payload, finishWithSuccess, resetBtnState);
     }
   });
 }
 
-function fallbackLocalSubmit(payload, btnText, btnSpinner, btn) {
-  setTimeout(() => {
-    btnText.textContent = 'KONFIRMASI HADIR';
-    btnSpinner.classList.add('hidden');
-    btn.disabled = false;
+function fallbackLocalSubmit(payload, btnTextOrSuccessCb, btnSpinnerOrResetCb, btn) {
+  const finishSuccess = (typeof btnTextOrSuccessCb === 'function') ? btnTextOrSuccessCb : (cb) => {
+    if (btnTextOrSuccessCb && btnTextOrSuccessCb.textContent) btnTextOrSuccessCb.textContent = 'KONFIRMASI HADIR';
+    if (btnSpinnerOrResetCb && btnSpinnerOrResetCb.classList) btnSpinnerOrResetCb.classList.add('hidden');
+    if (btn) btn.disabled = false;
+    if (cb) cb();
+  };
+  const resetBtn = (typeof btnSpinnerOrResetCb === 'function') ? btnSpinnerOrResetCb : () => {
+    if (btnTextOrSuccessCb && btnTextOrSuccessCb.textContent) btnTextOrSuccessCb.textContent = 'KONFIRMASI HADIR';
+    if (btnSpinnerOrResetCb && btnSpinnerOrResetCb.classList) btnSpinnerOrResetCb.classList.add('hidden');
+    if (btn) btn.disabled = false;
+  };
 
+  setTimeout(() => {
     // Check Session Code if required
     if (window.activeAgendaState.sessionCode && window.activeAgendaState.sessionCode !== '') {
       if (payload.sessionCode.toUpperCase() !== window.activeAgendaState.sessionCode.toUpperCase()) {
+        resetBtn();
         showAlert('error', 'Kode sesi rapat salah! Silakan minta kode verifikasi kepada sekretaris di ruangan.');
         showToast('error', 'Kode Salah', 'Kode sesi rapat tidak sesuai.');
         return;
@@ -1066,6 +1125,7 @@ function fallbackLocalSubmit(payload, btnText, btnSpinner, btn) {
     const alreadySubmitted = rawRecords.find(r => r.agendaId === payload.agendaId && r.nim === payload.nim);
 
     if (alreadySubmitted) {
+      resetBtn();
       const msg = `Anda (${currentPanitiaData.nama}) SUDAH melakukan presensi untuk agenda '${window.activeAgendaState.title}' pada pukul ${alreadySubmitted.waktu} WIB.`;
       showAlert('warning', msg);
       showToast('warning', 'Duplikasi Terdeteksi', msg);
@@ -1099,18 +1159,18 @@ function fallbackLocalSubmit(payload, btnText, btnSpinner, btn) {
     rawRecords.push(newRecord);
     localStorage.setItem('kip_raw_presensi', JSON.stringify(rawRecords));
 
-    playChime(true);
-
-    showReceiptModal({
-      nama: currentPanitiaData.nama,
-      nim: currentPanitiaData.nim,
-      sie: currentPanitiaData.sie,
-      agendaTitle: window.activeAgendaState.title,
-      waktuPresensi: dateStr
+    finishSuccess(() => {
+      playChime(true);
+      showReceiptModal({
+        nama: currentPanitiaData.nama,
+        nim: currentPanitiaData.nim,
+        sie: currentPanitiaData.sie,
+        agendaTitle: window.activeAgendaState.title,
+        waktuPresensi: dateStr
+      });
+      showToast('success', 'Presensi Berhasil', 'Kehadiran Anda telah dicatat ke database.');
+      resetPresensiForm();
     });
-
-    showToast('success', 'Presensi Berhasil', 'Kehadiran Anda telah dicatat ke database.');
-    resetPresensiForm();
   }, 250);
 }
 
@@ -1377,13 +1437,35 @@ async function refreshDashboardData(btn) {
   if (btn) btn.disabled = true;
 
   try {
+    // Refresh web / data PHP secara langsung tanpa overhead antrean Google Sheets
+    await refreshDashboard(false);
+    showToast('success', 'Data Web Diperbarui', 'Data tabel presensi berhasil dimuat ulang dari backend PHP.');
+  } catch (err) {
+    console.error('Refresh dashboard web error:', err);
+    refreshDashboard(false);
+  } finally {
+    setTimeout(() => {
+      if (icon) icon.classList.remove('animate-spin');
+      if (btn) btn.disabled = false;
+    }, 500);
+  }
+}
+
+async function syncTableWithSheet(btn) {
+  const icon = document.getElementById('tableSyncIcon');
+  if (icon) icon.classList.add('animate-spin');
+  if (btn) btn.disabled = true;
+
+  try {
     if (typeof triggerManualSync === 'function' && !isGasEnvironment) {
       await triggerManualSync();
+    } else {
+      await refreshDashboard(false);
     }
-    refreshDashboard(false);
-    showToast('success', 'Data Diperbarui', 'Data tabel presensi panitia berhasil dimuat ulang dari Google Sheets.');
+    showToast('success', 'Data Sheet Tersinkron', 'Data tabel presensi berhasil disinkronkan dengan Google Sheets.');
   } catch (err) {
-    refreshDashboard(false);
+    console.error('Sync table with sheet error:', err);
+    showToast('error', 'Gagal Singkron', 'Tidak dapat menyinkronkan data dengan Google Sheets.');
   } finally {
     setTimeout(() => {
       if (icon) icon.classList.remove('animate-spin');

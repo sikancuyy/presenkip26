@@ -764,6 +764,105 @@ button:focus-visible {
   width: 36px;
 }
 
+.btn-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.28);
+  transition: width 0.1s ease-out;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Expand-on-Hover Toolbar Icon Buttons (Default: Icon Only, Hover: Reveals Label) */
+.btn-icon-expand {
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 11px !important;
+  border-radius: 9999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--border-color) !important;
+  background-color: #FFFFFF;
+  color: #334155;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-icon-expand .btn-label {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+  transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, margin 0.2s ease;
+  margin-left: 0;
+}
+
+.btn-icon-expand:hover .btn-label,
+.btn-icon-expand:focus-visible .btn-label {
+  max-width: 140px;
+  opacity: 1;
+  margin-left: 6px;
+}
+
+.btn-icon-expand:hover {
+  padding: 0 14px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.btn-icon-expand-emerald {
+  background-color: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #047857 !important;
+}
+.btn-icon-expand-emerald:hover {
+  background-color: #D1FAE5 !important;
+  border-color: #6EE7B7 !important;
+  color: #065F46 !important;
+}
+
+.btn-icon-expand-sky {
+  background-color: #F0F9FF !important;
+  border-color: #BAE6FD !important;
+  color: #0284C7 !important;
+}
+.btn-icon-expand-sky:hover {
+  background-color: #E0F2FE !important;
+  border-color: #7DD3FC !important;
+  color: #0369A1 !important;
+}
+
+.btn-icon-expand-rose {
+  background-color: #FFF1F2 !important;
+  border-color: #FECDD3 !important;
+  color: #E11D48 !important;
+}
+.btn-icon-expand-rose:hover {
+  background-color: #FFE4E6 !important;
+  border-color: #FDA4AF !important;
+  color: #BE123C !important;
+}
+
+.btn-icon-expand-slate {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  color: #475569 !important;
+}
+.btn-icon-expand-slate:hover {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
 @keyframes l3 {
     20%{background-position:0%   0%, 50%  50%,100%  50%}
     40%{background-position:0% 100%, 50%   0%,100%  50%}

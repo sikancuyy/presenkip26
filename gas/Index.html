@@ -328,18 +328,20 @@
           >
         </div>
 
-        <!-- Button Konfirmasi Hadir (Large Pill Button) -->
+        <!-- Button Konfirmasi Hadir (Large Pill Button with Progress Bar 0 - 100%) -->
         <button 
           type="button" 
           id="btnHadir" 
           onclick="submitKehadiran()" 
-          class="btn-primary-red w-full h-12 text-sm font-extrabold tracking-wider"
+          class="btn-primary-red w-full h-12 text-sm font-extrabold tracking-wider relative overflow-hidden flex items-center justify-center gap-2"
         >
-          <svg id="btnHadirIcon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <!-- Progress Fill Overlay (0 - 100%) -->
+          <div id="btnHadirProgressFill" class="btn-progress-fill" style="width: 0%;"></div>
+          <svg id="btnHadirIcon" class="w-5 h-5 flex-shrink-0 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
           </svg>
-          <span id="btnHadirText">Konfirmasi Hadir</span>
-          <div id="btnHadirSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" aria-hidden="true"></div>
+          <span id="btnHadirText" class="relative z-10">Konfirmasi Hadir</span>
+          <div id="btnHadirSpinner" class="hidden loader loader-white loader-sm relative z-10" aria-hidden="true"></div>
         </button>
 
         <!-- Divider & Opsi Sakit / Izin -->

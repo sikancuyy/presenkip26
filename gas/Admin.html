@@ -531,40 +531,52 @@
                   aria-label="Cari panitia berdasarkan Nama atau NIM"
                 >
 
-                <!-- Tombol Refresh Data Tabel -->
-                <button onclick="refreshDashboardData(this)" id="btnRefreshTable" title="Muat Ulang / Sinkronkan Data dari Google Sheets" class="btn-pnl-outline filter-toolbar-btn text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800 border-emerald-300 font-bold" type="button">
-                  <svg id="tableRefreshIcon" class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <!-- Tombol Refresh Data (Web / PHP) -->
+                <button onclick="refreshDashboardData(this)" id="btnRefreshTable" title="Refresh Data (Web / PHP)" class="btn-icon-expand btn-icon-expand-emerald" type="button">
+                  <svg id="tableRefreshIcon" class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                   </svg>
-                  <span>Refresh Data</span>
+                  <span class="btn-label">Refresh Data</span>
                 </button>
 
-                <button onclick="resetFilters()" title="Bersihkan Filter Pencarian" class="btn-pnl-outline filter-toolbar-btn text-xs text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all focus:outline-none" type="button">
-                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <!-- Tombol Singkron Data (Google Sheet) -->
+                <button onclick="syncTableWithSheet(this)" id="btnSyncTable" title="Singkron Data dengan Google Sheets" class="btn-icon-expand btn-icon-expand-sky" type="button">
+                  <svg id="tableSyncIcon" class="w-4 h-4 text-sky-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <span class="btn-label">Singkron Data</span>
+                </button>
+
+                <!-- Tombol Reset Filter -->
+                <button onclick="resetFilters()" id="btnResetFilter" title="Reset Filter Pencarian" class="btn-icon-expand btn-icon-expand-slate" type="button">
+                  <svg class="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                   </svg>
-                  <span>Reset Filter</span>
+                  <span class="btn-label">Reset Filter</span>
                 </button>
 
-                <button onclick="confirmResetAgendaPresensi()" title="Reset Seluruh Presensi Agenda Aktif ke Google Sheets" class="btn-pnl-outline filter-toolbar-btn text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200" type="button">
-                  <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <!-- Tombol Reset Presensi -->
+                <button onclick="confirmResetAgendaPresensi()" id="btnResetPresensi" title="Reset Seluruh Presensi Agenda Aktif ke Google Sheets" class="btn-icon-expand btn-icon-expand-rose" type="button">
+                  <svg class="w-4 h-4 text-rose-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
-                  <span>Reset Presensi</span>
+                  <span class="btn-label">Reset Presensi</span>
                 </button>
 
-                <button onclick="exportTableToCSV()" title="Unduh CSV" class="btn-pnl-outline filter-toolbar-btn text-xs" type="button">
-                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <!-- Tombol CSV -->
+                <button onclick="exportTableToCSV()" id="btnExportCSV" title="Unduh CSV" class="btn-icon-expand btn-icon-expand-slate" type="button">
+                  <svg class="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                   </svg>
-                  <span>CSV</span>
+                  <span class="btn-label">CSV</span>
                 </button>
 
-                <button onclick="printAttendanceSheet()" title="Cetak Rekap" class="btn-pnl-outline filter-toolbar-btn text-xs" type="button">
-                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <!-- Tombol Cetak -->
+                <button onclick="printAttendanceSheet()" id="btnPrintTable" title="Cetak Rekap Presensi" class="btn-icon-expand btn-icon-expand-slate" type="button">
+                  <svg class="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                   </svg>
-                  <span>Cetak</span>
+                  <span class="btn-label">Cetak</span>
                 </button>
               </div>
             </div>
