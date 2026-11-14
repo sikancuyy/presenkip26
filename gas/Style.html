@@ -722,6 +722,36 @@ select.filter-select:focus,
   background-color: #F8FAFC;
 }
 
+/* ==========================================================================
+   CUSTOM WEB LOADER ANIMATION (KIP BRAND RED)
+   ========================================================================== */
+.loader {
+  width: 60px;
+  aspect-ratio: 2;
+  --_g: no-repeat radial-gradient(circle closest-side, #D91616 90%, #0000);
+  background: 
+    var(--_g) 0%   50%,
+    var(--_g) 50%  50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100%/3) 50%;
+  animation: l3 1s infinite linear;
+}
+
+.loader-white {
+  --_g: no-repeat radial-gradient(circle closest-side, #ffffff 90%, #0000);
+}
+
+.loader-sm {
+  width: 36px;
+}
+
+@keyframes l3 {
+    20%{background-position:0%   0%, 50%  50%,100%  50%}
+    40%{background-position:0% 100%, 50%   0%,100%  50%}
+    60%{background-position:0%  50%, 50% 100%,100%   0%}
+    80%{background-position:0%  50%, 50%  50%,100% 100%}
+}
+
 /* Print Stylesheet */
 @media print {
   body {

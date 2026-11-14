@@ -48,6 +48,14 @@
 </head>
 <body class="bg-[#F4F6F9] text-[#0F172A] font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-red-600 selection:text-white pb-32">
 
+  <!-- Preloader Animasi Memuat Halaman -->
+  <div id="pagePreloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/95 backdrop-blur-xs transition-opacity duration-300">
+    <div class="flex flex-col items-center gap-3">
+      <div class="loader"></div>
+      <span class="text-xs font-extrabold text-slate-700 tracking-wider uppercase">Memuat Presensi...</span>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 max-w-[92vw] sm:max-w-md w-auto pointer-events-none items-center" aria-live="polite"></div>
 
@@ -254,6 +262,12 @@
           <span id="btnCariText">Cari Data</span>
           <div id="btnCariSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin flex-shrink-0" aria-hidden="true"></div>
         </button>
+      </div>
+
+      <!-- Animasi Memuat Pencarian Biodata -->
+      <div id="searchLoadingState" class="hidden flex flex-col items-center justify-center py-6 gap-2 animate-fadeIn">
+        <div class="loader"></div>
+        <span class="text-xs font-bold text-slate-600 mt-1">Mencari biodata panitia...</span>
       </div>
 
       <!-- BIODATA CARD CONTAINER (MUNCUL SETELAH NIM DITEMUKAN) -->

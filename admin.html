@@ -61,6 +61,14 @@
 </head>
 <body class="bg-[#F4F6F9] text-[#0F172A] font-sans min-h-screen antialiased flex flex-col justify-between selection:bg-red-600 selection:text-white">
 
+  <!-- Preloader Animasi Memuat Halaman -->
+  <div id="pagePreloader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/95 backdrop-blur-xs transition-opacity duration-300">
+    <div class="flex flex-col items-center gap-3">
+      <div class="loader"></div>
+      <span class="text-xs font-extrabold text-slate-700 tracking-wider uppercase">Memuat Dashboard...</span>
+    </div>
+  </div>
+
   <!-- ============================================================== -->
   <!-- DECORATIVE LAYERED WAVES (HEADER & FOOTER BACKGROUND)         -->
   <!-- ============================================================== -->
@@ -585,7 +593,14 @@
                   </tr>
                 </thead>
                 <tbody id="tableBodyPanitia" class="divide-y divide-slate-100 bg-white">
-                  <!-- Populated dynamically by app.js -->
+                  <tr>
+                    <td colspan="10" class="py-12 text-center">
+                      <div class="flex flex-col items-center justify-center gap-2">
+                        <div class="loader mx-auto"></div>
+                        <span class="text-xs font-bold text-slate-500 mt-1">Memuat rekapitulasi data panitia...</span>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
 

@@ -105,6 +105,19 @@ function initLocalStorageDatabase() {
 
 // Lifecycle Initialization
 document.addEventListener('DOMContentLoaded', () => {
+  // Dismiss page preloader smoothly
+  const dismissPreloader = () => {
+    const preloader = document.getElementById('pagePreloader');
+    if (preloader) {
+      preloader.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        if (preloader && preloader.parentNode) preloader.parentNode.removeChild(preloader);
+      }, 350);
+    }
+  };
+  window.addEventListener('load', dismissPreloader);
+  setTimeout(dismissPreloader, 600);
+
   initLocalStorageDatabase();
 
   // Update Status Badge (GSheet Connected vs Local)
@@ -542,6 +555,11 @@ function searchNIM() {
   btnSpinner.classList.remove('hidden');
   btn.disabled = true;
 
+  const searchLoader = document.getElementById('searchLoadingState');
+  const bioContainer = document.getElementById('biodataContainer');
+  if (searchLoader) searchLoader.classList.remove('hidden');
+  if (bioContainer) bioContainer.classList.add('hidden');
+
   hideAlert();
 
   if (isGasEnvironment) {
@@ -675,6 +693,8 @@ function fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn) {
       renderPanitiaBiodata(panitiaData);
       showToast('success', 'Biodata Ditemukan', found.nama);
     } else {
+      const searchLoader = document.getElementById('searchLoadingState');
+      if (searchLoader) searchLoader.classList.add('hidden');
       const bioContainer = document.getElementById('biodataContainer');
       if (bioContainer) bioContainer.classList.add('hidden');
       showAlert('error', `NIM (${cleanNim}) tidak ditemukan dalam database Panitia KIP 2026. Pastikan nomor yang dimasukkan benar.`);
@@ -684,6 +704,8 @@ function fallbackLocalSearch(cleanNim, btnText, btnSpinner, btn) {
 
 function renderPanitiaBiodata(panitia) {
   currentPanitiaData = panitia;
+  const searchLoader = document.getElementById('searchLoadingState');
+  if (searchLoader) searchLoader.classList.add('hidden');
 
   // Inisial Avatar
   const names = (panitia.nama || '').split(' ').filter(Boolean);
