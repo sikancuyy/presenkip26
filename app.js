@@ -1996,22 +1996,36 @@ function submitIzinSakit() {
   const agenda = window.activeAgendaState;
   const agendaId = agenda ? agenda.id : '';
   const nama = currentPanitiaData.nama || '-';
+  const nim = currentPanitiaData.nim || '-';
   const jabatan = currentPanitiaData.jabatan || '-';
   const sie = currentPanitiaData.sie || '-';
-  const jenisTeks = currentAbsenType === 'SAKIT' ? 'sakit' : 'izin';
+  const jenisTeks = currentAbsenType === 'SAKIT' ? 'Sakit' : 'Izin';
 
   // Format pesan WhatsApp persis sesuai template:
-  // "Assalamu’alaikum Wr.Wb"
-  // Perkenalkan, Saya (nama), Selaku (jabatan), Sie (sie).
-  // Tidak dapat berhadir di karenakan (sakit/izin) dengan alasan:
-  // ""
-  // Wassalamu’alaikum Wr.Wb
-  // Teks dalam kurung ditebalkan dengan *
-  const sapaan = 'Assalamu’alaikum Wr.Wb';
-  const baris1 = `Perkenalkan, Saya *${nama}*, Selaku *${jabatan}*, Sie *${sie}*.`;
-  const baris2 = `Tidak dapat berhadir di karenakan *${jenisTeks}* dengan alasan:\n"${alasan}"`;
-  const penutup = 'Wassalamu’alaikum Wr.Wb';
-  const pesanWA = `${sapaan}\n\n${baris1}\n\n${baris2}\n\n${penutup}`;
+  // Assalamu’alaikum Wr. Wb.
+  //
+  // Saya *{Nama}*
+  // NIM: *{NIM}*
+  // Jabatan: *{Jabatan}*
+  // Sie: *{Sie}*
+  //
+  // Alasan tidak berhadir: *{Izin/Sakit}*
+  // {Teks Alasan}
+  //
+  // Wassalamu’alaikum Wr. Wb.
+  const pesanWA = [
+    'Assalamu’alaikum Wr. Wb.',
+    '',
+    `Saya *${nama}*`,
+    `NIM: *${nim}*`,
+    `Jabatan: *${jabatan}*`,
+    `Sie: *${sie}*`,
+    '',
+    `Alasan tidak berhadir: *${jenisTeks}*`,
+    `${alasan}`,
+    '',
+    'Wassalamu’alaikum Wr. Wb.'
+  ].join('\n');
 
   // Nomor WhatsApp Sekretaris Pelaksana: 0822 6703 4994 -> 6282267034994
   const waTarget = '6282267034994';
