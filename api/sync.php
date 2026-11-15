@@ -151,26 +151,34 @@ class SyncEngine {
             Storage::saveAgendasList($dashRes['agendas']);
         }
 
-        // 4. Rekonsiliasi Status Kehadiran untuk Agenda Aktif
-        if (!empty($activeAgenda['id']) && !empty($dashRes['panitia'])) {
-            $agendaId = (string)$activeAgenda['id'];
+        // 4. Rekonsiliasi Status Kehadiran untuk Agenda Aktif atau Terakhir
+        $targetRecapId = !empty($activeAgenda['id']) ? (string)$activeAgenda['id'] : '';
+        if (empty($targetRecapId) && !empty($dashRes['agendas'][0]['id'])) {
+            $targetRecapId = (string)$dashRes['agendas'][0]['id'];
+        }
+
+        if (!empty($targetRecapId) && !empty($dashRes['panitia'])) {
             $batchPresensi = [];
             foreach ($dashRes['panitia'] as $p) {
-                $sudahHadir = !empty($p['sudahHadir']) || (($p['status'] ?? '') === 'HADIR');
+                $statusItem = strtoupper(trim((string)($p['status'] ?? '')));
+                $hasRecord = !empty($p['sudahHadir']) || in_array($statusItem, ['HADIR', 'SAKIT', 'IZIN']);
                 $cleanNim = preg_replace('/\D/', '', (string)($p['nim'] ?? ''));
-                if ($sudahHadir && !empty($cleanNim)) {
+                if ($hasRecord && !empty($cleanNim)) {
                     $jam = $p['waktuPresensi'] ?? $p['jamHadir'] ?? 'HADIR';
-                    $key = $agendaId . '_' . $cleanNim;
+                    $finalStatus = in_array($statusItem, ['SAKIT', 'IZIN']) ? $statusItem : 'HADIR';
+                    $key = $targetRecapId . '_' . $cleanNim;
                     $batchPresensi[$key] = [
                         'key' => $key,
-                        'agendaId' => $agendaId,
+                        'agendaId' => $targetRecapId,
                         'nim' => $cleanNim,
                         'nama' => (string)($p['nama'] ?? ''),
                         'jabatan' => (string)($p['jabatan'] ?? ''),
                         'sie' => (string)($p['sie'] ?? ''),
                         'delegasi' => (string)($p['delegasi'] ?? ''),
                         'no_hp' => (string)($p['no_hp'] ?? $p['noHp'] ?? ''),
-                        'timestamp' => !empty($jam) ? (string)$jam : 'HADIR',
+                        'status' => $finalStatus,
+                        'alasan' => (string)($p['alasan'] ?? ''),
+                        'timestamp' => !empty($jam) ? (string)$jam : $finalStatus,
                         'tanggal' => (string)($activeAgenda['date'] ?? date('d F Y')),
                         'synced' => true,
                         'synced_at' => date('Y-m-d H:i:s')

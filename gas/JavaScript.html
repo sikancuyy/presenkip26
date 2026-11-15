@@ -1369,9 +1369,16 @@ function fallbackLocalDashboard() {
     const sieStr = m.sie || '-';
     if (sieStr && sieStr !== '-') sieSet.add(sieStr);
 
-    const attend = (activeAgenda && activeAgenda.status === 'AKTIF')
-      ? rawRecords.find(r => r.agendaId === activeAgenda.id && r.nim === nimStr)
+    const targetAgendaId = activeAgenda ? activeAgenda.id : (rawRecords.length > 0 ? rawRecords[rawRecords.length - 1].agendaId : null);
+    const attend = targetAgendaId
+      ? rawRecords.find(r => r.agendaId === targetAgendaId && r.nim === nimStr)
       : null;
+
+    let attendStatus = 'BELUM HADIR';
+    if (attend) {
+      const rawStat = String(attend.status || 'HADIR').toUpperCase().trim();
+      attendStatus = (rawStat === 'SAKIT' || rawStat === 'IZIN') ? rawStat : 'HADIR';
+    }
 
     return {
       no: m.no || (idx + 1),
@@ -1380,8 +1387,9 @@ function fallbackLocalDashboard() {
       jabatan: m.jabatan || '-',
       sie: sieStr,
       delegasi: m.delegasi || '-',
-      status: attend ? 'HADIR' : 'BELUM HADIR',
-      waktuPresensi: attend ? attend.waktu : '-'
+      status: attendStatus,
+      alasan: attend ? (attend.alasan || '') : '',
+      waktuPresensi: attend ? (attend.waktu || attendStatus) : '-'
     };
   });
 
@@ -2072,6 +2080,34 @@ function submitIzinSakit() {
     if (btn) btn.disabled = false;
     closeAbsenModal();
     showToast('success', 'Keterangan Dicatat', `Status ${currentAbsenType} berhasil dicatat. Mengalihkan ke WhatsApp Sekretaris Pelaksana...`);
+
+    // Catat ke raw storage lokal
+    try {
+      const rawRecords = JSON.parse(localStorage.getItem('kip_raw_presensi') || '[]');
+      const existIdx = rawRecords.findIndex(r => r.agendaId === agendaId && r.nim === currentPanitiaData.nim);
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+      const rec = {
+        timestamp: now.toISOString(),
+        agendaId: agendaId,
+        agendaTitle: agenda ? agenda.title : '',
+        nim: currentPanitiaData.nim,
+        nama: currentPanitiaData.nama,
+        jabatan: currentPanitiaData.jabatan,
+        sie: currentPanitiaData.sie,
+        delegasi: currentPanitiaData.delegasi,
+        status: currentAbsenType,
+        alasan: alasan,
+        waktu: timeStr,
+        device: `WA Sekretaris (${currentAbsenType}): ${alasan}`
+      };
+      if (existIdx >= 0) {
+        rawRecords[existIdx] = rec;
+      } else {
+        rawRecords.push(rec);
+      }
+      localStorage.setItem('kip_raw_presensi', JSON.stringify(rawRecords));
+    } catch (e) {}
 
     const noticeElem = document.getElementById('bioAttendanceNotice');
     if (noticeElem) {

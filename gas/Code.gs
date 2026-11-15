@@ -1111,6 +1111,11 @@ function resetPanitiaPresensi(agendaId, nim, pin) {
 /**
  * Sinkronisasi Rekap Keseluruhan untuk Agenda Tertentu ke Sheet PRESENSI
  */
+/**
+ * Final Rekapitulasi Presensi ketika Agenda Ditutup
+ * Menuliskan status kehadiran (HADIR, SAKIT, IZIN) ke dalam matriks sheet PRESENSI.
+ * Status SAKIT dan IZIN TIDAK BOLEH berubah menjadi HADIR.
+ */
 function runFullRecapForAgenda(agendaId) {
   const ss = getSpreadsheet();
   const rawSheet = ss.getSheetByName(SHEET_RAW);
@@ -1121,7 +1126,7 @@ function runFullRecapForAgenda(agendaId) {
   const presensiData = presensiSheet.getDataRange().getValues();
   if (presensiData.length <= 2) return;
 
-  // Kumpulkan list NIM yang hadir pada agenda ini beserta jamnya yang sudah terformat HH:mm:ss
+  // Kumpulkan list NIM yang melakukan presensi pada agenda ini beserta status dan jamnya
   const attendeeMap = {};
   let agendaTitle = "";
 
@@ -1137,7 +1142,14 @@ function runFullRecapForAgenda(agendaId) {
       }
       
       const cleanWaktu = formatPresensiTime(row[9]);
-      attendeeMap[nimStr] = cleanWaktu;
+      const rawStatus = String(row[8] || "HADIR").toUpperCase().trim();
+      const finalStatus = (rawStatus === "SAKIT" || rawStatus === "IZIN") ? rawStatus : "HADIR";
+
+      attendeeMap[nimStr] = {
+        status: finalStatus,
+        waktu: cleanWaktu,
+        alasan: String(row[10] || "").replace(/^Keterangan:\s*/i, "").trim()
+      };
     }
   }
 
@@ -1162,12 +1174,12 @@ function runFullRecapForAgenda(agendaId) {
     targetCol = presensiSheet.getLastColumn();
   }
 
-  // Set format kolom target sebagai teks murni (@) agar Google Sheets tidak mengubah string waktu menjadi Date
+  // Set format kolom target sebagai teks murni (@)
   try {
     presensiSheet.getRange(3, targetCol, presensiData.length - 2, 1).setNumberFormat("@");
   } catch (fmtErr) {}
 
-  // Tuliskan ke setiap baris anggota
+  // Tuliskan status presensi ke setiap baris anggota (HADIR, SAKIT, IZIN, atau TIDAK HADIR)
   for (let r = 2; r < presensiData.length; r++) {
     let rowNim = "";
     if (typeof presensiData[r][2] === "number") {
@@ -1177,19 +1189,42 @@ function runFullRecapForAgenda(agendaId) {
     }
 
     if (rowNim && attendeeMap[rowNim] !== undefined) {
+      const entry = attendeeMap[rowNim];
+      const itemStatus = entry.status;
+      let fontColor = "#15803d"; // Default hijau untuk HADIR
+      if (itemStatus === "SAKIT") {
+        fontColor = "#d97706"; // Amber untuk SAKIT
+      } else if (itemStatus === "IZIN") {
+        fontColor = "#2563eb"; // Biru untuk IZIN
+      }
+
       presensiSheet.getRange(r + 1, targetCol)
         .setNumberFormat("@")
-        .setValue("HADIR")
-        .setFontColor("#15803d")
+        .setValue(itemStatus)
+        .setFontColor(fontColor)
         .setFontWeight("bold")
         .setHorizontalAlignment("center");
     } else if (rowNim) {
       const curCell = presensiSheet.getRange(r + 1, targetCol);
       const curVal = curCell.getValue();
-      const curStr = String(curVal || "").trim();
+      const curStr = String(curVal || "").trim().toUpperCase();
 
-      // Perbaiki data lama yang memuat jam menjadi murni "HADIR"
-      if (curStr.startsWith("HADIR")) {
+      // Jika di cell sudah tercatat SAKIT atau IZIN, PERTAHANKAN!
+      if (curStr === "SAKIT") {
+        curCell
+          .setNumberFormat("@")
+          .setValue("SAKIT")
+          .setFontColor("#d97706")
+          .setFontWeight("bold")
+          .setHorizontalAlignment("center");
+      } else if (curStr === "IZIN") {
+        curCell
+          .setNumberFormat("@")
+          .setValue("IZIN")
+          .setFontColor("#2563eb")
+          .setFontWeight("bold")
+          .setHorizontalAlignment("center");
+      } else if (curStr.startsWith("HADIR")) {
         curCell
           .setNumberFormat("@")
           .setValue("HADIR")
@@ -1258,29 +1293,42 @@ function getDashboardStats(pin) {
   // 2. Ambil active agenda (termasuk kode sesi rapat untuk Admin)
   const activeRes = getActiveAgenda();
   let activeAgenda = activeRes.success ? activeRes.agenda : null;
-  if (activeAgenda) {
-    const aSheet = ss.getSheetByName(SHEET_AGENDA);
-    if (aSheet && aSheet.getLastRow() > 1) {
-      const aData = aSheet.getDataRange().getValues();
+  const aSheet = ss.getSheetByName(SHEET_AGENDA);
+  let latestAgenda = null;
+
+  if (aSheet && aSheet.getLastRow() > 1) {
+    const aData = aSheet.getDataRange().getValues();
+    if (activeAgenda) {
       for (let i = 1; i < aData.length; i++) {
         if (String(aData[i][0]) === activeAgenda.id) {
           activeAgenda.sessionCode = String(aData[i][5] || "").trim();
           break;
         }
       }
+    } else {
+      // Jika tidak ada agenda aktif (misal baru saja ditutup), ambil agenda paling terakhir
+      const lastRow = aData[aData.length - 1];
+      latestAgenda = {
+        id: String(lastRow[0]),
+        title: String(lastRow[1]),
+        status: String(lastRow[6] || "").toUpperCase()
+      };
     }
   }
 
-  // 3. Ambil data kehadiran dari raw_presensi untuk agenda aktif
+  // 3. Ambil data kehadiran dari raw_presensi untuk agenda aktif atau agenda terakhir yang baru ditutup
+  const targetAgendaId = activeAgenda ? activeAgenda.id : (latestAgenda ? latestAgenda.id : null);
   const rawSheet = ss.getSheetByName(SHEET_RAW);
   let totalHadirCount = 0;
+  let totalSakitCount = 0;
+  let totalIzinCount = 0;
   const hadirMap = {};
 
-  if (activeAgenda && rawSheet && rawSheet.getLastRow() > 1) {
+  if (targetAgendaId && rawSheet && rawSheet.getLastRow() > 1) {
     const rawData = rawSheet.getDataRange().getValues();
     for (let i = 1; i < rawData.length; i++) {
       const row = rawData[i];
-      if (String(row[1]) === activeAgenda.id) {
+      if (String(row[1]) === targetAgendaId) {
         let nim = "";
         if (typeof row[3] === "number") {
           nim = Math.floor(row[3]).toString();
@@ -1288,7 +1336,12 @@ function getDashboardStats(pin) {
           nim = String(row[3]).trim().replace(/\D/g, "");
         }
         const cleanWaktu = formatPresensiTime(row[9]);
+        const rawStatus = String(row[8] || "HADIR").toUpperCase().trim();
+        const finalStatus = (rawStatus === "SAKIT" || rawStatus === "IZIN") ? rawStatus : "HADIR";
+
         hadirMap[nim] = {
+          status: finalStatus,
+          alasan: String(row[10] || "").replace(/^Keterangan:\s*/i, "").trim(),
           waktu: cleanWaktu || "-",
           device: row[10] || "-"
         };
@@ -1296,13 +1349,22 @@ function getDashboardStats(pin) {
     }
   }
 
-  // Update status kehadiran pada daftar panitia
+  // Update status kehadiran pada daftar panitia (tetap simpan HADIR, SAKIT, dan IZIN)
   for (let i = 0; i < allPanitia.length; i++) {
     const p = allPanitia[i];
     if (hadirMap[p.nim]) {
-      p.status = "HADIR";
-      p.waktuPresensi = hadirMap[p.nim].waktu;
-      totalHadirCount++;
+      const entry = hadirMap[p.nim];
+      p.status = entry.status; // Tidak boleh berubah ke HADIR jika status aslinya SAKIT atau IZIN
+      p.alasan = entry.alasan || "";
+      p.waktuPresensi = entry.waktu;
+      p.sudahHadir = true;
+      if (entry.status === "HADIR") {
+        totalHadirCount++;
+      } else if (entry.status === "SAKIT") {
+        totalSakitCount++;
+      } else if (entry.status === "IZIN") {
+        totalIzinCount++;
+      }
     }
   }
 
@@ -1475,9 +1537,12 @@ function deduplicatePresensiColumns(ss) {
 
         let modified = false;
         for (let r = 0; r < dupValues.length; r++) {
-          const dVal = String(dupValues[r][0] || "").trim();
-          const pVal = String(primaryValues[r][0] || "").trim();
-          if (dVal.startsWith("HADIR") && !pVal.startsWith("HADIR")) {
+          const dVal = String(dupValues[r][0] || "").trim().toUpperCase();
+          const pVal = String(primaryValues[r][0] || "").trim().toUpperCase();
+          if (dVal === "SAKIT" || dVal === "IZIN") {
+            primaryValues[r][0] = dVal;
+            modified = true;
+          } else if (dVal.startsWith("HADIR") && pVal !== "SAKIT" && pVal !== "IZIN") {
             primaryValues[r][0] = "HADIR";
             modified = true;
           }

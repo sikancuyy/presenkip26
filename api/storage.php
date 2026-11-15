@@ -345,7 +345,17 @@ class Storage {
                     // Masukkan data dari GSheet
                     $map[$k] = $item;
                 } else {
-                    // Update flag synced
+                    // Update data presensi dengan menjaga status SAKIT dan IZIN agar tidak berubah ke HADIR
+                    $curStatus = strtoupper(trim((string)($map[$k]['status'] ?? '')));
+                    $newStatus = strtoupper(trim((string)($item['status'] ?? '')));
+                    if (in_array($newStatus, ['SAKIT', 'IZIN'])) {
+                        $map[$k]['status'] = $newStatus;
+                        if (!empty($item['alasan'])) {
+                            $map[$k]['alasan'] = $item['alasan'];
+                        }
+                    } elseif (!in_array($curStatus, ['SAKIT', 'IZIN'])) {
+                        $map[$k]['status'] = $newStatus ?: 'HADIR';
+                    }
                     $map[$k]['synced'] = true;
                     if (empty($map[$k]['synced_at'])) {
                         $map[$k]['synced_at'] = date('Y-m-d H:i:s');
