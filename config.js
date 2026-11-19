@@ -1,7 +1,7 @@
 /**
  * =========================================================================
  * KONFIGURASI PRESENSI DIGITAL PANITIA KIP 2026
- * Subdomain: presenkip26.sikancuyy.my.id
+ * Subdomain: presensi2026.kippnl.my.id
  * =========================================================================
  */
 window.APP_CONFIG = {
@@ -13,7 +13,7 @@ window.APP_CONFIG = {
   },
 
   // Pengaturan Domain & Branding
-  SUBDOMAIN: "presenkip26.sikancuyy.my.id",
+  SUBDOMAIN: "presensi2026.kippnl.my.id",
   ORGANISASI: "Komisi Independen Pemilihan (KIP) 2026 - PEMIRA PNL",
 
   // PIN Akses Default Admin Dashboard
