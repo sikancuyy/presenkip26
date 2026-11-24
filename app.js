@@ -1545,21 +1545,25 @@ function fallbackLocalDashboard() {
   const activeAgenda = rawAgenda ? JSON.parse(rawAgenda) : null;
   const rawRecords = JSON.parse(localStorage.getItem('kip_raw_presensi') || '[]');
 
+  const hasActive = Boolean(activeAgenda && activeAgenda.status === 'AKTIF');
+  const targetAgendaId = hasActive ? activeAgenda.id : null;
   const sieSet = new Set();
   const panitiaList = filledMembers.map((m, idx) => {
     const nimStr = String(m.nim || '').replace(/\D/g, '');
     const sieStr = m.sie || '-';
     if (sieStr && sieStr !== '-') sieSet.add(sieStr);
 
-    const targetAgendaId = activeAgenda ? activeAgenda.id : (rawRecords.length > 0 ? rawRecords[rawRecords.length - 1].agendaId : null);
     const attend = targetAgendaId
       ? rawRecords.find(r => r.agendaId === targetAgendaId && r.nim === nimStr)
       : null;
 
-    let attendStatus = 'BELUM HADIR';
-    if (attend) {
-      const rawStat = String(attend.status || 'HADIR').toUpperCase().trim();
-      attendStatus = (rawStat === 'SAKIT' || rawStat === 'IZIN') ? rawStat : 'HADIR';
+    let attendStatus = '-';
+    if (hasActive) {
+      attendStatus = 'BELUM HADIR';
+      if (attend) {
+        const rawStat = String(attend.status || 'HADIR').toUpperCase().trim();
+        attendStatus = (rawStat === 'SAKIT' || rawStat === 'IZIN') ? rawStat : 'HADIR';
+      }
     }
 
     return {
@@ -1571,14 +1575,14 @@ function fallbackLocalDashboard() {
       delegasi: m.delegasi || '-',
       status: attendStatus,
       alasan: attend ? (attend.alasan || '') : '',
-      waktuPresensi: attend ? (attend.waktu || attendStatus) : '-'
+      waktuPresensi: (attend && hasActive) ? (attend.waktu || attendStatus) : '-'
     };
   });
 
   const totalPanitia = panitiaList.length;
-  const totalHadir = panitiaList.filter(p => p.status === 'HADIR').length;
-  const belumHadir = Math.max(0, totalPanitia - totalHadir);
-  const persentase = totalPanitia > 0 ? ((totalHadir / totalPanitia) * 100).toFixed(1) : '0.0';
+  const totalHadir = hasActive ? panitiaList.filter(p => p.status === 'HADIR').length : 0;
+  const belumHadir = hasActive ? Math.max(0, totalPanitia - totalHadir) : 0;
+  const persentase = (hasActive && totalPanitia > 0) ? ((totalHadir / totalPanitia) * 100).toFixed(1) : '0.0';
 
   const mockDashboardData = {
     success: true,
@@ -1659,6 +1663,8 @@ function renderDashboard(data) {
     });
   }
 
+  const hasActiveAgenda = Boolean(data && data.activeAgenda && data.activeAgenda.status === 'AKTIF');
+
   // 1. Stats Counter with safe element lookups
   const totalElem = document.getElementById('statTotalPanitia');
   const hadirElem = document.getElementById('statSudahHadir') || document.getElementById('statHadir');
@@ -1666,15 +1672,15 @@ function renderDashboard(data) {
   const persentaseElem = document.getElementById('statPersentase');
   const progressElem = document.getElementById('statProgressBar');
 
-  if (totalElem) totalElem.textContent = data.stats.totalPanitia;
-  if (hadirElem) hadirElem.textContent = data.stats.sudahHadir;
-  if (belumHadirElem) belumHadirElem.textContent = data.stats.belumHadir;
+  if (totalElem) totalElem.textContent = (data.stats && data.stats.totalPanitia) || (data.panitia ? data.panitia.length : 0);
+  if (hadirElem) hadirElem.textContent = hasActiveAgenda ? (data.stats.sudahHadir || 0) : '0';
+  if (belumHadirElem) belumHadirElem.textContent = hasActiveAgenda ? (data.stats.belumHadir || 0) : '0';
   if (persentaseElem) {
-    const rawPct = String(data.stats.persentase || '0');
+    const rawPct = hasActiveAgenda ? String(data.stats.persentase || '0') : '0';
     persentaseElem.textContent = rawPct.endsWith('%') ? rawPct : `${rawPct}%`;
   }
   if (progressElem) {
-    progressElem.style.width = `${Math.min(100, parseFloat(data.stats.persentase || 0))}%`;
+    progressElem.style.width = hasActiveAgenda ? `${Math.min(100, parseFloat(data.stats.persentase || 0))}%` : '0%';
   }
 
   // 2. Active Agenda Meta & Session Code
@@ -1780,6 +1786,12 @@ function updateSieChart(panitiaList) {
   const chartContainer = document.getElementById('sieChartGrid');
   if (!chartContainer || !panitiaList) return;
 
+  const hasActiveAgenda = Boolean(
+    dashboardCache &&
+    dashboardCache.activeAgenda &&
+    dashboardCache.activeAgenda.status === 'AKTIF'
+  );
+
   const sieStats = {};
   const sies = ['Pejabat Acara', 'Acara', 'Konsumsi', 'Pubdok', 'Perdek', 'Keamanan'];
   sies.forEach(s => sieStats[s] = { total: 0, hadir: 0 });
@@ -1787,15 +1799,15 @@ function updateSieChart(panitiaList) {
   panitiaList.forEach(p => {
     if (sieStats[p.sie]) {
       sieStats[p.sie].total++;
-      if (p.status === 'HADIR') sieStats[p.sie].hadir++;
+      if (hasActiveAgenda && p.status === 'HADIR') sieStats[p.sie].hadir++;
     }
   });
 
   chartContainer.innerHTML = '';
   sies.forEach(s => {
     const stat = sieStats[s];
-    const pct = stat.total > 0 ? Math.round((stat.hadir / stat.total) * 100) : 0;
-    const barHeight = Math.max(10, Math.round(pct * 0.9));
+    const pct = (hasActiveAgenda && stat.total > 0) ? Math.round((stat.hadir / stat.total) * 100) : 0;
+    const barHeight = hasActiveAgenda ? Math.max(10, Math.round(pct * 0.9)) : 0;
 
     const col = document.createElement('div');
     col.className = "flex flex-col items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 hover:bg-white hover:shadow-sm transition-all";
@@ -1872,6 +1884,12 @@ function renderPanitiaTable(list) {
     return;
   }
 
+  const hasActiveAgenda = Boolean(
+    dashboardCache &&
+    dashboardCache.activeAgenda &&
+    dashboardCache.activeAgenda.status === 'AKTIF'
+  );
+
   list.forEach((p, idx) => {
     const tr = document.createElement('tr');
     tr.className = "hover:bg-slate-50/80 transition-colors";
@@ -1880,43 +1898,40 @@ function renderPanitiaTable(list) {
     const isSakit = (p.status === 'SAKIT');
     const isIzin = (p.status === 'IZIN');
 
-    let badgeStatus = `<span class="badge-pnl-slate inline-flex items-center gap-1 px-3 py-1 text-[11px]">BELUM</span>`;
-    if (isHadir) {
-      badgeStatus = `<span class="badge-pnl-emerald inline-flex items-center gap-1.5 px-3 py-1 text-[11px]">
-           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HADIR
-         </span>`;
-    } else if (isSakit) {
-      const tooltip = p.alasan ? `title="Sakit: ${p.alasan}"` : 'title="Sakit"';
-      badgeStatus = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold" ${tooltip}>
-           <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> SAKIT
-         </span>`;
-    } else if (isIzin) {
-      const tooltip = p.alasan ? `title="Izin: ${p.alasan}"` : 'title="Izin"';
-      badgeStatus = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-bold" ${tooltip}>
-           <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> IZIN
-         </span>`;
+    let badgeStatus = `<span class="text-slate-400 font-mono text-xs font-semibold">-</span>`;
+    let waktuFormatted = '-';
+    let aksiDisplay = `<span class="text-slate-300 font-mono text-xs">-</span>`;
+
+    if (hasActiveAgenda) {
+      badgeStatus = `<span class="badge-pnl-slate inline-flex items-center gap-1 px-3 py-1 text-[11px]">BELUM</span>`;
+      if (isHadir) {
+        badgeStatus = `<span class="badge-pnl-emerald inline-flex items-center gap-1.5 px-3 py-1 text-[11px]">
+             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> HADIR
+           </span>`;
+      } else if (isSakit) {
+        const tooltip = p.alasan ? `title="Sakit: ${p.alasan}"` : 'title="Sakit"';
+        badgeStatus = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold" ${tooltip}>
+             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> SAKIT
+           </span>`;
+      } else if (isIzin) {
+        const tooltip = p.alasan ? `title="Izin: ${p.alasan}"` : 'title="Izin"';
+        badgeStatus = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-bold" ${tooltip}>
+             <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> IZIN
+           </span>`;
+      }
+
+      if (p.waktuPresensi && p.waktuPresensi !== '-') {
+        waktuFormatted = formatPresensiTime(p.waktuPresensi);
+      }
+
+      const safeNama = (p.nama || '').replace(/'/g, "\\'");
+      if (isHadir || isSakit || isIzin) {
+        aksiDisplay = `<button type="button" onclick="confirmResetSinglePanitia('${p.nim}', '${safeNama}')" class="px-2 py-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-all inline-flex items-center gap-1" title="Reset status anggota ini ke Belum Hadir">
+             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+             <span>Reset</span>
+           </button>`;
+      }
     }
-
-    const namaDisplay = p.nama || '<span class="italic text-slate-400 font-normal">(Belum Terisi)</span>';
-    const nimDisplay = p.nim ? `<span class="font-mono text-slate-800 font-bold">${p.nim}</span>` : '<span class="italic text-slate-400 font-mono">-</span>';
-
-    const rawHp = String(p.no_hp || p.noHp || '').trim();
-    const cleanHp = rawHp.replace(/\D/g, '');
-    let noHpDisplay = '<span class="italic text-slate-400 font-mono">-</span>';
-    if (cleanHp) {
-      const waNum = cleanHp.startsWith('62') ? cleanHp : ('62' + cleanHp.replace(/^0/, ''));
-      noHpDisplay = `<a href="https://wa.me/${waNum}" target="_blank" rel="noopener noreferrer" class="font-mono text-emerald-600 hover:text-emerald-700 hover:underline font-semibold" title="Hubungi via WhatsApp">${rawHp}</a>`;
-    }
-
-    const waktuFormatted = p.waktuPresensi ? formatPresensiTime(p.waktuPresensi) : '-';
-
-    const safeNama = (p.nama || '').replace(/'/g, "\\'");
-    const aksiDisplay = (isHadir || isSakit || isIzin)
-      ? `<button type="button" onclick="confirmResetSinglePanitia('${p.nim}', '${safeNama}')" class="px-2 py-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-all inline-flex items-center gap-1" title="Reset status anggota ini ke Belum Hadir">
-           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-           <span>Reset</span>
-         </button>`
-      : `<span class="text-slate-300 font-mono text-xs">-</span>`;
 
     tr.innerHTML = `
       <td class="p-3.5 text-center text-slate-400 font-mono">${p.no || (idx + 1)}</td>

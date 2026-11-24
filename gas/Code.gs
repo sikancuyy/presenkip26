@@ -1305,19 +1305,11 @@ function getDashboardStats(pin) {
           break;
         }
       }
-    } else {
-      // Jika tidak ada agenda aktif (misal baru saja ditutup), ambil agenda paling terakhir
-      const lastRow = aData[aData.length - 1];
-      latestAgenda = {
-        id: String(lastRow[0]),
-        title: String(lastRow[1]),
-        status: String(lastRow[6] || "").toUpperCase()
-      };
     }
   }
 
-  // 3. Ambil data kehadiran dari raw_presensi untuk agenda aktif atau agenda terakhir yang baru ditutup
-  const targetAgendaId = activeAgenda ? activeAgenda.id : (latestAgenda ? latestAgenda.id : null);
+  // 3. Ambil data kehadiran dari raw_presensi HANYA jika ada agenda yang sedang aktif
+  const targetAgendaId = (activeAgenda && activeAgenda.status === "AKTIF") ? activeAgenda.id : null;
   const rawSheet = ss.getSheetByName(SHEET_RAW);
   let totalHadirCount = 0;
   let totalSakitCount = 0;
@@ -1349,12 +1341,12 @@ function getDashboardStats(pin) {
     }
   }
 
-  // Update status kehadiran pada daftar panitia (tetap simpan HADIR, SAKIT, dan IZIN)
+  // Update status kehadiran pada daftar panitia
   for (let i = 0; i < allPanitia.length; i++) {
     const p = allPanitia[i];
-    if (hadirMap[p.nim]) {
+    if (targetAgendaId && hadirMap[p.nim]) {
       const entry = hadirMap[p.nim];
-      p.status = entry.status; // Tidak boleh berubah ke HADIR jika status aslinya SAKIT atau IZIN
+      p.status = entry.status;
       p.alasan = entry.alasan || "";
       p.waktuPresensi = entry.waktu;
       p.sudahHadir = true;
@@ -1365,12 +1357,16 @@ function getDashboardStats(pin) {
       } else if (entry.status === "IZIN") {
         totalIzinCount++;
       }
+    } else {
+      p.status = targetAgendaId ? "BELUM HADIR" : "-";
+      p.waktuPresensi = "-";
+      p.sudahHadir = false;
     }
   }
 
   const totalPanitia = allPanitia.length;
-  const belumHadirCount = Math.max(0, totalPanitia - totalHadirCount);
-  const persentase = totalPanitia > 0 ? ((totalHadirCount / totalPanitia) * 100).toFixed(1) : "0.0";
+  const belumHadirCount = targetAgendaId ? Math.max(0, totalPanitia - totalHadirCount) : 0;
+  const persentase = (targetAgendaId && totalPanitia > 0) ? ((totalHadirCount / totalPanitia) * 100).toFixed(1) : "0.0";
 
   // 4. Ambil 10 aktivitas terakhir dari ADMIN_LOG
   const logSheet = ss.getSheetByName(SHEET_ADMIN_LOG);

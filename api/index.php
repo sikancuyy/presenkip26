@@ -251,14 +251,10 @@ switch ($action) {
 
         $activeAgenda = Storage::getActiveAgenda();
         $panitiaList = Storage::getPanitia();
-        $agendaId = $activeAgenda ? (string)$activeAgenda['id'] : null;
+        $agendaId = ($activeAgenda && !empty($activeAgenda['status']) && strtoupper($activeAgenda['status']) === 'AKTIF')
+            ? (string)$activeAgenda['id']
+            : null;
         $agendas = Storage::getAgendasList();
-
-        // Jika tidak ada agenda aktif (misal baru saja ditutup), gunakan ID agenda terakhir
-        // agar data presensi (HADIR, SAKIT, IZIN) tetap tampil di tabel rekap
-        if (empty($agendaId) && !empty($agendas) && !empty($agendas[0]['id'])) {
-            $agendaId = (string)$agendas[0]['id'];
-        }
 
         $presensiMap = Storage::getPresensiMap();
 
@@ -273,11 +269,12 @@ switch ($action) {
             if (!empty($sie)) $sieSet[$sie] = true;
 
             $attended = false;
-            $statusItem = 'BELUM HADIR';
-            $jamHadir = '';
+            $statusItem = '-';
+            $jamHadir = '-';
             $alasanItem = '';
 
             if ($agendaId) {
+                $statusItem = 'BELUM HADIR';
                 $key = $agendaId . '_' . $cleanNim;
                 if (isset($presensiMap[$key])) {
                     $attended = true;
@@ -307,8 +304,8 @@ switch ($action) {
             ];
         }
 
-        $belumHadirCount = $totalPanitia - $sudahHadirCount;
-        $persentase = $totalPanitia > 0 ? round(($sudahHadirCount / $totalPanitia) * 100) : 0;
+        $belumHadirCount = $agendaId ? ($totalPanitia - $sudahHadirCount) : 0;
+        $persentase = ($agendaId && $totalPanitia > 0) ? round(($sudahHadirCount / $totalPanitia) * 100) : 0;
 
         $syncState = Storage::getSyncState();
         $agendas = Storage::getAgendasList();
