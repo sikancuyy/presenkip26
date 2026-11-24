@@ -3,7 +3,7 @@
  * =========================================================================
  * GITHUB WEBHOOK AUTO-DEPLOY ENDPOINT
  * Presensi Digital Panitia KIP 2026
- * URL: https://presensi2026.kippnl.my.id/api/webhook_deploy.php?secret=kip2026deploy
+ * URL: https://presensi26.kippnl.my.id/api/webhook_deploy.php?secret=kip2026deploy
  * =========================================================================
  */
 
