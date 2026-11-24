@@ -79,19 +79,15 @@ function formatPresensiTime(val) {
 
 // Initial Local Storage Data for Simulation (if empty)
 function initLocalStorageDatabase() {
-  if (!localStorage.getItem('kip_active_agenda')) {
-    const initialAgenda = {
-      id: "KIP-20261110-001",
-      title: "Rapat Koordinasi Kasie",
-      date: "10 November 2026",
-      time: "14:00 WIB",
-      location: "Ruang Rapat Panitia / Gedung PKM",
-      hasSessionCode: false,
-      sessionCode: "",
-      status: "AKTIF",
-      createdAt: new Date().toISOString()
-    };
-    localStorage.setItem('kip_active_agenda', JSON.stringify(initialAgenda));
+  // Bersihkan agenda dummy lama jika ada agar tidak membuat status offline menjadi aktif
+  const currentStored = localStorage.getItem('kip_active_agenda');
+  if (currentStored) {
+    try {
+      const parsed = JSON.parse(currentStored);
+      if (parsed && (parsed.id === 'KIP-20261110-001' || parsed.title === 'Rapat Koordinasi Kasie')) {
+        localStorage.removeItem('kip_active_agenda');
+      }
+    } catch (e) {}
   }
 
   if (!localStorage.getItem('kip_raw_presensi')) {
@@ -521,10 +517,15 @@ function handleActiveAgendaResponse(res) {
     const aMeta = document.getElementById('adminAgendaMeta');
     const aDate = document.getElementById('adminAgendaDate');
     const aTime = document.getElementById('adminAgendaTime');
+    const aBtnClose = document.getElementById('btnCloseAgenda');
     if (aId) aId.textContent = window.activeAgendaState.id;
     if (aTitle) aTitle.textContent = window.activeAgendaState.title;
     if (aDate) aDate.textContent = window.activeAgendaState.date || '-';
     if (aTime) aTime.textContent = window.activeAgendaState.time || '-';
+    if (aBtnClose) {
+      aBtnClose.classList.remove('hidden');
+      aBtnClose.disabled = false;
+    }
     if (aMeta) {
       const codeBadge = window.activeAgendaState.sessionCode 
         ? `<span class="badge-pnl-gold font-mono font-bold px-2 py-0.5 text-[11px] ml-2">KODE: ${window.activeAgendaState.sessionCode}</span>` 
@@ -575,11 +576,16 @@ function renderNoAgendaState() {
   const aMeta = document.getElementById('adminAgendaMeta');
   const aDate = document.getElementById('adminAgendaDate');
   const aTime = document.getElementById('adminAgendaTime');
+  const aBtnClose = document.getElementById('btnCloseAgenda');
   if (aId) aId.textContent = 'OFFLINE';
   if (aTitle) aTitle.textContent = 'Tidak Ada Agenda Aktif';
   if (aDate) aDate.textContent = '-';
   if (aTime) aTime.textContent = '-';
-  if (aMeta) aMeta.textContent = 'Klik "Generate Agenda" untuk membuka agenda rapat baru.';
+  if (aMeta) aMeta.innerHTML = '<span class="text-xs text-slate-500">Klik <strong>Generate Agenda</strong> untuk membuka agenda rapat baru.</span>';
+  if (aBtnClose) {
+    aBtnClose.classList.add('hidden');
+    aBtnClose.disabled = true;
+  }
 }
 
 /**
@@ -1679,7 +1685,7 @@ function renderDashboard(data) {
     const rawPct = hasActiveAgenda ? String(data.stats.persentase || '0') : '0';
     persentaseElem.textContent = rawPct.endsWith('%') ? rawPct : `${rawPct}%`;
   }
-  if (progressElem) {
+  if (progressElem && progressElem.style) {
     progressElem.style.width = hasActiveAgenda ? `${Math.min(100, parseFloat(data.stats.persentase || 0))}%` : '0%';
   }
 
@@ -1687,8 +1693,17 @@ function renderDashboard(data) {
   const agendaIdElem = document.getElementById('adminAgendaId');
   const agendaTitleElem = document.getElementById('adminAgendaTitle');
   const agendaMetaElem = document.getElementById('adminAgendaMeta');
+  const aDate = document.getElementById('adminAgendaDate');
+  const aTime = document.getElementById('adminAgendaTime');
+  const btnClose = document.getElementById('btnCloseAgenda');
 
-  if (data.activeAgenda && data.activeAgenda.status === 'AKTIF') {
+  if (hasActiveAgenda && data.activeAgenda) {
+    if (aDate) aDate.textContent = data.activeAgenda.date || '-';
+    if (aTime) aTime.textContent = data.activeAgenda.time || '-';
+    if (btnClose) {
+      btnClose.classList.remove('hidden');
+      btnClose.disabled = false;
+    }
     if (agendaIdElem) agendaIdElem.textContent = data.activeAgenda.id;
     if (agendaTitleElem) agendaTitleElem.textContent = data.activeAgenda.title;
     if (agendaMetaElem) {
@@ -1752,6 +1767,12 @@ function renderDashboard(data) {
       `;
     }
   } else {
+    if (aDate) aDate.textContent = '-';
+    if (aTime) aTime.textContent = '-';
+    if (btnClose) {
+      btnClose.classList.add('hidden');
+      btnClose.disabled = true;
+    }
     if (agendaIdElem) agendaIdElem.textContent = 'OFFLINE';
     if (agendaTitleElem) agendaTitleElem.textContent = 'Tidak Ada Agenda Aktif';
     if (agendaMetaElem) {
@@ -1851,7 +1872,13 @@ function applyFilters() {
 
   const filtered = dashboardCache.panitia.filter(item => {
     if (filterSie && item.sie !== filterSie) return false;
-    if (filterStatus && item.status !== filterStatus) return false;
+    if (filterStatus) {
+      if (filterStatus === 'BELUM HADIR' || filterStatus === 'BELUM') {
+        if (item.status !== 'BELUM' && item.status !== 'BELUM HADIR') return false;
+      } else if (item.status !== filterStatus) {
+        return false;
+      }
+    }
     if (searchVal) {
       const matchNama = (item.nama || '').toLowerCase().includes(searchVal);
       const matchNim = (item.nim || '').toLowerCase().includes(searchVal);
@@ -1931,6 +1958,17 @@ function renderPanitiaTable(list) {
              <span>Reset</span>
            </button>`;
       }
+    }
+
+    const namaDisplay = p.nama || '<span class="italic text-slate-400 font-normal">(Belum Terisi)</span>';
+    const nimDisplay = p.nim ? `<span class="font-mono text-slate-800 font-bold">${p.nim}</span>` : '<span class="italic text-slate-400 font-mono">-</span>';
+
+    const rawHp = String(p.no_hp || p.noHp || '').trim();
+    const cleanHp = rawHp.replace(/\D/g, '');
+    let noHpDisplay = '<span class="italic text-slate-400 font-mono">-</span>';
+    if (cleanHp) {
+      const waNum = cleanHp.startsWith('62') ? cleanHp : ('62' + cleanHp.replace(/^0/, ''));
+      noHpDisplay = `<a href="https://wa.me/${waNum}" target="_blank" rel="noopener noreferrer" class="font-mono text-emerald-600 hover:text-emerald-700 hover:underline font-semibold" title="Hubungi via WhatsApp">${rawHp}</a>`;
     }
 
     tr.innerHTML = `
